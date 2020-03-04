@@ -1,0 +1,15 @@
+targets:
+  $default:
+    builders:
+      todo_reporter_generator|todo_reporter:
+        enabled: true
+
+builders:
+  todo_reporter:
+    target: ":todo_reporter_generator"
+    import: "package:todo_reporter_generator/builder.dart"
+    builder_factories: ["todoReporter"]
+    build_extensions: {".dart": [".todo_reporter.g.part"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
