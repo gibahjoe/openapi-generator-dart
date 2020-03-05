@@ -13,50 +13,92 @@ abstract class OpenapiGeneratorConfig {
   ///  specifies if the existing files should be overwritten during the generation
   ///  -s, --skip-overwrite
   bool overwriteExistingFiles;
-
-  /// Skips the default behavior of validating an input specification.
-  /// --skip-validate-spec
-  bool validateSpec;
 }
 
 class Openapi {
   final String baseUrl;
-  final Map<String, String> additionalProperties;
+
+  final AdditionalProperties additionalProperties;
   final String inputSpecFile;
-  final String generator;
+
+  /// generator to use (see list command for list)
+  /// -g, --generator-name
+  final String generatorName;
+
+  ///  where to write the generated files (current dir by default)
+  ///  -o, --output
   final String outputDirectory;
+
+  ///  specifies if the existing files should be overwritten during the generation
+  ///  -s, --skip-overwrite
+  final bool overwriteExistingFiles;
+
+  /// Skips the default behavior of validating an input specification.
+  /// --skip-validate-spec
+  final bool validateSpec;
 
   const Openapi(
       {this.additionalProperties,
+      this.overwriteExistingFiles,
+      this.validateSpec = true,
       this.inputSpecFile,
-      this.generator,
+      this.generatorName,
       this.outputDirectory,
       this.baseUrl});
 }
+
 class AdditionalProperties {
   ///  toggles whether unicode identifiers are allowed in names or not, default is false
-  bool allowUnicodeIdentifiers=false;
+  final bool allowUnicodeIdentifiers;
+
   /// Whether to ensure parameter names are unique in an operation (rename parameters that are not).
-  bool ensureUniqueParams=true;
+  final bool ensureUniqueParams;
+
   /// Add form or body parameters to the beginning of the parameter list.
-  bool prependFormOrBodyParameters	=		false;
+  final bool prependFormOrBodyParameters;
+
   ///	Author name in generated pubspec
-  String pubAuthor;
+  final String pubAuthor;
+
   /// 	Email address of the author in generated pubspec
-  String pubAuthorEmail	;
+  final String pubAuthorEmail;
+
   ///	Description in generated pubspec
-  String pubDescription;
+  final String pubDescription;
+
   ///	Homepage in generated pubspec
-  String pubHomepage;
+  final String pubHomepage;
+
   ///	Name in generated pubspec
-  String pubName;
+  final String pubName;
+
   /// Version in generated pubspec
-  String pubVersion;
+  final String pubVersion;
+
   /// Sort model properties to place required parameters before optional parameters.
-  bool sortModelPropertiesByRequiredFlag=true;
-  /// 	Sort method arguments to place required parameters before optional parameters.
-  bool sortParamsByRequiredFlag	=	true;
-  /// 	Source folder for generated code
-  bool sourceFolder;
-//  useEnumExtension	Allow the 'x-enum-values' extension for enums		null
+  final bool sortModelPropertiesByRequiredFlag;
+
+  /// Sort method arguments to place required parameters before optional parameters.
+  final bool sortParamsByRequiredFlag;
+
+  /// Source folder for generated code
+  final bool sourceFolder;
+
+  const AdditionalProperties(
+      {this.allowUnicodeIdentifiers = false,
+      this.ensureUniqueParams = true,
+      this.prependFormOrBodyParameters = false,
+      this.pubAuthor,
+      this.pubAuthorEmail,
+      this.pubDescription,
+      this.pubHomepage,
+      this.pubName,
+      this.pubVersion,
+      this.sortModelPropertiesByRequiredFlag = true,
+      this.sortParamsByRequiredFlag = true,
+      this.sourceFolder});
+
+  String _append(String base, String str) {
+    return '$base,$str';
+  }
 }

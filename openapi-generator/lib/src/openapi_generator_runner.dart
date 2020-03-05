@@ -30,9 +30,10 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
         todo: '`$friendlyName` need to extends the [OpenapiConfig] class.',
       );
     }
-    String separator='?*?';
-    String command = 'generate';
-    String inputFile = annotation.read('inputSpecFile').stringValue ?? '';
+//print('===> ${classElement.source.}');
+    var separator = '?*?';
+    var command = 'generate';
+    var inputFile = annotation.read('inputSpecFile')?.stringValue ?? '';
     if (inputFile.isNotEmpty) {
       if (path.isAbsolute(inputFile)) {
         throw InvalidGenerationSourceError(
@@ -48,7 +49,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
       command = '$command$separator-i$separator${inputFile}';
     }
 
-    var generator = annotation.read('generator').stringValue ?? 'dart';
+    var generator = annotation.read('generatorName')?.stringValue ?? 'dart';
     command = '$command$separator-g$separator$generator';
 
     var outputDirectory = annotation.read('outputDirectory').stringValue ?? '';
@@ -60,20 +61,30 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
       }
 //      outputDirectory = path.absolute( Directory.current.path,outputDirectory);
       if (!await FileSystemEntity.isDirectory(outputDirectory)) {
-        new Directory(outputDirectory).create(recursive: true)
-        // The created directory is returned as a Future.
+         await Directory(outputDirectory).create(recursive: true)
+            // The created directory is returned as a Future.
             .then((Directory directory) {
           print(directory.path);
         });
       }
       command = '$command$separator-o$separator${outputDirectory}';
     }
-    var additionalProperties = annotation.read('additionalProperties').mapValue;
-    if (additionalProperties != null) {
+    var additionalProperties = '';
+    annotation
+        .read('additionalProperties')
+        .revive()
+        .namedArguments
+        .entries
+        .forEach((entry) => {
+              additionalProperties =
+                  '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${entry.key}=${entry.value.toStringValue()}'
+            });
+    print(additionalProperties);
+    if (additionalProperties != null && additionalProperties.isNotEmpty) {
       command =
-          '$command$separator--additional-properties=${additionalProperties.entries.map((entry) => '${entry.key.toStringValue()}=${entry.value.toStringValue()}').join(',')}';
+          '$command$separator--additional-properties=${additionalProperties}';
     }
-    command='$command$separator-Dcolor';
+    command = '$command$separator-Dcolor';
 
     print(command);
     var binPath = await Isolate.resolvePackageUri(
@@ -82,9 +93,9 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
 //    var command = '${JAVA_OPTS} -jar "" ${arguments.join(' ')}';
 
     print(
-        "${FileSystemEntity.isFileSync(binPath.toFilePath(windows: Platform.isWindows))} exists ===>");
+        '${FileSystemEntity.isFileSync(binPath.toFilePath(windows: Platform.isWindows))} exists ===>');
 
-    Process.run('java', [
+    await Process.run('java', [
       '-jar',
       "${"${binPath.path}"}",
       ...command.split(separator).toList(),
@@ -93,17 +104,6 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
       print(pr.stdout);
       print(pr.stderr);
     });
-//    String arguments=command.split(" ")
-//    var binPath = 'openapi-generator.jar';
-//    var JAVA_OPTS = Platform.environment['JAVA_OPTS'] ?? '';
-//    var consoleCommand = '${JAVA_OPTS} -jar "" ${arguments.join(' ')}';
-//    Process.run('java', ["-jar", "${"${binPath}"}", ...arguments],
-//        workingDirectory: 'bin')
-//        .then((ProcessResult pr) {
-//      print(pr.exitCode);
-//      print(pr.stdout);
-//      print(pr.stderr);
-//    });
     return '';
   }
 
@@ -115,4 +115,19 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
   String getMapAsString(Map<dynamic, dynamic> data) {
     return data.entries.map((entry) => '${entry.key}=${entry.value}').join(',');
   }
+
+  AdditionalProperties _reviveAdditionalProperties(ConstantReader read) {
+    var reviveable = read.revive();
+    return AdditionalProperties(
+        allowUnicodeIdentifiers:
+            reviveable.namedArguments['allowUnicodeIdentifiers'].toBoolValue());
+  }
 }
+
+//abstract class RevivableInstance implements ConstantReader {
+//  Uri get uri;
+//  String get name;
+//  String get constructor;
+//  List<ConstantReader> get positionalArguments;
+//  Map<String, ConstantReader> get namedArguments;
+//}
