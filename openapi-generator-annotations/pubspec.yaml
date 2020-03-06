@@ -1,7 +1,8 @@
 name: openapi_generator_annotations
 description: A starting point for Dart libraries or applications.
-# version: 1.0.0
-# homepage: https://www.example.com
+version: 0.0.2-dev
+homepage: https://github.com/gibahjoe/openapi-generator-dart
+
 
 environment:
   sdk: '>=2.7.0 <3.0.0'
