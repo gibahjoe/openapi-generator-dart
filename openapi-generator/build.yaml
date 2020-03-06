@@ -1,0 +1,16 @@
+targets:
+  $default:
+    builders:
+      openapi_generator|openapi_generator_annotations:
+        enabled: true
+
+builders:
+  openapi_generator:
+#    runs_before: ["jaguarRetrofitBuilder"]
+    target: ":openapi_generator"
+    import: "package:openapi_generator/src/builder.dart"
+    builder_factories: ["openApiClientSdk"]
+    build_extensions: {".dart": [".g.part"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder","jaguarRetrofitBuilder"]
