@@ -7,5 +7,5 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
         AdditionalProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep'),
     inputSpecFile: 'spec/openapi-spec.yaml',
     generatorName: 'dart-jaguar',
-    outputDirectory: 'petstore/api')
+    outputDirectory: 'api/petstore_api')
 class OpenapiGeneratorCo extends OpenapiGeneratorConfig {}

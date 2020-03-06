@@ -1,50 +1,44 @@
-// TODO: Put public facing types in this file.
-/// Checks if you are awesome. Spoiler: you are.
-class Awesome {
-  bool get isAwesome => true;
-}
-
-abstract class OpenapiGeneratorConfig {
-  Map<String, String> additionalProperties;
-  String inputSpecFile;
-  String generator;
-  String outputDirectory;
-
-  ///  specifies if the existing files should be overwritten during the generation
-  ///  -s, --skip-overwrite
-  bool overwriteExistingFiles;
-}
+/// Config base class
+/// Your annotated class must extend this config class
+abstract class OpenapiGeneratorConfig {}
 
 class Openapi {
-  final String baseUrl;
-
+  /// Additional properties to pass to tge compiler (CSV)
+  /// --additional-properties
   final AdditionalProperties additionalProperties;
+
+  /// relative path or url to spec file
+  /// -i
   final String inputSpecFile;
 
-  /// generator to use (see list command for list)
+  /// Generator to use (see list command for list)
   /// -g, --generator-name
   final String generatorName;
 
-  ///  where to write the generated files (current dir by default)
+  ///  Where to write the generated files (current dir by default)
   ///  -o, --output
   final String outputDirectory;
 
-  ///  specifies if the existing files should be overwritten during the generation
+  ///  Specifies if the existing files should be overwritten during the generation
   ///  -s, --skip-overwrite
   final bool overwriteExistingFiles;
 
   /// Skips the default behavior of validating an input specification.
   /// --skip-validate-spec
-  final bool validateSpec;
+  final bool skipValidateSpec;
+
+  /// Tells openapi-generator to always run during the build process
+  /// if set to false (the default), openapi-generator will skip processing if the [outputDirectory] already exists
+  final bool alwaysRun;
 
   const Openapi(
       {this.additionalProperties,
       this.overwriteExistingFiles,
-      this.validateSpec = true,
+      this.skipValidateSpec = false,
       this.inputSpecFile,
       this.generatorName,
       this.outputDirectory,
-      this.baseUrl});
+      this.alwaysRun = false});
 }
 
 class AdditionalProperties {

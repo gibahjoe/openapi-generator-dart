@@ -84,7 +84,6 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
       command =
           '$command$separator--additional-properties=${additionalProperties}';
     }
-    command = '$command$separator-Dcolor';
 
     print(command);
     var binPath = await Isolate.resolvePackageUri(
@@ -104,6 +103,18 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
       print(pr.stdout);
       print(pr.stderr);
     });
+
+var c='pub run build_runner build --delete-conflicting-outputs';
+    await Process.run('flutter', ['pub','get'],workingDirectory: '$outputDirectory').then((ProcessResult pr) {
+      print(pr.exitCode);
+      print(pr.stdout);
+      print(pr.stderr);
+    });
+    await Process.run('flutter', c.split(' ').toList(),workingDirectory: '$outputDirectory').then((ProcessResult pr) {
+      print(pr.exitCode);
+      print(pr.stdout);
+      print(pr.stderr);
+    });
     return '';
   }
 
@@ -114,13 +125,6 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
 
   String getMapAsString(Map<dynamic, dynamic> data) {
     return data.entries.map((entry) => '${entry.key}=${entry.value}').join(',');
-  }
-
-  AdditionalProperties _reviveAdditionalProperties(ConstantReader read) {
-    var reviveable = read.revive();
-    return AdditionalProperties(
-        allowUnicodeIdentifiers:
-            reviveable.namedArguments['allowUnicodeIdentifiers'].toBoolValue());
   }
 }
 

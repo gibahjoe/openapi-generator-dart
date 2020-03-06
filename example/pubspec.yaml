@@ -21,8 +21,6 @@ dependencies:
     sdk: flutter
   openapi_generator_annotations:
     path: ../openapi-generator-annotations
-  petstore_api:
-    path: petstore/api
 
 
   # The following adds the Cupertino Icons font to your application.

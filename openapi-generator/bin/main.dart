@@ -1,8 +1,6 @@
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:openapi_generator/openapi_generator.dart' as openapi_generator;
-
 void main(List<String> arguments) async{
   exitCode = 0; // presume success
 
@@ -13,7 +11,7 @@ void main(List<String> arguments) async{
     print("$binPath exists ===>");
   }
   print(Platform.resolvedExecutable);
-  Process.run('java', ["-jar", "${"${binPath}"}",  ...arguments,])
+  await Process.run('java', ['-jar', "${"${binPath}"}",  ...arguments,])
       .then((ProcessResult pr) {
     print(pr.exitCode);
     print(pr.stdout);
