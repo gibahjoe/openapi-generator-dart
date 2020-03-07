@@ -19,8 +19,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  openapi_generator_annotations:
-    path: ../openapi-generator-annotations
+  openapi_generator_annotations: ^1.0.2
+  petstore_api:
+    path: api/petstore_api
+  provider: ^4.0.4
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -31,8 +33,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^1.7.4
-  openapi_generator:
-    path: ../openapi-generator
+  openapi_generator: ^0.1.2
 
 
 # For information on the generic Dart part of this file, see the
