@@ -30,7 +30,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
         todo: '`$friendlyName` need to extends the [OpenapiConfig] class.',
       );
     }
-//print('===> ${classElement.source.}');
+
     var separator = '?*?';
     var command = 'generate';
     var inputFile = annotation.read('inputSpecFile')?.stringValue ?? '';
@@ -40,7 +40,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
           'Please specify a relative path to your source directory $inputFile.',
         );
       }
-//      inputFile = path.absolute( Directory.current.path,inputFile);
+
       if (!await FileSystemEntity.isFile(inputFile)) {
         throw InvalidGenerationSourceError(
           'Please specify a file that exists for inputSpecFile $inputFile.',
@@ -59,16 +59,29 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
           'Please specify a relative path to your output directory $outputDirectory.',
         );
       }
-//      outputDirectory = path.absolute( Directory.current.path,outputDirectory);
-      if (!await FileSystemEntity.isDirectory(outputDirectory)) {
-         await Directory(outputDirectory).create(recursive: true)
+      if (!await Directory(outputDirectory).exists()) {
+        await Directory(outputDirectory)
+            .create(recursive: true)
             // The created directory is returned as a Future.
-            .then((Directory directory) {
-          print(directory.path);
-        });
+            .then((Directory directory) {});
+      } else {
+        var alwaysRun = annotation.read('alwaysRun')?.boolValue ?? false;
+        var filePath = path.join(outputDirectory, 'lib/api.dart');
+        if (!alwaysRun && await File(filePath).exists()) {
+          print(
+              'openapigenerator skipped because alwaysRun is set to [true] and $filePath already exists');
+          return '';
+        }
+      }
+
+      if (!await FileSystemEntity.isDirectory(outputDirectory)) {
+        throw InvalidGenerationSourceError(
+          '$outputDirectory is not a directory.',
+        );
       }
       command = '$command$separator-o$separator${outputDirectory}';
     }
+
     var additionalProperties = '';
     annotation
         .read('additionalProperties')
@@ -79,42 +92,46 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
               additionalProperties =
                   '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${entry.key}=${entry.value.toStringValue()}'
             });
-    print(additionalProperties);
+
     if (additionalProperties != null && additionalProperties.isNotEmpty) {
       command =
           '$command$separator--additional-properties=${additionalProperties}';
     }
 
-    print(command);
     var binPath = await Isolate.resolvePackageUri(
         Uri.parse('package:openapi_generator/openapi-generator.jar'));
     var JAVA_OPTS = Platform.environment['JAVA_OPTS'] ?? '';
-//    var command = '${JAVA_OPTS} -jar "" ${arguments.join(' ')}';
 
-    print(
-        '${FileSystemEntity.isFileSync(binPath.toFilePath(windows: Platform.isWindows))} exists ===>');
-
-    await Process.run('java', [
+    var exitCode = 0;
+    var pr = await Process.run('java', [
       '-jar',
-      "${"${binPath.path}"}",
+      '${"${binPath.path}"}',
       ...command.split(separator).toList(),
-    ]).then((ProcessResult pr) {
-      print(pr.exitCode);
-      print(pr.stdout);
-      print(pr.stderr);
-    });
+    ]);
+//    print(pr.stdout);
+    print(pr.stderr);
+    print('openapi:generate exited with code ${pr.exitCode}');
+    exitCode = pr.exitCode;
 
-var c='pub run build_runner build --delete-conflicting-outputs';
-    await Process.run('flutter', ['pub','get'],workingDirectory: '$outputDirectory').then((ProcessResult pr) {
-      print(pr.exitCode);
-      print(pr.stdout);
-      print(pr.stderr);
-    });
-    await Process.run('flutter', c.split(' ').toList(),workingDirectory: '$outputDirectory').then((ProcessResult pr) {
-      print(pr.exitCode);
-      print(pr.stdout);
-      print(pr.stderr);
-    });
+    if (exitCode == 0) {
+      // Install dependencies if last command was successfull
+      var installOutput = await Process.run('flutter', ['pub', 'get'],
+          workingDirectory: '$outputDirectory');
+//      print(installOutput.stdout);
+      print(installOutput.stderr);
+      print('openapi:install exited with code ${installOutput.exitCode}');
+      exitCode = installOutput.exitCode;
+    }
+
+    if (exitCode == 0 && generator.contains('jaguar')) {
+      //run buildrunner to generate files
+      var c = 'pub run build_runner build --delete-conflicting-outputs';
+      var runnerOutput = await Process.run('flutter', c.split(' ').toList(),
+          workingDirectory: '$outputDirectory');
+//      print(runnerOutput.stdout);
+      print(runnerOutput.stderr);
+      print('openapi:buildrunner exited with code ${runnerOutput.exitCode}');
+    }
     return '';
   }
 

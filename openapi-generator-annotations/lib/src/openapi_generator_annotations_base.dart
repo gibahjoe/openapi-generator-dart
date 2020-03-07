@@ -4,26 +4,32 @@ abstract class OpenapiGeneratorConfig {}
 
 class Openapi {
   /// Additional properties to pass to tge compiler (CSV)
+  ///
   /// --additional-properties
   final AdditionalProperties additionalProperties;
 
   /// relative path or url to spec file
+  ///
   /// -i
   final String inputSpecFile;
 
   /// Generator to use (see list command for list)
+  ///
   /// -g, --generator-name
   final String generatorName;
 
   ///  Where to write the generated files (current dir by default)
+  ///
   ///  -o, --output
   final String outputDirectory;
 
   ///  Specifies if the existing files should be overwritten during the generation
+  ///
   ///  -s, --skip-overwrite
   final bool overwriteExistingFiles;
 
   /// Skips the default behavior of validating an input specification.
+  ///
   /// --skip-validate-spec
   final bool skipValidateSpec;
 

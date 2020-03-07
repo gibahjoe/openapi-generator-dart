@@ -8,4 +8,4 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
     inputSpecFile: 'spec/openapi-spec.yaml',
     generatorName: 'dart-jaguar',
     outputDirectory: 'api/petstore_api')
-class OpenapiGeneratorCo extends OpenapiGeneratorConfig {}
+class OpenapiConfig extends OpenapiGeneratorConfig {}

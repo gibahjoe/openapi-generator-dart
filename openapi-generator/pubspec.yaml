@@ -1,7 +1,7 @@
 name: openapi_generator
-description: Generate openapi client source code for dart.
-version: 0.0.1
-# homepage: https://www.example.com
+description: Generate openapi client source code for dart/flutter.
+version: 0.0.1-beta
+homepage: https://github.com/gibahjoe/openapi-generator-dart
 
 environment:
   sdk: '>=2.7.0 <3.0.0'
@@ -16,8 +16,7 @@ dependencies:
   cli_util: ^0.1.3+2
   jaguar_retrofit: ^2.8.8
   jaguar_serializer: ^2.2.12
-  openapi_generator_annotations:
-    path: ../openapi-generator-annotations/
+  openapi_generator_annotations: ^0.0.2-dev
 
 dev_dependencies:
   pedantic: ^1.8.0

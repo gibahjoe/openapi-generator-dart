@@ -1,6 +1,6 @@
 name: openapi_generator_annotations
-description: A starting point for Dart libraries or applications.
-version: 0.0.2-dev
+description: Annotations for openapi code generation.
+version: 0.0.2-dev.1
 homepage: https://github.com/gibahjoe/openapi-generator-dart
 
 
