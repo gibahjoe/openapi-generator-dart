@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'package:petstore_api/api.dart';
-import 'package:petstore_api/api/pet_api.dart';
 import 'package:petstore_api/api/store_api.dart';
-import 'package:provider/provider.dart';
 
 void main() => runApp(MyApp());
 

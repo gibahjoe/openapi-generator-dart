@@ -50,6 +50,13 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
     }
 
     var generator = annotation.read('generatorName')?.stringValue ?? 'dart';
+    if (generator != 'dart' &&
+        generator != 'dart-dio' &&
+        generator != 'dart-jaguar') {
+      throw InvalidGenerationSourceError(
+        'Generator name must be any of dart, dart-dio, dart-jaguar.',
+      );
+    }
     command = '$command$separator-g$separator$generator';
 
     var outputDirectory = annotation.read('outputDirectory').stringValue ?? '';
@@ -99,15 +106,21 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
     }
 
     var binPath = await Isolate.resolvePackageUri(
-        Uri.parse('package:openapi_generator/openapi-generator.jar'));
+        Uri.parse('package:openapi_generator_cli/openapi-generator.jar'));
+
+    // Include java environment variables in command
     var JAVA_OPTS = Platform.environment['JAVA_OPTS'] ?? '';
 
-    var exitCode = 0;
-    var pr = await Process.run('java', [
+    var arguments = [
       '-jar',
-      '${"${binPath.path}"}',
+      "${"${binPath.path}"}",
       ...command.split(separator).toList(),
-    ]);
+    ];
+    if (JAVA_OPTS.isNotEmpty) {
+      arguments.insert(0, JAVA_OPTS);
+    }
+    var exitCode = 0;
+    var pr = await Process.run('java', arguments);
 //    print(pr.stdout);
     print(pr.stderr);
     print('openapi:generate exited with code ${pr.exitCode}');
@@ -115,7 +128,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
 
     if (exitCode == 0) {
       // Install dependencies if last command was successfull
-      var installOutput = await Process.run('flutter', ['pub', 'get'],
+      var installOutput = await Process.run('pub', ['get'],
           workingDirectory: '$outputDirectory');
 //      print(installOutput.stdout);
       print(installOutput.stderr);
@@ -123,10 +136,11 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
       exitCode = installOutput.exitCode;
     }
 
-    if (exitCode == 0 && generator.contains('jaguar')) {
+    if (exitCode == 0 &&
+        (generator.contains('jaguar') || generator.contains('dio'))) {
       //run buildrunner to generate files
-      var c = 'pub run build_runner build --delete-conflicting-outputs';
-      var runnerOutput = await Process.run('flutter', c.split(' ').toList(),
+      var c = 'run build_runner build --delete-conflicting-outputs';
+      var runnerOutput = await Process.run('pub', c.split(' ').toList(),
           workingDirectory: '$outputDirectory');
 //      print(runnerOutput.stdout);
       print(runnerOutput.stderr);

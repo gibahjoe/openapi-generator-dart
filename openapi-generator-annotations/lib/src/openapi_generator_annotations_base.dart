@@ -13,7 +13,7 @@ class Openapi {
   /// -i
   final String inputSpecFile;
 
-  /// Generator to use (see list command for list)
+  /// Generator to use (dart|dart-jaguar|dart-dio)
   ///
   /// -g, --generator-name
   final String generatorName;
@@ -97,8 +97,4 @@ class AdditionalProperties {
       this.sortModelPropertiesByRequiredFlag = true,
       this.sortParamsByRequiredFlag = true,
       this.sourceFolder});
-
-  String _append(String base, String str) {
-    return '$base,$str';
-  }
 }
