@@ -9,7 +9,7 @@ Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generat
 
 ```yaml
 dependencies:
-  openapi_generator_annotations: ^1.0.0
+  openapi_generator_annotations: ^1.0.2
 ```
 
 

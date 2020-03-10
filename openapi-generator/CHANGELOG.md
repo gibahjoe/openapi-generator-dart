@@ -1,3 +1,8 @@
+## 1.0.0
+
+- Updated analyzer to 0.39.4
+- removed validation from input spec
+
 ## 0.1.2
 
 - Updated docs

@@ -35,17 +35,6 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
     var command = 'generate';
     var inputFile = annotation.read('inputSpecFile')?.stringValue ?? '';
     if (inputFile.isNotEmpty) {
-      if (path.isAbsolute(inputFile)) {
-        throw InvalidGenerationSourceError(
-          'Please specify a relative path to your source directory $inputFile.',
-        );
-      }
-
-      if (!await FileSystemEntity.isFile(inputFile)) {
-        throw InvalidGenerationSourceError(
-          'Please specify a file that exists for inputSpecFile $inputFile.',
-        );
-      }
       command = '$command$separator-i$separator${inputFile}';
     }
 
@@ -128,7 +117,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
 
     if (exitCode == 0) {
       // Install dependencies if last command was successfull
-      var installOutput = await Process.run('pub', ['get'],
+      var installOutput = await Process.run('flutter', ['pub', 'get'],
           workingDirectory: '$outputDirectory');
 //      print(installOutput.stdout);
       print(installOutput.stderr);
@@ -139,8 +128,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
     if (exitCode == 0 &&
         (generator.contains('jaguar') || generator.contains('dio'))) {
       //run buildrunner to generate files
-      var c = 'run build_runner build --delete-conflicting-outputs';
-      var runnerOutput = await Process.run('pub', c.split(' ').toList(),
+      var c = 'pub run build_runner build --delete-conflicting-outputs';
+      var runnerOutput = await Process.run('flutter', c.split(' ').toList(),
           workingDirectory: '$outputDirectory');
 //      print(runnerOutput.stdout);
       print(runnerOutput.stderr);
