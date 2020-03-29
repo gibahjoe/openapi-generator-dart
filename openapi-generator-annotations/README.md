@@ -1,3 +1,7 @@
+
+[![pub package](https://img.shields.io/pub/v/openapi_generator_annotations.svg)](https://pub.dev/packages/openapi_generator)
+
+
 Annotation library for dart/flutter implementation of openapi client code generation.
 To be used together with [openapi-generator](https://pub.dev/packages/openapi_generator)
 
@@ -9,7 +13,7 @@ Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generat
 
 ```yaml
 dependencies:
-  openapi_generator_annotations: ^1.0.0
+  openapi_generator_annotations: ^1.0.5
 ```
 
 
@@ -17,7 +21,7 @@ Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev d
 
 ```yaml
 dev_dependencies:
-  openapi_generator: ^0.0.2-beta
+  openapi_generator: ^1.0.5
 ```
 
 

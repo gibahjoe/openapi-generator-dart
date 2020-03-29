@@ -1,7 +1,10 @@
+
+
+[![pub package](https://img.shields.io/pub/v/openapi_generator.svg)](https://pub.dev/packages/openapi_generator)
+
 Generator library for dart/flutter implementation of openapi client code generation.
 To be used together with [openapi-generator-annotations](https://pub.dev/packages/openapi_generator_annotations)
 
-[license](https://github.com/gibahjoe/openapi-generator-dart/blob/master/LICENSE).
 
 ## Usage
 
@@ -15,8 +18,9 @@ dependencies:
 
 Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev dependencies section of your pubspec.yaml file:
 
-```cmd
-openapi-generator <command>
+```yaml
+dev_dependencies:
+  openapi_generator: ^1.0.5
 ```
 
 

@@ -82,11 +82,15 @@ class AdditionalProperties {
   final bool sortParamsByRequiredFlag;
 
   /// Source folder for generated code
-  final bool sourceFolder;
+  final String sourceFolder;
+
+  /// Allow the 'x-enum-values' extension for enums
+  final bool useEnumExtension;
 
   const AdditionalProperties(
       {this.allowUnicodeIdentifiers = false,
       this.ensureUniqueParams = true,
+      this.useEnumExtension = false,
       this.prependFormOrBodyParameters = false,
       this.pubAuthor,
       this.pubAuthorEmail,
@@ -97,4 +101,40 @@ class AdditionalProperties {
       this.sortModelPropertiesByRequiredFlag = true,
       this.sortParamsByRequiredFlag = true,
       this.sourceFolder});
+}
+
+class DartJaguarConfig extends AdditionalProperties {
+  final String serialization;
+  final bool nullableFields;
+
+  const DartJaguarConfig(
+      {this.serialization,
+      this.nullableFields,
+      bool allowUnicodeIdentifiers = false,
+      bool ensureUniqueParams = true,
+      bool prependFormOrBodyParameters = false,
+      String pubAuthor,
+      String pubAuthorEmail,
+      String pubDescription,
+      String pubHomepage,
+      String pubName,
+      String pubVersion,
+      bool sortModelPropertiesByRequiredFlag = true,
+      bool sortParamsByRequiredFlag = true,
+      bool useEnumExtension = true,
+      String sourceFolder})
+      : super(
+            allowUnicodeIdentifiers: allowUnicodeIdentifiers,
+            ensureUniqueParams: ensureUniqueParams,
+            prependFormOrBodyParameters: prependFormOrBodyParameters,
+            pubAuthor: pubAuthor,
+            pubAuthorEmail: pubAuthorEmail,
+            pubDescription: pubDescription,
+            pubHomepage: pubHomepage,
+            pubVersion: pubVersion,
+            sortModelPropertiesByRequiredFlag:
+                sortModelPropertiesByRequiredFlag,
+            sortParamsByRequiredFlag: sortParamsByRequiredFlag,
+            sourceFolder: sourceFolder,
+            useEnumExtension: useEnumExtension);
 }

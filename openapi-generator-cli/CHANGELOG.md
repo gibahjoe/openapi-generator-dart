@@ -1,3 +1,7 @@
+## 1.0.5
+
+- Updated openapi to 4.3.0
+
 ## 1.0.1
 
 - Updated docs

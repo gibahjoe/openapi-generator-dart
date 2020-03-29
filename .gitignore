@@ -10,3 +10,4 @@ build/
 # Directory created by dartdoc
 doc/api/
 .idea/vcs.xml
+.idea/

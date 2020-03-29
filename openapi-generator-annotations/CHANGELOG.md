@@ -1,3 +1,7 @@
+## 1.0.5
+
+- Improved support for dart-jaguar
+
 ## 1.0.2
 
 - Updated documentation

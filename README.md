@@ -9,14 +9,15 @@ Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generat
 
 ```yaml
 dependencies:
-  openapi_generator_annotations: ^1.0.0
+  openapi_generator_annotations: ^1.0.5
 ```
 
 
 Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev dependencies section of your pubspec.yaml file:
 
-```cmd
-openapi-generator <command>
+```yaml
+dev_dependencies:
+  openapi_generator: ^1.0.5
 ```
 
 
