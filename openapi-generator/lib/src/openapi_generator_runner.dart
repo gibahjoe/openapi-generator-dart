@@ -38,6 +38,11 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
       command = '$command$separator-i$separator${inputFile}';
     }
 
+    var templateDir = annotation.read('templateDir')?.stringValue ?? '';
+    if (inputFile.isNotEmpty) {
+      command = '$command$separator-t$separator${templateDir}';
+    }
+
     var generator = annotation.read('generatorName')?.stringValue ?? 'dart';
     if (generator != 'dart' &&
         generator != 'dart-dio' &&
