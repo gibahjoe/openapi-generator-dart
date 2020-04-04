@@ -1,3 +1,5 @@
+[![pub package](https://img.shields.io/pub/v/openapi_generator_cli.svg)](https://pub.dev/packages/openapi_generator_cli)
+
 CLI generator wrapper for dart/flutter implementation of openapi client code generation.
 
 OpenAPI Generator allows generation of API client libraries (SDK generation), server stubs, 

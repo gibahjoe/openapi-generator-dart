@@ -1,3 +1,8 @@
+## 1.0.6
+
+- added support for -t (templateDir)
+- minor bug fix
+
 ## 1.0.5
 
 - Updated generator version to 4.3.0

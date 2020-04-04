@@ -1,3 +1,7 @@
+## 1.0.6
+
+- Added support for specifying template directory using -t
+
 ## 1.0.5
 
 - Improved support for dart-jaguar

@@ -39,7 +39,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
     }
 
     var templateDir = annotation.read('templateDir')?.stringValue ?? '';
-    if (inputFile.isNotEmpty) {
+    if (templateDir.isNotEmpty) {
       command = '$command$separator-t$separator${templateDir}';
     }
 
@@ -70,7 +70,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
         var filePath = path.join(outputDirectory, 'lib/api.dart');
         if (!alwaysRun && await File(filePath).exists()) {
           print(
-              'openapigenerator skipped because alwaysRun is set to [true] and $filePath already exists');
+              'openapigenerator skipped because alwaysRun is set to [$alwaysRun] and $filePath already exists');
           return '';
         }
       }

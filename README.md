@@ -1,7 +1,20 @@
-Generator library for dart/flutter implementation of openapi client code generation.
-To be used together with [openapi-generator-annotations](https://pub.dev/packages/openapi_generator_annotations)
+This codebase houses the dart/flutter implementations of the openapi client sdk code generation libraries.
+
+With this project, you can generate openapi client sdk libraries for your openapi specification right in your flutter/dart projects. (see example)
 
 [license](https://github.com/gibahjoe/openapi-generator-dart/blob/master/openapi-generator-annotations/LICENSE).
+
+
+This repo contains the following dart libraries
+
+| Library       | Description | latest version |
+|---------------|-------------|---------------|
+| openapi-generator |Dev dependency for generating openapi sdk via dart source gen [see here for usage](https://pub.dev/packages/openapi_generator)| [![pub package](https://img.shields.io/pub/v/openapi_generator.svg)](https://pub.dev/packages/openapi_generator)|
+| openapi-generator-annotations|Annotations for annotating dart class with instructions for generating openapi sdk [see here for usage](https://pub.dev/packages/openapi_generator_annotations)|[![pub package](https://img.shields.io/pub/v/openapi_generator_annotations.svg)](https://pub.dev/packages/openapi_generator)|
+| openapi-generator-cli |Cli code openapi sdk generator for dart [see here for usage](https://pub.dev/packages/openapi_generator_cli)|[![pub package](https://img.shields.io/pub/v/openapi_generator_cli.svg)](https://pub.dev/packages/openapi_generator_cli)|
+
+
+
 
 ## Usage
 
@@ -9,7 +22,7 @@ Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generat
 
 ```yaml
 dependencies:
-  openapi_generator_annotations: ^1.0.5
+  openapi_generator_annotations: ^[latest-version]
 ```
 
 
@@ -17,7 +30,7 @@ Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev d
 
 ```yaml
 dev_dependencies:
-  openapi_generator: ^1.0.5
+  openapi_generator: ^[latest version]
 ```
 
 
@@ -28,7 +41,7 @@ Annotate a dart class with @Openapi() annotation
     additionalProperties:
     AdditionalProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep'),
     inputSpecFile: 'example/openapi-spec.yaml',
-    generatorName: 'dart-jaguar',
+    generatorName: 'dart',
     outputDirectory: 'api/petstore_api')
 class Example extends OpenapiGeneratorConfig {}
 ```

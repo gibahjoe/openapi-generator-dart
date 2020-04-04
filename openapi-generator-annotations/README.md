@@ -2,7 +2,10 @@
 [![pub package](https://img.shields.io/pub/v/openapi_generator_annotations.svg)](https://pub.dev/packages/openapi_generator)
 
 
-Annotation library for dart/flutter implementation of openapi client code generation.
+This library is the dart/flutter implementation of openapi client sdk code generation.
+
+With this library, you can generate openapi client sdk libraries from your openapi specification right in your flutter/dart projects. (see example)
+
 To be used together with [openapi-generator](https://pub.dev/packages/openapi_generator)
 
 [license](https://github.com/gibahjoe/openapi-generator-dart/blob/master/openapi-generator-annotations/LICENSE).
