@@ -19,7 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  openapi_generator_annotations: ^1.0.2
+  openapi_generator_annotations: ^1.0.5
   petstore_api:
     path: api/petstore_api
   provider: ^4.0.4
@@ -33,7 +33,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^1.7.4
-  openapi_generator: ^0.1.2
+  openapi_generator:
+    path: ../openapi-generator/
 
 
 # For information on the generic Dart part of this file, see the

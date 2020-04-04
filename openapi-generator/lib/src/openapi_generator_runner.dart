@@ -33,17 +33,20 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
 
     var separator = '?*?';
     var command = 'generate';
-    var inputFile = annotation.read('inputSpecFile')?.stringValue ?? '';
+
+    var inputFile = _readFieldValueAsString(annotation, 'inputSpecFile', '');
     if (inputFile.isNotEmpty) {
       command = '$command$separator-i$separator${inputFile}';
     }
 
-    var templateDir = annotation.read('templateDir')?.stringValue ?? '';
+    var templateDir =
+        _readFieldValueAsString(annotation, 'templateDirectory', '');
     if (templateDir.isNotEmpty) {
       command = '$command$separator-t$separator${templateDir}';
     }
 
-    var generator = annotation.read('generatorName')?.stringValue ?? 'dart';
+    var generator =
+        _readFieldValueAsString(annotation, 'generatorName', 'dart');
     if (generator != 'dart' &&
         generator != 'dart-dio' &&
         generator != 'dart-jaguar') {
@@ -53,7 +56,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
     }
     command = '$command$separator-g$separator$generator';
 
-    var outputDirectory = annotation.read('outputDirectory').stringValue ?? '';
+    var outputDirectory =
+        _readFieldValueAsString(annotation, 'outputDirectory', '');
     if (outputDirectory.isNotEmpty) {
       if (path.isAbsolute(outputDirectory)) {
         throw InvalidGenerationSourceError(
@@ -66,7 +70,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
             // The created directory is returned as a Future.
             .then((Directory directory) {});
       } else {
-        var alwaysRun = annotation.read('alwaysRun')?.boolValue ?? false;
+        var alwaysRun = _readFieldValueAsBool(annotation, 'alwaysRun', false);
         var filePath = path.join(outputDirectory, 'lib/api.dart');
         if (!alwaysRun && await File(filePath).exists()) {
           print(
@@ -89,15 +93,19 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
         .revive()
         .namedArguments
         .entries
-        .forEach((entry) => {
-              additionalProperties =
-                  '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${entry.key}=${entry.value.toStringValue()}'
-            });
+        .forEach((entry) =>
+    {
+      additionalProperties =
+      '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${entry
+          .key}=${entry.value.toStringValue()}'
+    });
 
     if (additionalProperties != null && additionalProperties.isNotEmpty) {
       command =
-          '$command$separator--additional-properties=${additionalProperties}';
+      '$command$separator--additional-properties=${additionalProperties}';
     }
+
+    print('openapi-generator ===> ${command.replaceAll(separator, ' ')}');
 
     var binPath = await Isolate.resolvePackageUri(
         Uri.parse('package:openapi_generator_cli/openapi-generator.jar'));
@@ -150,6 +158,20 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
 
   String getMapAsString(Map<dynamic, dynamic> data) {
     return data.entries.map((entry) => '${entry.key}=${entry.value}').join(',');
+  }
+
+  String _readFieldValueAsString(ConstantReader annotation, String fieldName,
+      [String defaultValue]) {
+    var reader = annotation.read(fieldName);
+
+    return reader.isNull ? defaultValue : reader.stringValue ?? defaultValue;
+  }
+
+  bool _readFieldValueAsBool(ConstantReader annotation, String fieldName,
+      [bool defaultValue]) {
+    var reader = annotation.read(fieldName);
+
+    return reader.isNull ? defaultValue : reader.boolValue ?? defaultValue;
   }
 }
 

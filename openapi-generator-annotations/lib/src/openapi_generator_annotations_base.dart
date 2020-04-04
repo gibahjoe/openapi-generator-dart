@@ -16,7 +16,7 @@ class Openapi {
   /// folder containing the template files
   ///
   /// -t
-  final String templateDir;
+  final String templateDirectory;
 
   /// Generator to use (dart|dart-jaguar|dart-dio)
   ///
@@ -47,7 +47,7 @@ class Openapi {
       this.overwriteExistingFiles,
       this.skipValidateSpec = false,
       this.inputSpecFile,
-      this.templateDir,
+      this.templateDirectory,
       this.generatorName,
       this.outputDirectory,
       this.alwaysRun = false});

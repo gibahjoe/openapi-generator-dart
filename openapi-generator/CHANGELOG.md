@@ -1,6 +1,6 @@
-## 1.0.6
+## 1.0.7
 
-- added support for -t (templateDir)
+- added support for -t (templateDirectory)
 - minor bug fix
 
 ## 1.0.5

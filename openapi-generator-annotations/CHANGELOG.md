@@ -1,4 +1,4 @@
-## 1.0.6
+## 1.0.7
 
 - Added support for specifying template directory using -t
 
