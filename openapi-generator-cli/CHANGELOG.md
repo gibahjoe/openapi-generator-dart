@@ -1,3 +1,7 @@
+## 1.0.8
+
+- Updated Generator to 4.3.1 [Check here for details](https://github.com/OpenAPITools/openapi-generator)
+
 ## 1.0.5
 
 - Updated openapi to 4.3.0

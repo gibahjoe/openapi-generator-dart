@@ -59,11 +59,11 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
     var outputDirectory =
         _readFieldValueAsString(annotation, 'outputDirectory', '');
     if (outputDirectory.isNotEmpty) {
-      if (path.isAbsolute(outputDirectory)) {
-        throw InvalidGenerationSourceError(
-          'Please specify a relative path to your output directory $outputDirectory.',
-        );
-      }
+//      if (path.isAbsolute(outputDirectory)) {
+//        throw InvalidGenerationSourceError(
+//          'Please specify a relative path to your output directory $outputDirectory.',
+//        );
+//      }
       if (!await Directory(outputDirectory).exists()) {
         await Directory(outputDirectory)
             .create(recursive: true)
@@ -74,7 +74,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
         var filePath = path.join(outputDirectory, 'lib/api.dart');
         if (!alwaysRun && await File(filePath).exists()) {
           print(
-              'openapigenerator skipped because alwaysRun is set to [$alwaysRun] and $filePath already exists');
+              'OpenapiGenerator :: Codegen skipped because alwaysRun is set to [$alwaysRun] and $filePath already exists');
           return '';
         }
       }
@@ -93,29 +93,28 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
         .revive()
         .namedArguments
         .entries
-        .forEach((entry) =>
-    {
-      additionalProperties =
-      '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${entry
-          .key}=${entry.value.toStringValue()}'
-    });
+        .forEach((entry) => {
+              additionalProperties =
+                  '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${entry.key}=${entry.value.toStringValue()}'
+            });
 
     if (additionalProperties != null && additionalProperties.isNotEmpty) {
       command =
-      '$command$separator--additional-properties=${additionalProperties}';
+          '$command$separator--additional-properties=${additionalProperties}';
     }
 
-    print('openapi-generator ===> ${command.replaceAll(separator, ' ')}');
+    print('OpenapiGenerator :: [${command.replaceAll(separator, ' ')}]');
 
-    var binPath = await Isolate.resolvePackageUri(
-        Uri.parse('package:openapi_generator_cli/openapi-generator.jar'));
+    var binPath = (await Isolate.resolvePackageUri(
+            Uri.parse('package:openapi_generator_cli/openapi-generator.jar')))
+        .toFilePath(windows: Platform.isWindows);
 
     // Include java environment variables in command
     var JAVA_OPTS = Platform.environment['JAVA_OPTS'] ?? '';
 
     var arguments = [
       '-jar',
-      "${"${binPath.path}"}",
+      "${"${binPath}"}",
       ...command.split(separator).toList(),
     ];
     if (JAVA_OPTS.isNotEmpty) {
@@ -125,7 +124,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
     var pr = await Process.run('java', arguments);
 //    print(pr.stdout);
     print(pr.stderr);
-    print('openapi:generate exited with code ${pr.exitCode}');
+    print(
+        'OpenapiGenerator :: Codegen ${pr.exitCode != 0 ? 'Failed' : 'completed successfully'}');
     exitCode = pr.exitCode;
 
     if (exitCode == 0) {
@@ -134,7 +134,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
           workingDirectory: '$outputDirectory');
 //      print(installOutput.stdout);
       print(installOutput.stderr);
-      print('openapi:install exited with code ${installOutput.exitCode}');
+      print(
+          'OpenapiGenerator :: Install exited with code ${installOutput.exitCode}');
       exitCode = installOutput.exitCode;
     }
 
@@ -146,7 +147,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
           workingDirectory: '$outputDirectory');
 //      print(runnerOutput.stdout);
       print(runnerOutput.stderr);
-      print('openapi:buildrunner exited with code ${runnerOutput.exitCode}');
+      print(
+          'OpenapiGenerator :: buildrunner exited with code ${runnerOutput.exitCode}');
     }
     return '';
   }

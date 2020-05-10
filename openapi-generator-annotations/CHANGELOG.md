@@ -1,3 +1,7 @@
+## 1.0.8
+
+- fixed typo
+
 ## 1.0.7
 
 - Added support for specifying template directory using -t

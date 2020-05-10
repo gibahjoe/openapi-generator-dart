@@ -3,7 +3,7 @@
 abstract class OpenapiGeneratorConfig {}
 
 class Openapi {
-  /// Additional properties to pass to tge compiler (CSV)
+  /// Additional properties to pass to the compiler (CSV)
   ///
   /// --additional-properties
   final AdditionalProperties additionalProperties;

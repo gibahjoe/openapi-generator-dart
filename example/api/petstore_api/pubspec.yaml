@@ -1,12 +1,12 @@
 name: petstore_api
 version: 1.0.0
 description: OpenAPI API client
-authors:
-  - Johnny depp <author@homepage>
-homepage: homepage
 environment:
-  sdk: '>=2.0.0 <3.0.0'
+    sdk: ">=2.0.0 <3.0.0"
 dependencies:
-  http: '>=0.12.0 <0.13.0'
+    jaguar_retrofit: ^2.8.8
+    jaguar_serializer: ^2.2.12
 dev_dependencies:
-  test: ^1.3.0
+    jaguar_retrofit_gen: ^2.8.10
+    jaguar_serializer_cli: ^2.2.8
+    build_runner: ^1.6.5

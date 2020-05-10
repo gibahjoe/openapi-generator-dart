@@ -1,3 +1,7 @@
+## 1.0.8
+
+- fixed issue with wrong path on windows 
+
 ## 1.0.7
 
 - added support for -t (templateDirectory)

@@ -1,8 +1,7 @@
 import 'dart:io';
 import 'dart:isolate';
 
-/// Proxies commandline ars from openapi-generator to the build
-/// [arguments] the commandline arguments to proxy
+/// Proxies commandline ars from openapi-generator to the build [arguments] the commandline arguments to proxy
 void main(List<String> arguments) async {
   exitCode = 0; // presume success
 
