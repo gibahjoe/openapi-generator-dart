@@ -18,7 +18,7 @@ class Openapi {
   /// -t
   final String templateDirectory;
 
-  /// Generator to use (dart|dart-jaguar|dart-dio)
+  /// Generator to use (dart|dart2-api|dart-jaguar|dart-dio)
   ///
   /// -g, --generator-name
   final String generatorName;

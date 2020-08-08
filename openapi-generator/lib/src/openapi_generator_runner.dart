@@ -49,9 +49,10 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
         _readFieldValueAsString(annotation, 'generatorName', 'dart');
     if (generator != 'dart' &&
         generator != 'dart-dio' &&
+        generator != 'dart2-api' &&
         generator != 'dart-jaguar') {
       throw InvalidGenerationSourceError(
-        'Generator name must be any of dart, dart-dio, dart-jaguar.',
+        'Generator name must be any of dart, dart2-api, dart-dio, dart-jaguar.',
       );
     }
     command = '$command$separator-g$separator$generator';
