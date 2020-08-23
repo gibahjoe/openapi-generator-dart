@@ -8,6 +8,11 @@ class Openapi {
   /// --additional-properties
   final AdditionalProperties additionalProperties;
 
+  /// The package of the api. defaults to lib.api
+  ///
+  /// --api-package
+  final String apiPackage;
+
   /// relative path or url to spec file
   ///
   /// -i
@@ -21,7 +26,7 @@ class Openapi {
   /// Generator to use (dart|dart2-api|dart-jaguar|dart-dio)
   ///
   /// -g, --generator-name
-  final String generatorName;
+  final Generator generatorName;
 
   ///  Where to write the generated files (current dir by default)
   ///
@@ -36,20 +41,24 @@ class Openapi {
   /// Skips the default behavior of validating an input specification.
   ///
   /// --skip-validate-spec
-  final bool skipValidateSpec;
+  final bool skipSpecValidation;
 
   /// Tells openapi-generator to always run during the build process
   /// if set to false (the default), openapi-generator will skip processing if the [outputDirectory] already exists
   final bool alwaysRun;
 
+  final Map<String, String> typeMappings;
+
   const Openapi(
       {this.additionalProperties,
       this.overwriteExistingFiles,
-      this.skipValidateSpec = false,
+      this.skipSpecValidation = false,
       this.inputSpecFile,
       this.templateDirectory,
       this.generatorName,
       this.outputDirectory,
+      this.typeMappings,
+      this.apiPackage,
       this.alwaysRun = false});
 }
 
@@ -109,11 +118,14 @@ class AdditionalProperties {
       this.sourceFolder});
 }
 
-class DartJaguarConfig extends AdditionalProperties {
-  final String serialization;
+class JaguarProperties extends AdditionalProperties {
+  /// Choose serialization format JSON or PROTO is supported
+  final SerializationFormat serialization;
+
+  /// Is the null fields should be in the JSON payload
   final bool nullableFields;
 
-  const DartJaguarConfig(
+  const JaguarProperties(
       {this.serialization,
       this.nullableFields,
       bool allowUnicodeIdentifiers = false,
@@ -144,3 +156,46 @@ class DartJaguarConfig extends AdditionalProperties {
             sourceFolder: sourceFolder,
             useEnumExtension: useEnumExtension);
 }
+
+class DioProperties extends AdditionalProperties {
+  /// Choose serialization format JSON or PROTO is supported
+  final DioDateLibrary dateLibrary;
+
+  /// Is the null fields should be in the JSON payload
+  final bool nullableFields;
+
+  const DioProperties(
+      {this.dateLibrary,
+      this.nullableFields,
+      bool allowUnicodeIdentifiers = false,
+      bool ensureUniqueParams = true,
+      bool prependFormOrBodyParameters = false,
+      String pubAuthor,
+      String pubAuthorEmail,
+      String pubDescription,
+      String pubHomepage,
+      String pubName,
+      String pubVersion,
+      bool sortModelPropertiesByRequiredFlag = true,
+      bool sortParamsByRequiredFlag = true,
+      bool useEnumExtension = true,
+      String sourceFolder})
+      : super(
+            allowUnicodeIdentifiers: allowUnicodeIdentifiers,
+            ensureUniqueParams: ensureUniqueParams,
+            prependFormOrBodyParameters: prependFormOrBodyParameters,
+            pubAuthor: pubAuthor,
+            pubAuthorEmail: pubAuthorEmail,
+            pubDescription: pubDescription,
+            pubHomepage: pubHomepage,
+            pubVersion: pubVersion,
+            sortModelPropertiesByRequiredFlag:
+                sortModelPropertiesByRequiredFlag,
+            sortParamsByRequiredFlag: sortParamsByRequiredFlag,
+            sourceFolder: sourceFolder,
+            useEnumExtension: useEnumExtension);
+}
+enum DioDateLibrary { core, timemachine }
+enum SerializationFormat { JSON, PROTO }
+/// The name of the generator to use
+enum Generator { DART, DART_DIO, DART2_API, DART_JAGUAR }

@@ -1,3 +1,8 @@
+## 1.1.0
+
+- Added support for **_dart2-api_** from [dart-ogurets](https://github.com/dart-ogurets/dart-openapi-maven) 
+thanks to [Robert Csakany](https://github.com/robertcsakany)
+
 ## 1.0.8
 
 - Updated Generator to 4.3.1 [Check here for details](https://github.com/OpenAPITools/openapi-generator)

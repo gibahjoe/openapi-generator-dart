@@ -58,8 +58,13 @@ paths:
           in: query
           required: false
           schema:
-            type: integer
-            format: int64
+            type: array
+            items:
+              type: string
+              enum:
+                - IOS
+                - MAC_OS
+                - TV_OS
         - name: offset
           in: query
           required: false
