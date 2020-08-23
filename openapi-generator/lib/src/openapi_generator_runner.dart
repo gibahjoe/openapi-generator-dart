@@ -3,14 +3,17 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:analyzer/dart/element/element.dart';
-import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:build/src/builder/build_step.dart';
-import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
+import 'package:generic_reader/generic_reader.dart';
+import 'package:openapi_generator_annotations/openapi_generator_annotations.dart'
+    as annots;
 import 'package:path/path.dart' as path;
 import 'package:source_gen/source_gen.dart';
 
-class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
+class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
+  final genericReader = GenericReader();
+
   @override
   FutureOr<String> generateForAnnotatedElement(
       Element element, ConstantReader annotation, BuildStep buildStep) async {
@@ -21,88 +24,44 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
         todo: 'Remove the [Openapi] annotation from `$friendlyName`.',
       );
     }
-
-    var classElement = (element as ClassElement);
-    if (classElement.allSupertypes.any(_extendsOpenapiConfig) == false) {
-      final friendlyName = element.displayName;
-      throw InvalidGenerationSourceError(
-        'Generator cannot target `$friendlyName`.',
-        todo: '`$friendlyName` need to extends the [OpenapiConfig] class.',
-      );
-    }
-
+    genericReader
+      ..addDecoder<annots.Generator>(
+          (constantReader) => constantReader.enumValue<annots.Generator>())
+      ..addDecoder<annots.DioDateLibrary>(
+          (constantReader) => constantReader.enumValue<annots.DioDateLibrary>())
+      ..addDecoder<annots.SerializationFormat>((constantReader) =>
+          constantReader.enumValue<annots.SerializationFormat>());
     var separator = '?*?';
     var command = 'generate';
 
-    var inputFile = _readFieldValueAsString(annotation, 'inputSpecFile', '');
-    if (inputFile.isNotEmpty) {
-      command = '$command$separator-i$separator${inputFile}';
-    }
+    command = appendInputFileCommandArgs(annotation, command, separator);
 
-    var templateDir =
-        _readFieldValueAsString(annotation, 'templateDirectory', '');
-    if (templateDir.isNotEmpty) {
-      command = '$command$separator-t$separator${templateDir}';
-    }
+    command = appendTemplateDirCommandArgs(annotation, command, separator);
 
-    var generator =
-        _readFieldValueAsString(annotation, 'generatorName', 'dart');
-    if (generator != 'dart' &&
-        generator != 'dart-dio' &&
-        generator != 'dart2-api' &&
-        generator != 'dart-jaguar') {
-      throw InvalidGenerationSourceError(
-        'Generator name must be any of dart, dart2-api, dart-dio, dart-jaguar.',
-      );
-    }
+    var generatorName = genericReader
+        .getEnum<annots.Generator>(annotation.peek('generatorName'));
+    var generator = getGeneratorNameFromEnum(generatorName);
     command = '$command$separator-g$separator$generator';
 
     var outputDirectory =
         _readFieldValueAsString(annotation, 'outputDirectory', '');
     if (outputDirectory.isNotEmpty) {
-//      if (path.isAbsolute(outputDirectory)) {
-//        throw InvalidGenerationSourceError(
-//          'Please specify a relative path to your output directory $outputDirectory.',
-//        );
-//      }
-      if (!await Directory(outputDirectory).exists()) {
-        await Directory(outputDirectory)
-            .create(recursive: true)
-            // The created directory is returned as a Future.
-            .then((Directory directory) {});
-      } else {
-        var alwaysRun = _readFieldValueAsBool(annotation, 'alwaysRun', false);
-        var filePath = path.join(outputDirectory, 'lib/api.dart');
-        if (!alwaysRun && await File(filePath).exists()) {
-          print(
-              'OpenapiGenerator :: Codegen skipped because alwaysRun is set to [$alwaysRun] and $filePath already exists');
-          return '';
-        }
-      }
-
-      if (!await FileSystemEntity.isDirectory(outputDirectory)) {
-        throw InvalidGenerationSourceError(
-          '$outputDirectory is not a directory.',
-        );
+      var alwaysRun = _readFieldValueAsBool(annotation, 'alwaysRun', false);
+      var filePath = path.join(outputDirectory, 'lib/api.dart');
+      if (!alwaysRun && await File(filePath).exists()) {
+        print(
+            'OpenapiGenerator :: Codegen skipped because alwaysRun is set to [$alwaysRun] and $filePath already exists');
+        return '';
       }
       command = '$command$separator-o$separator${outputDirectory}';
     }
 
-    var additionalProperties = '';
-    annotation
-        .read('additionalProperties')
-        .revive()
-        .namedArguments
-        .entries
-        .forEach((entry) => {
-              additionalProperties =
-                  '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${entry.key}=${entry.value.toStringValue()}'
-            });
+    command = appendTypeMappingCommandArgs(annotation, command, separator);
 
-    if (additionalProperties != null && additionalProperties.isNotEmpty) {
-      command =
-          '$command$separator--additional-properties=${additionalProperties}';
-    }
+    command =
+        appendAdditionalPropertiesCommandArgs(annotation, command, separator);
+
+    command = appendSkipValidateSpecCommandArgs(annotation, command, separator);
 
     print('OpenapiGenerator :: [${command.replaceAll(separator, ' ')}]');
 
@@ -121,43 +80,139 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
     if (JAVA_OPTS.isNotEmpty) {
       arguments.insert(0, JAVA_OPTS);
     }
+
+    var spaced = '|                                                     |';
+    var horiborder = '------------------------------------------------------';
+    print(
+        '$horiborder\n$spaced\n|             Openapi generator for dart              |\n$spaced\n$spaced\n$horiborder');
+    print('Executing command [${command.replaceAll(separator, ' ')}]');
+
     var exitCode = 0;
     var pr = await Process.run('java', arguments);
-//    print(pr.stdout);
+
     print(pr.stderr);
     print(
         'OpenapiGenerator :: Codegen ${pr.exitCode != 0 ? 'Failed' : 'completed successfully'}');
     exitCode = pr.exitCode;
 
     if (exitCode == 0) {
-      // Install dependencies if last command was successfull
       var installOutput = await Process.run('flutter', ['pub', 'get'],
           workingDirectory: '$outputDirectory');
-//      print(installOutput.stdout);
+
       print(installOutput.stderr);
       print(
           'OpenapiGenerator :: Install exited with code ${installOutput.exitCode}');
       exitCode = installOutput.exitCode;
     }
 
-    if (exitCode == 0 &&
-        (generator.contains('jaguar') || generator.contains('dio'))) {
+    if (exitCode == 0) {
       //run buildrunner to generate files
-      var c = 'pub run build_runner build --delete-conflicting-outputs';
-      var runnerOutput = await Process.run('flutter', c.split(' ').toList(),
-          workingDirectory: '$outputDirectory');
-//      print(runnerOutput.stdout);
-      print(runnerOutput.stderr);
-      print(
-          'OpenapiGenerator :: buildrunner exited with code ${runnerOutput.exitCode}');
+      switch (generatorName) {
+        case annots.Generator.DART:
+        case annots.Generator.DART2_API:
+          print(
+              'OpenapiGenerator :: skipping source gen because generator does not need it ::');
+          break;
+        case annots.Generator.DART_DIO:
+        case annots.Generator.DART_JAGUAR:
+          var runnerOutput = await runSourceGen(outputDirectory);
+          print(
+              'OpenapiGenerator :: build runner exited with code ${runnerOutput.exitCode} ::');
+          break;
+      }
     }
     return '';
   }
 
-  bool _extendsOpenapiConfig(InterfaceType t) =>
-      _typeChecker(OpenapiGeneratorConfig).isExactlyType(t);
+  Future<ProcessResult> runSourceGen(String outputDirectory) async {
+    print('OpenapiGenerator :: running source code generations ::');
+    var c = 'pub run build_runner build --delete-conflicting-outputs';
+    var runnerOutput = await Process.run('flutter', c.split(' ').toList(),
+        workingDirectory: '$outputDirectory');
+    print(runnerOutput.stderr);
+    return runnerOutput;
+  }
 
-  TypeChecker _typeChecker(Type type) => TypeChecker.fromRuntime(type);
+  String appendAdditionalPropertiesCommandArgs(
+      ConstantReader annotation, String command, String separator) {
+    var additionalProperties = '';
+    annotation
+        .read('additionalProperties')
+        .revive()
+        .namedArguments
+        .entries
+        .forEach((entry) => {
+              additionalProperties =
+                  '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${entry.key}=${entry.value.toStringValue()}'
+            });
+
+    if (additionalProperties != null && additionalProperties.isNotEmpty) {
+      command =
+          '$command$separator--additional-properties=${additionalProperties}';
+    }
+    return command;
+  }
+
+  String appendTypeMappingCommandArgs(
+      ConstantReader annotation, String command, String separator) {
+    var typeMappingsMap = _readFieldValueAsMap(annotation, 'typeMappings', {});
+    if (typeMappingsMap.isNotEmpty) {
+      command =
+          '$command$separator--type-mappings=${getMapAsString(typeMappingsMap)}';
+    }
+    return command;
+  }
+
+  String getGeneratorNameFromEnum(annots.Generator generator) {
+    var genName = 'dart';
+    switch (generator) {
+      case annots.Generator.DART:
+        break;
+      case annots.Generator.DART_DIO:
+        genName = 'dart-dio';
+        break;
+      case annots.Generator.DART2_API:
+        genName = 'dart2-api';
+        break;
+      case annots.Generator.DART_JAGUAR:
+        genName = 'dart-jaguar';
+        break;
+      default:
+        throw InvalidGenerationSourceError(
+          'Generator name must be any of dart, dart2-api, dart-dio, dart-jaguar.',
+        );
+    }
+    return genName;
+  }
+
+  String appendTemplateDirCommandArgs(
+      ConstantReader annotation, String command, String separator) {
+    var templateDir =
+        _readFieldValueAsString(annotation, 'templateDirectory', '');
+    if (templateDir.isNotEmpty) {
+      command = '$command$separator-t$separator${templateDir}';
+    }
+    return command;
+  }
+
+  String appendInputFileCommandArgs(
+      ConstantReader annotation, String command, String separator) {
+    var inputFile = _readFieldValueAsString(annotation, 'inputSpecFile', '');
+    if (inputFile.isNotEmpty) {
+      command = '$command$separator-i$separator${inputFile}';
+    }
+    return command;
+  }
+
+  String appendSkipValidateSpecCommandArgs(
+      ConstantReader annotation, String command, String separator) {
+    var skipSpecValidation =
+        _readFieldValueAsBool(annotation, 'skipSpecValidation', false);
+    if (skipSpecValidation) {
+      command = '$command$separator--skip-validate-spec';
+    }
+    return command;
+  }
 
   String getMapAsString(Map<dynamic, dynamic> data) {
     return data.entries.map((entry) => '${entry.key}=${entry.value}').join(',');
@@ -170,6 +225,13 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
     return reader.isNull ? defaultValue : reader.stringValue ?? defaultValue;
   }
 
+  Map _readFieldValueAsMap(ConstantReader annotation, String fieldName,
+      [Map defaultValue]) {
+    var reader = annotation.read(fieldName);
+
+    return reader.isNull ? defaultValue : reader.mapValue ?? defaultValue;
+  }
+
   bool _readFieldValueAsBool(ConstantReader annotation, String fieldName,
       [bool defaultValue]) {
     var reader = annotation.read(fieldName);
@@ -177,11 +239,3 @@ class OpenapiGenerator extends GeneratorForAnnotation<Openapi> {
     return reader.isNull ? defaultValue : reader.boolValue ?? defaultValue;
   }
 }
-
-//abstract class RevivableInstance implements ConstantReader {
-//  Uri get uri;
-//  String get name;
-//  String get constructor;
-//  List<ConstantReader> get positionalArguments;
-//  Map<String, ConstantReader> get namedArguments;
-//}

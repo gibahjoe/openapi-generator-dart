@@ -23,7 +23,7 @@ Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev d
 
 ```yaml
 dev_dependencies:
-  openapi_generator: ^1.0.8
+  openapi_generator: ^1.1.0
 ```
 
 
@@ -34,7 +34,7 @@ Annotate a dart class with @Openapi() annotation
     additionalProperties:
     AdditionalProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep'),
     inputSpecFile: 'example/openapi-spec.yaml',
-    generatorName: 'dart-jaguar',
+    generatorName: Generator.DART2_API,
     outputDirectory: 'api/petstore_api')
 class Example extends OpenapiGeneratorConfig {}
 ```
