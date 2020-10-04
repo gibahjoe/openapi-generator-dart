@@ -105,6 +105,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
 
       if (exitCode == 0) {
         var installOutput = await Process.run('flutter', ['pub', 'get'],
+            runInShell: Platform.isWindows,
             workingDirectory: '$outputDirectory');
 
         print(installOutput.stderr);
@@ -145,7 +146,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     print('OpenapiGenerator :: running source code generations ::');
     var c = 'pub run build_runner build --delete-conflicting-outputs';
     var runnerOutput = await Process.run('flutter', c.split(' ').toList(),
-        workingDirectory: '$outputDirectory');
+        runInShell: Platform.isWindows, workingDirectory: '$outputDirectory');
     print(runnerOutput.stderr);
     return runnerOutput;
   }
