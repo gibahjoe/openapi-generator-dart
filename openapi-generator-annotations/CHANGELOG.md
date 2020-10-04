@@ -1,3 +1,7 @@
+## 1.1.2
+
+- Added support for skipping post build actions
+
 ## 1.1.1
 
 - Fixed build issue

@@ -1,3 +1,8 @@
+## 1.1.2
+
+- Added support for skipping post run steps
+- Fixed failing post build steps in windows
+
 ## 1.1.1
 
 - Fixed build issue
