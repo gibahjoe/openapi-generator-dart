@@ -17,121 +17,126 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   @override
   FutureOr<String> generateForAnnotatedElement(
       Element element, ConstantReader annotation, BuildStep buildStep) async {
-    if (element is! ClassElement) {
-      final friendlyName = element.displayName;
-      throw InvalidGenerationSourceError(
-        'Generator cannot target `$friendlyName`.',
-        todo: 'Remove the [Openapi] annotation from `$friendlyName`.',
-      );
-    }
-    genericReader
-      ..addDecoder<annots.Generator>(
-          (constantReader) => constantReader.enumValue<annots.Generator>())
-      ..addDecoder<annots.DioDateLibrary>(
-          (constantReader) => constantReader.enumValue<annots.DioDateLibrary>())
-      ..addDecoder<annots.SerializationFormat>((constantReader) =>
-          constantReader.enumValue<annots.SerializationFormat>());
-    var separator = '?*?';
-    var command = 'generate';
-
-    command = appendInputFileCommandArgs(annotation, command, separator);
-
-    command = appendTemplateDirCommandArgs(annotation, command, separator);
-
-    var generatorName = genericReader
-        .getEnum<annots.Generator>(annotation.peek('generatorName'));
-    var generator = getGeneratorNameFromEnum(generatorName);
-    command = '$command$separator-g$separator$generator';
-
-    var outputDirectory =
-        _readFieldValueAsString(annotation, 'outputDirectory', '');
-    if (outputDirectory.isNotEmpty) {
-      var alwaysRun = _readFieldValueAsBool(annotation, 'alwaysRun', false);
-      var filePath = path.join(outputDirectory, 'lib/api.dart');
-      if (!alwaysRun && await File(filePath).exists()) {
-        print(
-            'OpenapiGenerator :: Codegen skipped because alwaysRun is set to [$alwaysRun] and $filePath already exists');
-        return '';
+    try {
+      if (element is! ClassElement) {
+        final friendlyName = element.displayName;
+        throw InvalidGenerationSourceError(
+          'Generator cannot target `$friendlyName`.',
+          todo: 'Remove the [Openapi] annotation from `$friendlyName`.',
+        );
       }
-      command = '$command$separator-o$separator${outputDirectory}';
-    }
+      genericReader
+        ..addDecoder<annots.Generator>(
+            (constantReader) => constantReader.enumValue<annots.Generator>())
+        ..addDecoder<annots.DioDateLibrary>((constantReader) =>
+            constantReader.enumValue<annots.DioDateLibrary>())
+        ..addDecoder<annots.SerializationFormat>((constantReader) =>
+            constantReader.enumValue<annots.SerializationFormat>());
+      var separator = '?*?';
+      var command = 'generate';
 
-    command = appendTypeMappingCommandArgs(annotation, command, separator);
+      command = appendInputFileCommandArgs(annotation, command, separator);
 
-    command =
-        appendAdditionalPropertiesCommandArgs(annotation, command, separator);
+      command = appendTemplateDirCommandArgs(annotation, command, separator);
 
-    command = appendSkipValidateSpecCommandArgs(annotation, command, separator);
+      var generatorName = genericReader
+          .getEnum<annots.Generator>(annotation.peek('generatorName'));
+      var generator = getGeneratorNameFromEnum(generatorName);
+      command = '$command$separator-g$separator$generator';
 
-    print('OpenapiGenerator :: [${command.replaceAll(separator, ' ')}]');
+      var outputDirectory =
+          _readFieldValueAsString(annotation, 'outputDirectory', '');
+      if (outputDirectory.isNotEmpty) {
+        var alwaysRun = _readFieldValueAsBool(annotation, 'alwaysRun', false);
+        var filePath = path.join(outputDirectory, 'lib/api.dart');
+        if (!alwaysRun && await File(filePath).exists()) {
+          print(
+              'OpenapiGenerator :: Codegen skipped because alwaysRun is set to [$alwaysRun] and $filePath already exists');
+          return '';
+        }
+        command = '$command$separator-o$separator${outputDirectory}';
+      }
 
-    var binPath = (await Isolate.resolvePackageUri(
-            Uri.parse('package:openapi_generator_cli/openapi-generator.jar')))
-        .toFilePath(windows: Platform.isWindows);
+      command = appendTypeMappingCommandArgs(annotation, command, separator);
 
-    // Include java environment variables in command
-    var JAVA_OPTS = Platform.environment['JAVA_OPTS'] ?? '';
+      command =
+          appendAdditionalPropertiesCommandArgs(annotation, command, separator);
 
-    var arguments = [
-      '-jar',
-      "${"${binPath}"}",
-      ...command.split(separator).toList(),
-    ];
-    if (JAVA_OPTS.isNotEmpty) {
-      arguments.insert(0, JAVA_OPTS);
-    }
+      command =
+          appendSkipValidateSpecCommandArgs(annotation, command, separator);
 
-    var spaced = '|                                                     |';
-    var horiborder = '------------------------------------------------------';
-    print(
-        '$horiborder\n$spaced\n|             Openapi generator for dart              |\n$spaced\n$spaced\n$horiborder');
-    print('Executing command [${command.replaceAll(separator, ' ')}]');
+      print('OpenapiGenerator :: [${command.replaceAll(separator, ' ')}]');
 
-    var exitCode = 0;
-    var pr = await Process.run('java', arguments);
+      var binPath = (await Isolate.resolvePackageUri(
+              Uri.parse('package:openapi_generator_cli/openapi-generator.jar')))
+          .toFilePath(windows: Platform.isWindows);
 
-    print(pr.stderr);
-    print(
-        'OpenapiGenerator :: Codegen ${pr.exitCode != 0 ? 'Failed' : 'completed successfully'}');
-    exitCode = pr.exitCode;
+      // Include java environment variables in command
+      var JAVA_OPTS = Platform.environment['JAVA_OPTS'] ?? '';
 
-    // if (!_readFieldValueAsBool(annotation, 'fetchDependencies')) {
-    //   print(
-    //       'OpenapiGenerator :: Codegen skipping install step because you said so...');
-    //   return '';
-    // }
+      var arguments = [
+        '-jar',
+        "${"${binPath}"}",
+        ...command.split(separator).toList(),
+      ];
+      if (JAVA_OPTS.isNotEmpty) {
+        arguments.insert(0, JAVA_OPTS);
+      }
 
-    if (exitCode == 0) {
-      var installOutput = await Process.run('flutter', ['pub', 'get'],
-          workingDirectory: '$outputDirectory');
-
-      print(installOutput.stderr);
+      var spaced = '|                                                     |';
+      var horiborder = '------------------------------------------------------';
       print(
-          'OpenapiGenerator :: Install exited with code ${installOutput.exitCode}');
-      exitCode = installOutput.exitCode;
-    }
+          '$horiborder\n$spaced\n|             Openapi generator for dart              |\n$spaced\n$spaced\n$horiborder');
+      print('Executing command [${command.replaceAll(separator, ' ')}]');
 
-    // if (!_readFieldValueAsBool(annotation, 'runSourceGenOnOutput')) {
-    //   print(
-    //       'OpenapiGenerator :: Codegen skipping source gen step because you said so...');
-    //   return '';
-    // }
+      var exitCode = 0;
+      var pr = await Process.run('java', arguments);
 
-    if (exitCode == 0) {
-      //run buildrunner to generate files
-      switch (generatorName) {
-        case annots.Generator.DART:
-        case annots.Generator.DART2_API:
-          print(
-              'OpenapiGenerator :: skipping source gen because generator does not need it ::');
-          break;
-        case annots.Generator.DART_DIO:
-        case annots.Generator.DART_JAGUAR:
-          var runnerOutput = await runSourceGen(outputDirectory);
-          print(
-              'OpenapiGenerator :: build runner exited with code ${runnerOutput.exitCode} ::');
-          break;
+      print(pr.stderr);
+      print(
+          'OpenapiGenerator :: Codegen ${pr.exitCode != 0 ? 'Failed' : 'completed successfully'}');
+      exitCode = pr.exitCode;
+
+      // if (!_readFieldValueAsBool(annotation, 'fetchDependencies')) {
+      //   print(
+      //       'OpenapiGenerator :: Codegen skipping install step because you said so...');
+      //   return '';
+      // }
+
+      if (exitCode == 0) {
+        var installOutput = await Process.run('flutter', ['pub', 'get'],
+            workingDirectory: '$outputDirectory');
+
+        print(installOutput.stderr);
+        print(
+            'OpenapiGenerator :: Install exited with code ${installOutput.exitCode}');
+        exitCode = installOutput.exitCode;
       }
+
+      // if (!_readFieldValueAsBool(annotation, 'runSourceGenOnOutput')) {
+      //   print(
+      //       'OpenapiGenerator :: Codegen skipping source gen step because you said so...');
+      //   return '';
+      // }
+
+      if (exitCode == 0) {
+        //run buildrunner to generate files
+        switch (generatorName) {
+          case annots.Generator.DART:
+          case annots.Generator.DART2_API:
+            print(
+                'OpenapiGenerator :: skipping source gen because generator does not need it ::');
+            break;
+          case annots.Generator.DART_DIO:
+          case annots.Generator.DART_JAGUAR:
+            var runnerOutput = await runSourceGen(outputDirectory);
+            print(
+                'OpenapiGenerator :: build runner exited with code ${runnerOutput.exitCode} ::');
+            break;
+        }
+      }
+    } catch (e) {
+      print(e);
     }
     return '';
   }
