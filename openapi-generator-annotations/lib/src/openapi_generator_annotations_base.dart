@@ -45,6 +45,7 @@ class Openapi {
 
 
   /// Add reserver words mappings as reservedWord=replacement format.
+  /// It is supported by the dart2-api and dart-dio generator.
   ///
   /// --reserved-words-mappings
   final Map<String, String> reservedWordsMappings;
