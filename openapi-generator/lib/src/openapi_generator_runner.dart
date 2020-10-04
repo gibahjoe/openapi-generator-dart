@@ -97,11 +97,11 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           'OpenapiGenerator :: Codegen ${pr.exitCode != 0 ? 'Failed' : 'completed successfully'}');
       exitCode = pr.exitCode;
 
-      // if (!_readFieldValueAsBool(annotation, 'fetchDependencies')) {
-      //   print(
-      //       'OpenapiGenerator :: Codegen skipping install step because you said so...');
-      //   return '';
-      // }
+      if (!_readFieldValueAsBool(annotation, 'fetchDependencies')) {
+        print(
+            'OpenapiGenerator :: Skipping install step because you said so...');
+        return '';
+      }
 
       if (exitCode == 0) {
         var installOutput = await Process.run('flutter', ['pub', 'get'],
@@ -114,11 +114,11 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         exitCode = installOutput.exitCode;
       }
 
-      // if (!_readFieldValueAsBool(annotation, 'runSourceGenOnOutput')) {
-      //   print(
-      //       'OpenapiGenerator :: Codegen skipping source gen step because you said so...');
-      //   return '';
-      // }
+      if (!_readFieldValueAsBool(annotation, 'runSourceGenOnOutput')) {
+        print(
+            'OpenapiGenerator :: Skipping source gen step because you said so...');
+        return '';
+      }
 
       if (exitCode == 0) {
         //run buildrunner to generate files
@@ -138,6 +138,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       }
     } catch (e) {
       print('Error generating spec ${e}');
+      rethrow;
     }
     return '';
   }

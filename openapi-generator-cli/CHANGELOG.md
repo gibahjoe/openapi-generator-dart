@@ -1,3 +1,7 @@
+## 1.1.2
+
+- Updated Dart2-api support
+
 ## 1.1.0
 
 - Added support for **_dart2-api_** from [dart-ogurets](https://github.com/dart-ogurets/dart-openapi-maven) 
