@@ -95,6 +95,12 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         'OpenapiGenerator :: Codegen ${pr.exitCode != 0 ? 'Failed' : 'completed successfully'}');
     exitCode = pr.exitCode;
 
+    if (!_readFieldValueAsBool(annotation, 'fetchDependencies')) {
+      print(
+          'OpenapiGenerator :: Codegen skipping install step because you said so...');
+      return '';
+    }
+
     if (exitCode == 0) {
       var installOutput = await Process.run('flutter', ['pub', 'get'],
           workingDirectory: '$outputDirectory');
@@ -103,6 +109,12 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       print(
           'OpenapiGenerator :: Install exited with code ${installOutput.exitCode}');
       exitCode = installOutput.exitCode;
+    }
+
+    if (!_readFieldValueAsBool(annotation, 'runSourceGenOnOutput')) {
+      print(
+          'OpenapiGenerator :: Codegen skipping source gen step because you said so...');
+      return '';
     }
 
     if (exitCode == 0) {

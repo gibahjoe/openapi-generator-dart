@@ -47,6 +47,14 @@ class Openapi {
   /// if set to false (the default), openapi-generator will skip processing if the [outputDirectory] already exists
   final bool alwaysRun;
 
+  /// if set to true, flutter pub get will be run on the [outputDirectory] after the code has been generated.
+  /// Defaults to true for backwards compatibility
+  final bool fetchDependencies;
+
+  ///if set to true, source gen will be run on the output of openapi-generator
+  ///Defaults to true
+  final bool runSourceGenOnOutput;
+
   final Map<String, String> typeMappings;
 
   const Openapi(
@@ -59,6 +67,8 @@ class Openapi {
       this.outputDirectory,
       this.typeMappings,
       this.apiPackage,
+      this.fetchDependencies = true,
+      this.runSourceGenOnOutput = true,
       this.alwaysRun = false});
 }
 
@@ -195,7 +205,9 @@ class DioProperties extends AdditionalProperties {
             sourceFolder: sourceFolder,
             useEnumExtension: useEnumExtension);
 }
+
 enum DioDateLibrary { core, timemachine }
 enum SerializationFormat { JSON, PROTO }
+
 /// The name of the generator to use
 enum Generator { DART, DART_DIO, DART2_API, DART_JAGUAR }
