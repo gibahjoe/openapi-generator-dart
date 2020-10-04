@@ -136,7 +136,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         }
       }
     } catch (e) {
-      print(e);
+      print('Error generating spec ${e}');
     }
     return '';
   }
