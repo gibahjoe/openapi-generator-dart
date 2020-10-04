@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:build/src/builder/build_step.dart';
@@ -57,6 +58,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     }
 
     command = appendTypeMappingCommandArgs(annotation, command, separator);
+
+    command = appendReservedWordsMappingCommandArgs(annotation, command, separator);
 
     command =
         appendAdditionalPropertiesCommandArgs(annotation, command, separator);
@@ -163,6 +166,17 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     return command;
   }
 
+  String appendReservedWordsMappingCommandArgs(
+      ConstantReader annotation, String command, String separator) {
+    var reservedWordsMappingsMap = _readFieldValueAsMap(annotation, 'reservedWordsMappings', {});
+    if (reservedWordsMappingsMap.isNotEmpty) {
+      command =
+      '$command$separator--reserved-words-mappings=${getMapAsString(reservedWordsMappingsMap)}';
+    }
+    return command;
+  }
+
+
   String getGeneratorNameFromEnum(annots.Generator generator) {
     var genName = 'dart';
     switch (generator) {
@@ -215,7 +229,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   }
 
   String getMapAsString(Map<dynamic, dynamic> data) {
-    return data.entries.map((entry) => '${entry.key}=${entry.value}').join(',');
+    return data.entries.map((entry) => '${entry.key.toStringValue()}=${entry.value.toStringValue()}').join(',');
   }
 
   String _readFieldValueAsString(ConstantReader annotation, String fieldName,
