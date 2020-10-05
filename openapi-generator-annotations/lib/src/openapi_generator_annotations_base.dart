@@ -43,6 +43,14 @@ class Openapi {
   /// --skip-validate-spec
   final bool skipSpecValidation;
 
+
+  /// Add reserver words mappings as reservedWord=replacement format.
+  /// It is supported by the dart2-api and dart-dio generator.
+  ///
+  /// --reserved-words-mappings
+  final Map<String, String> reservedWordsMappings;
+
+
   /// Tells openapi-generator to always run during the build process
   /// if set to false (the default), openapi-generator will skip processing if the [outputDirectory] already exists
   final bool alwaysRun;
@@ -66,6 +74,7 @@ class Openapi {
       this.generatorName,
       this.outputDirectory,
       this.typeMappings,
+      this.reservedWordsMappings,
       this.apiPackage,
       this.fetchDependencies = true,
       this.runSourceGenOnOutput = true,
