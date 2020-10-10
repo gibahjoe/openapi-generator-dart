@@ -48,7 +48,7 @@
         <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>openapi-generator-cli</artifactId>
-            <version>5.0.0-beta</version>
+            <version>5.0.0-beta2</version>
         </dependency>
         
         <dependency>
