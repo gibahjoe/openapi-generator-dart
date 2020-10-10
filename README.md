@@ -24,6 +24,15 @@ Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generat
 dependencies:
   openapi_generator_annotations: ^[latest-version]
 ```
+For testing out the beta features in openapi generator, use the beta branch like below. This is not recommended for production builds
+```yaml
+dependencies:
+  openapi_generator_annotations: 
+    git:
+      url: https://github.com/gibahjoe/openapi-generator-dart.git
+      ref: beta
+      path: openapi-generator-annotations
+```
 
 
 Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev dependencies section of your pubspec.yaml file:
@@ -32,7 +41,15 @@ Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev d
 dev_dependencies:
   openapi_generator: ^[latest version]
 ```
-
+For testing out the beta features in openapi generator, use the beta branch like below. This is not recommended for production builds
+```yaml
+dev_dependencies:
+  openapi_generator: 
+    git:
+      url: https://github.com/gibahjoe/openapi-generator-dart.git
+      ref: beta
+      path: openapi-generator
+```
 
 Annotate a dart class with @Openapi() annotation
 
@@ -52,6 +69,8 @@ flutter pub run build_runner build --delete-conflicting-outputs
 ```
 to generate open api client sdk from spec file specified in annotation. 
 The api sdk will be generated in the folder specified in the annotation. See examples for more details
+
+
 
 ## Features and bugs
 
