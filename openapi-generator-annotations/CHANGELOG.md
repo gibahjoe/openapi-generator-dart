@@ -1,8 +1,11 @@
-## 1.1.2-beta
-- Dart - generate constructor with named params [#6751](https://github.com/OpenAPITools/openapi-generator/pull/6751)
-- [dart-dio][client] Allow passing progress callbacks through client methods [#6261](https://github.com/OpenAPITools/openapi-generator/pull/6261)
-- Dart enum toJson method [#6111](https://github.com/OpenAPITools/openapi-generator/pull/6111)
-- [dart-dio] Adds support for generating inline enums [#5668](https://github.com/OpenAPITools/openapi-generator/pull/5668) (Breaking change (without fallback))
+## 1.1.3
+
+- Updated dart_2 api to latest
+- Added support for reservedWordsMapping
+
+## 1.1.2
+
+- Added support for skipping post build actions
 
 ## 1.1.1
 
