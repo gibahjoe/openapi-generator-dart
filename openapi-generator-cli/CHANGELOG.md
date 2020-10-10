@@ -1,3 +1,8 @@
+## 1.1.3
+
+- Updated dart_2 api to latest
+- Added support for reservedWordsMapping
+
 ## 1.1.2
 
 - Updated Dart2-api support
