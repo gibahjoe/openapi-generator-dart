@@ -168,6 +168,7 @@ class JaguarProperties extends AdditionalProperties {
             pubAuthorEmail: pubAuthorEmail,
             pubDescription: pubDescription,
             pubHomepage: pubHomepage,
+            pubName: pubName,
             pubVersion: pubVersion,
             sortModelPropertiesByRequiredFlag:
                 sortModelPropertiesByRequiredFlag,
@@ -207,6 +208,7 @@ class DioProperties extends AdditionalProperties {
             pubAuthorEmail: pubAuthorEmail,
             pubDescription: pubDescription,
             pubHomepage: pubHomepage,
+            pubName: pubName,
             pubVersion: pubVersion,
             sortModelPropertiesByRequiredFlag:
                 sortModelPropertiesByRequiredFlag,
