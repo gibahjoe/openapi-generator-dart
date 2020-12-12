@@ -187,11 +187,10 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   String appendReservedWordsMappingCommandArgs(
       ConstantReader annotation, String command, String separator) {
     var reservedWordsMappingsMap =
-    _readFieldValueAsMap(annotation, 'reservedWordsMappings', {});
+        _readFieldValueAsMap(annotation, 'reservedWordsMappings', {});
     if (reservedWordsMappingsMap.isNotEmpty) {
       command =
-      '$command$separator--reserved-words-mappings=${getMapAsString(
-          reservedWordsMappingsMap)}';
+          '$command$separator--reserved-words-mappings=${getMapAsString(reservedWordsMappingsMap)}';
     }
     return command;
   }
