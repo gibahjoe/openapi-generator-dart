@@ -16,7 +16,7 @@ Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generat
 
 ```yaml
 dependencies:
-  openapi_generator_annotations: ^1.0.5
+  openapi_generator_annotations: ^1.1.4
 ```
 
 
@@ -24,7 +24,7 @@ Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev d
 
 ```yaml
 dev_dependencies:
-  openapi_generator: ^1.0.5
+  openapi_generator: ^1.1.4
 ```
 
 
