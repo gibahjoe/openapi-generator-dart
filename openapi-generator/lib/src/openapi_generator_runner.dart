@@ -2,19 +2,17 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:build/src/builder/build_step.dart';
-import 'package:generic_reader/generic_reader.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart'
     as annots;
 import 'package:path/path.dart' as path;
 import 'package:source_gen/source_gen.dart';
 
-class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
-  final genericReader = GenericReader();
+import 'extensions/type_methods.dart';
 
+class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   @override
   FutureOr<String> generateForAnnotatedElement(
       Element element, ConstantReader annotation, BuildStep buildStep) async {
@@ -26,13 +24,13 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           todo: 'Remove the [Openapi] annotation from `$friendlyName`.',
         );
       }
-      genericReader
-        ..addDecoder<annots.Generator>(
-            (constantReader) => constantReader.enumValue<annots.Generator>())
-        ..addDecoder<annots.DioDateLibrary>((constantReader) =>
-            constantReader.enumValue<annots.DioDateLibrary>())
-        ..addDecoder<annots.SerializationFormat>((constantReader) =>
-            constantReader.enumValue<annots.SerializationFormat>());
+      // genericReader
+      //   ..addDecoder<annots.Generator>(
+      //       (constantReader) => constantReader.enumValue<annots.Generator>())
+      //   ..addDecoder<annots.DioDateLibrary>((constantReader) =>
+      //       constantReader.enumValue<annots.DioDateLibrary>())
+      //   ..addDecoder<annots.SerializationFormat>((constantReader) =>
+      //       constantReader.enumValue<annots.SerializationFormat>());
       var separator = '?*?';
       var command = 'generate';
 
@@ -40,8 +38,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
 
       command = appendTemplateDirCommandArgs(annotation, command, separator);
 
-      var generatorName = genericReader
-          .getEnum<annots.Generator>(annotation.peek('generatorName'));
+      var generatorName =
+          annotation.peek('generatorName').enumValue<annots.Generator>();
       var generator = getGeneratorNameFromEnum(generatorName);
       command = '$command$separator-g$separator$generator';
 
@@ -60,11 +58,12 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
 
       command = appendTypeMappingCommandArgs(annotation, command, separator);
 
-      command = appendReservedWordsMappingCommandArgs(annotation, command, separator);
+      command =
+          appendReservedWordsMappingCommandArgs(annotation, command, separator);
 
       command =
           appendAdditionalPropertiesCommandArgs(annotation, command, separator);
-      
+
       command =
           appendSkipValidateSpecCommandArgs(annotation, command, separator);
 
@@ -187,14 +186,15 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
 
   String appendReservedWordsMappingCommandArgs(
       ConstantReader annotation, String command, String separator) {
-    var reservedWordsMappingsMap = _readFieldValueAsMap(annotation, 'reservedWordsMappings', {});
+    var reservedWordsMappingsMap =
+    _readFieldValueAsMap(annotation, 'reservedWordsMappings', {});
     if (reservedWordsMappingsMap.isNotEmpty) {
       command =
-      '$command$separator--reserved-words-mappings=${getMapAsString(reservedWordsMappingsMap)}';
+      '$command$separator--reserved-words-mappings=${getMapAsString(
+          reservedWordsMappingsMap)}';
     }
     return command;
   }
-
 
   String getGeneratorNameFromEnum(annots.Generator generator) {
     var genName = 'dart';
@@ -248,7 +248,10 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   }
 
   String getMapAsString(Map<dynamic, dynamic> data) {
-    return data.entries.map((entry) => '${entry.key.toStringValue()}=${entry.value.toStringValue()}').join(',');
+    return data.entries
+        .map((entry) =>
+    '${entry.key.toStringValue()}=${entry.value.toStringValue()}')
+        .join(',');
   }
 
   String _readFieldValueAsString(ConstantReader annotation, String fieldName,

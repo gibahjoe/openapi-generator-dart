@@ -1,3 +1,8 @@
+## 1.1.4
+
+- Updated dart_2 api to version 3.10
+- Added pubname to DioProperties
+
 ## 1.1.3
 
 - Updated dart_2 api to latest
@@ -14,12 +19,12 @@
 
 ## 1.1.0
 
-- Added support for **_dart2-api_** from [dart-ogurets](https://github.com/dart-ogurets/dart-openapi-maven) 
-thanks to [Robert Csakany](https://github.com/robertcsakany)
+- Added support for **_dart2-api_** from [dart-ogurets](https://github.com/dart-ogurets/dart-openapi-maven)
+  thanks to [Robert Csakany](https://github.com/robertcsakany)
 
 ## 1.0.8
 
-- fixed issue with wrong path on windows 
+- fixed issue with wrong path on windows
 
 ## 1.0.7
 

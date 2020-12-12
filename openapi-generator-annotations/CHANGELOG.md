@@ -1,3 +1,8 @@
+## 1.1.4
+
+- Updated dart_2 api to version 3.10
+- Added pubname to DioProperties
+
 ## 1.1.3
 
 - Updated dart_2 api to latest
