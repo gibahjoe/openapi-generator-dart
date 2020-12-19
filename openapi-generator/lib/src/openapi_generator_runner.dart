@@ -132,9 +132,14 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
             break;
           case annots.Generator.DART_DIO:
           case annots.Generator.DART_JAGUAR:
-            var runnerOutput = await runSourceGen(outputDirectory);
-            print(
-                'OpenapiGenerator :: build runner exited with code ${runnerOutput.exitCode} ::');
+            try {
+              var runnerOutput = await runSourceGen(outputDirectory);
+              print(
+                  'OpenapiGenerator :: build runner exited with code ${runnerOutput.exitCode} ::');
+            } catch (e) {
+              print(e);
+              print('OpenapiGenerator :: could not complete source gen ::');
+            }
             break;
         }
       }
@@ -146,9 +151,10 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   }
 
   Future<ProcessResult> runSourceGen(String outputDirectory) async {
-    print('OpenapiGenerator :: running source code generations ::');
+    print('OpenapiGenerator :: running source code generation ::');
     var c = 'pub run build_runner build --delete-conflicting-outputs';
-    var runnerOutput = await Process.run('flutter', c.split(' ').toList(),
+    ProcessResult runnerOutput;
+    runnerOutput = await Process.run('flutter', c.split(' ').toList(),
         runInShell: Platform.isWindows, workingDirectory: '$outputDirectory');
     print(runnerOutput.stderr);
     return runnerOutput;
