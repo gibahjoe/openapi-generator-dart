@@ -7,5 +7,4 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
     generatorName: 'dart-jaguar',
     alwaysRun: true,
     outputDirectory: 'api/petstore_api')
-class OpenapiConfig extends OpenapiGeneratorConfig {
-}
+class OpenapiConfig extends OpenapiGeneratorConfig {}

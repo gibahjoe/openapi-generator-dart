@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: FutureBuilder<Map<String, int>>(
         builder: (context, snapshot) {
-          if(snapshot.hasError){
+          if (snapshot.hasError) {
             Center(
               child: Text(snapshot.error.toString()),
             );

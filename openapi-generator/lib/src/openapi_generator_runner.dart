@@ -255,7 +255,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   String getMapAsString(Map<dynamic, dynamic> data) {
     return data.entries
         .map((entry) =>
-    '${entry.key.toStringValue()}=${entry.value.toStringValue()}')
+            '${entry.key.toStringValue()}=${entry.value.toStringValue()}')
         .join(',');
   }
 
