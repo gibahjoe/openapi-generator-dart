@@ -1,3 +1,7 @@
+## 2.0.0-nullsafety.0
+
+- Added null safety
+
 ## 1.1.4
 
 - Updated dart_2 api to version 3.10

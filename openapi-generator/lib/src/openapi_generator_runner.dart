@@ -44,9 +44,9 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       command = '$command$separator-g$separator$generator';
 
       var outputDirectory =
-          _readFieldValueAsString(annotation, 'outputDirectory', '');
+          _readFieldValueAsString(annotation, 'outputDirectory', '')!;
       if (outputDirectory.isNotEmpty) {
-        var alwaysRun = _readFieldValueAsBool(annotation, 'alwaysRun', false);
+        var alwaysRun = _readFieldValueAsBool(annotation, 'alwaysRun', false)!;
         var filePath = path.join(outputDirectory, 'lib/api.dart');
         if (!alwaysRun && await File(filePath).exists()) {
           print(
@@ -69,8 +69,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
 
       print('OpenapiGenerator :: [${command.replaceAll(separator, ' ')}]');
 
-      var binPath = (await Isolate.resolvePackageUri(
-              Uri.parse('package:openapi_generator_cli/openapi-generator.jar')))
+      var binPath = (await Isolate.resolvePackageUri(Uri.parse(
+          'package:openapi_generator_cli/openapi-generator.jar')))!
           .toFilePath(windows: Platform.isWindows);
 
       // Include java environment variables in command
@@ -99,7 +99,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           'OpenapiGenerator :: Codegen ${pr.exitCode != 0 ? 'Failed' : 'completed successfully'}');
       exitCode = pr.exitCode;
 
-      if (!_readFieldValueAsBool(annotation, 'fetchDependencies')) {
+      if (!_readFieldValueAsBool(annotation, 'fetchDependencies')!) {
         print(
             'OpenapiGenerator :: Skipping install step because you said so...');
         return '';
@@ -116,7 +116,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         exitCode = installOutput.exitCode;
       }
 
-      if (!_readFieldValueAsBool(annotation, 'runSourceGenOnOutput')) {
+      if (!_readFieldValueAsBool(annotation, 'runSourceGenOnOutput')!) {
         print(
             'OpenapiGenerator :: Skipping source gen step because you said so...');
         return '';
@@ -182,10 +182,10 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
 
   String appendTypeMappingCommandArgs(
       ConstantReader annotation, String command, String separator) {
-    var typeMappingsMap = _readFieldValueAsMap(annotation, 'typeMappings', {});
+    var typeMappingsMap = _readFieldValueAsMap(annotation, 'typeMappings', {})!;
     if (typeMappingsMap.isNotEmpty) {
       command =
-          '$command$separator--type-mappings=${getMapAsString(typeMappingsMap)}';
+      '$command$separator--type-mappings=${getMapAsString(typeMappingsMap)}';
     }
     return command;
   }
@@ -193,15 +193,16 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   String appendReservedWordsMappingCommandArgs(
       ConstantReader annotation, String command, String separator) {
     var reservedWordsMappingsMap =
-        _readFieldValueAsMap(annotation, 'reservedWordsMappings', {});
+    _readFieldValueAsMap(annotation, 'reservedWordsMappings', {})!;
     if (reservedWordsMappingsMap.isNotEmpty) {
       command =
-          '$command$separator--reserved-words-mappings=${getMapAsString(reservedWordsMappingsMap)}';
+      '$command$separator--reserved-words-mappings=${getMapAsString(
+          reservedWordsMappingsMap)}';
     }
     return command;
   }
 
-  String getGeneratorNameFromEnum(annots.Generator generator) {
+  String getGeneratorNameFromEnum(annots.Generator? generator) {
     var genName = 'dart';
     switch (generator) {
       case annots.Generator.DART:
@@ -226,7 +227,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   String appendTemplateDirCommandArgs(
       ConstantReader annotation, String command, String separator) {
     var templateDir =
-        _readFieldValueAsString(annotation, 'templateDirectory', '');
+    _readFieldValueAsString(annotation, 'templateDirectory', '')!;
     if (templateDir.isNotEmpty) {
       command = '$command$separator-t$separator${templateDir}';
     }
@@ -235,7 +236,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
 
   String appendInputFileCommandArgs(
       ConstantReader annotation, String command, String separator) {
-    var inputFile = _readFieldValueAsString(annotation, 'inputSpecFile', '');
+    var inputFile = _readFieldValueAsString(annotation, 'inputSpecFile', '')!;
     if (inputFile.isNotEmpty) {
       command = '$command$separator-i$separator${inputFile}';
     }
@@ -245,7 +246,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   String appendSkipValidateSpecCommandArgs(
       ConstantReader annotation, String command, String separator) {
     var skipSpecValidation =
-        _readFieldValueAsBool(annotation, 'skipSpecValidation', false);
+    _readFieldValueAsBool(annotation, 'skipSpecValidation', false)!;
     if (skipSpecValidation) {
       command = '$command$separator--skip-validate-spec';
     }
@@ -255,26 +256,26 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   String getMapAsString(Map<dynamic, dynamic> data) {
     return data.entries
         .map((entry) =>
-            '${entry.key.toStringValue()}=${entry.value.toStringValue()}')
+    '${entry.key.toStringValue()}=${entry.value.toStringValue()}')
         .join(',');
   }
 
-  String _readFieldValueAsString(ConstantReader annotation, String fieldName,
-      [String defaultValue]) {
+  String? _readFieldValueAsString(ConstantReader annotation, String fieldName,
+      [String? defaultValue]) {
     var reader = annotation.read(fieldName);
 
     return reader.isNull ? defaultValue : reader.stringValue ?? defaultValue;
   }
 
-  Map _readFieldValueAsMap(ConstantReader annotation, String fieldName,
-      [Map defaultValue]) {
+  Map? _readFieldValueAsMap(ConstantReader annotation, String fieldName,
+      [Map? defaultValue]) {
     var reader = annotation.read(fieldName);
 
     return reader.isNull ? defaultValue : reader.mapValue ?? defaultValue;
   }
 
-  bool _readFieldValueAsBool(ConstantReader annotation, String fieldName,
-      [bool defaultValue]) {
+  bool? _readFieldValueAsBool(ConstantReader annotation, String fieldName,
+      [bool? defaultValue]) {
     var reader = annotation.read(fieldName);
 
     return reader.isNull ? defaultValue : reader.boolValue ?? defaultValue;
