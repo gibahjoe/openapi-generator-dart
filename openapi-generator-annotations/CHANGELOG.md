@@ -1,3 +1,7 @@
+## 2.0.0
+
+- Bumped generator version to 5.0.0. This has some breaking changes. [Click here](https://github.com/OpenAPITools/openapi-generator/releases/tag/v5.0.0) to view changes
+
 ## 1.1.4
 
 - Updated dart_2 api to version 3.10
