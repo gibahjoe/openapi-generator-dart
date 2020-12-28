@@ -70,7 +70,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       print('OpenapiGenerator :: [${command.replaceAll(separator, ' ')}]');
 
       var binPath = (await Isolate.resolvePackageUri(Uri.parse(
-          'package:openapi_generator_cli/openapi-generator.jar')))!
+              'package:openapi_generator_cli/openapi-generator.jar')))!
           .toFilePath(windows: Platform.isWindows);
 
       // Include java environment variables in command
@@ -185,7 +185,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     var typeMappingsMap = _readFieldValueAsMap(annotation, 'typeMappings', {})!;
     if (typeMappingsMap.isNotEmpty) {
       command =
-      '$command$separator--type-mappings=${getMapAsString(typeMappingsMap)}';
+          '$command$separator--type-mappings=${getMapAsString(typeMappingsMap)}';
     }
     return command;
   }
@@ -193,11 +193,10 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   String appendReservedWordsMappingCommandArgs(
       ConstantReader annotation, String command, String separator) {
     var reservedWordsMappingsMap =
-    _readFieldValueAsMap(annotation, 'reservedWordsMappings', {})!;
+        _readFieldValueAsMap(annotation, 'reservedWordsMappings', {})!;
     if (reservedWordsMappingsMap.isNotEmpty) {
       command =
-      '$command$separator--reserved-words-mappings=${getMapAsString(
-          reservedWordsMappingsMap)}';
+          '$command$separator--reserved-words-mappings=${getMapAsString(reservedWordsMappingsMap)}';
     }
     return command;
   }
@@ -227,7 +226,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   String appendTemplateDirCommandArgs(
       ConstantReader annotation, String command, String separator) {
     var templateDir =
-    _readFieldValueAsString(annotation, 'templateDirectory', '')!;
+        _readFieldValueAsString(annotation, 'templateDirectory', '')!;
     if (templateDir.isNotEmpty) {
       command = '$command$separator-t$separator${templateDir}';
     }
@@ -246,7 +245,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   String appendSkipValidateSpecCommandArgs(
       ConstantReader annotation, String command, String separator) {
     var skipSpecValidation =
-    _readFieldValueAsBool(annotation, 'skipSpecValidation', false)!;
+        _readFieldValueAsBool(annotation, 'skipSpecValidation', false)!;
     if (skipSpecValidation) {
       command = '$command$separator--skip-validate-spec';
     }
@@ -256,7 +255,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   String getMapAsString(Map<dynamic, dynamic> data) {
     return data.entries
         .map((entry) =>
-    '${entry.key.toStringValue()}=${entry.value.toStringValue()}')
+            '${entry.key.toStringValue()}=${entry.value.toStringValue()}')
         .join(',');
   }
 

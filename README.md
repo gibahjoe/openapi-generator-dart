@@ -58,7 +58,7 @@ Annotate a dart class with @Openapi() annotation
     additionalProperties:
     AdditionalProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep'),
     inputSpecFile: 'example/openapi-spec.yaml',
-    generatorName: Generator.DART2_API,
+    generatorName: Generator.DART,
     outputDirectory: 'api/petstore_api')
 class Example extends OpenapiGeneratorConfig {}
 ```

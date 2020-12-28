@@ -119,14 +119,15 @@ class AdditionalProperties {
   /// Allow the 'x-enum-values' extension for enums
   final bool? useEnumExtension;
 
-  const AdditionalProperties({this.allowUnicodeIdentifiers = false,
-    this.ensureUniqueParams = true,
-    this.useEnumExtension = false,
-    this.prependFormOrBodyParameters = false,
-    this.pubAuthor,
-    this.pubAuthorEmail,
-    this.pubDescription,
-    this.pubHomepage,
+  const AdditionalProperties(
+      {this.allowUnicodeIdentifiers = false,
+      this.ensureUniqueParams = true,
+      this.useEnumExtension = false,
+      this.prependFormOrBodyParameters = false,
+      this.pubAuthor,
+      this.pubAuthorEmail,
+      this.pubDescription,
+      this.pubHomepage,
       this.pubName,
       this.pubVersion,
       this.sortModelPropertiesByRequiredFlag = true,
@@ -141,21 +142,22 @@ class JaguarProperties extends AdditionalProperties {
   /// Is the null fields should be in the JSON payload
   final bool? nullableFields;
 
-  const JaguarProperties({this.serialization,
-    this.nullableFields,
-    bool allowUnicodeIdentifiers = false,
-    bool ensureUniqueParams = true,
-    bool prependFormOrBodyParameters = false,
-    String? pubAuthor,
-    String? pubAuthorEmail,
-    String? pubDescription,
-    String? pubHomepage,
-    String? pubName,
-    String? pubVersion,
-    bool sortModelPropertiesByRequiredFlag = true,
-    bool sortParamsByRequiredFlag = true,
-    bool useEnumExtension = true,
-    String? sourceFolder})
+  const JaguarProperties(
+      {this.serialization,
+      this.nullableFields,
+      bool allowUnicodeIdentifiers = false,
+      bool ensureUniqueParams = true,
+      bool prependFormOrBodyParameters = false,
+      String? pubAuthor,
+      String? pubAuthorEmail,
+      String? pubDescription,
+      String? pubHomepage,
+      String? pubName,
+      String? pubVersion,
+      bool sortModelPropertiesByRequiredFlag = true,
+      bool sortParamsByRequiredFlag = true,
+      bool useEnumExtension = true,
+      String? sourceFolder})
       : super(
             allowUnicodeIdentifiers: allowUnicodeIdentifiers,
             ensureUniqueParams: ensureUniqueParams,
@@ -180,21 +182,22 @@ class DioProperties extends AdditionalProperties {
   /// Is the null fields should be in the JSON payload
   final bool? nullableFields;
 
-  const DioProperties({this.dateLibrary,
-    this.nullableFields,
-    bool allowUnicodeIdentifiers = false,
-    bool ensureUniqueParams = true,
-    bool prependFormOrBodyParameters = false,
-    String? pubAuthor,
-    String? pubAuthorEmail,
-    String? pubDescription,
-    String? pubHomepage,
-    String? pubName,
-    String? pubVersion,
-    bool sortModelPropertiesByRequiredFlag = true,
-    bool sortParamsByRequiredFlag = true,
-    bool useEnumExtension = true,
-    String? sourceFolder})
+  const DioProperties(
+      {this.dateLibrary,
+      this.nullableFields,
+      bool allowUnicodeIdentifiers = false,
+      bool ensureUniqueParams = true,
+      bool prependFormOrBodyParameters = false,
+      String? pubAuthor,
+      String? pubAuthorEmail,
+      String? pubDescription,
+      String? pubHomepage,
+      String? pubName,
+      String? pubVersion,
+      bool sortModelPropertiesByRequiredFlag = true,
+      bool sortParamsByRequiredFlag = true,
+      bool useEnumExtension = true,
+      String? sourceFolder})
       : super(
             allowUnicodeIdentifiers: allowUnicodeIdentifiers,
             ensureUniqueParams: ensureUniqueParams,

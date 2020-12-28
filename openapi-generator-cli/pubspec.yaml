@@ -1,6 +1,6 @@
 name: openapi_generator_cli
 description: A dart wrapper around openapi-generator inspired by the node implementation.
-version: 2.0.0-nullsafety.0
+version: 3.0.0-nullsafety.1
 homepage: https://github.com/gibahjoe/openapi-generator-dart
 
 environment:
