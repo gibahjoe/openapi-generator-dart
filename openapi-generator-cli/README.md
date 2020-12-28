@@ -10,6 +10,7 @@ Please see [OpenAPITools/openapi-generator](https://github.com/OpenAPITools/open
 
 ## Usage
 
+### CLI
 Run
 
 ```cmd
@@ -17,10 +18,14 @@ pub global activate openapi_generator_cli
 ```
 Then you can run the generator using the command below.
 ```cmd
-openapi-generator <command>
+openapi-generator generate -i http://127.0.0.1:8111/v3/api-docs -g dart
 ```
 
 See [OpenAPITools/openapi-generator](https://github.com/OpenAPITools/openapi-generator) for more commands
+
+### Dart/Flutter
+
+You can use this package also using the openapi-generator dart plugin that helps you configure the appropriate commands. You can find it [here](https://pub.dev/packages/openapi_generator) 
 
 ## Features and bugs
 
