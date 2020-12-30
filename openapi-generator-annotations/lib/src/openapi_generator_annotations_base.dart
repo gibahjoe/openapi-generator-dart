@@ -119,6 +119,9 @@ class AdditionalProperties {
   /// Allow the 'x-enum-values' extension for enums
   final bool useEnumExtension;
 
+  /// Flutter wrapper to use (none|flutterw|fvm)
+  final Wrapper wrapper;
+
   const AdditionalProperties(
       {this.allowUnicodeIdentifiers = false,
       this.ensureUniqueParams = true,
@@ -132,7 +135,8 @@ class AdditionalProperties {
       this.pubVersion,
       this.sortModelPropertiesByRequiredFlag = true,
       this.sortParamsByRequiredFlag = true,
-      this.sourceFolder});
+      this.sourceFolder,
+      this.wrapper = Wrapper.none});
 }
 
 class JaguarProperties extends AdditionalProperties {
@@ -220,3 +224,4 @@ enum SerializationFormat { JSON, PROTO }
 
 /// The name of the generator to use
 enum Generator { DART, DART_DIO, DART2_API, DART_JAGUAR }
+enum Wrapper {fvm, flutterw, none}

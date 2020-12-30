@@ -106,7 +106,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       }
 
       if (exitCode == 0) {
-        var installOutput = await Process.run('flutter', ['pub', 'get'],
+        final command = _getCommandWithWrapper('flutter', ['pub', 'get'], annotation);
+        var installOutput = await Process.run(command.executable, command.arguments,
             runInShell: Platform.isWindows,
             workingDirectory: '$outputDirectory');
 
@@ -133,7 +134,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           case annots.Generator.DART_DIO:
           case annots.Generator.DART_JAGUAR:
             try {
-              var runnerOutput = await runSourceGen(outputDirectory);
+              var runnerOutput = await runSourceGen(annotation, outputDirectory);
               print(
                   'OpenapiGenerator :: build runner exited with code ${runnerOutput.exitCode} ::');
             } catch (e) {
@@ -150,11 +151,12 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     return '';
   }
 
-  Future<ProcessResult> runSourceGen(String outputDirectory) async {
+  Future<ProcessResult> runSourceGen(ConstantReader annotation, String outputDirectory) async {
     print('OpenapiGenerator :: running source code generation ::');
     var c = 'pub run build_runner build --delete-conflicting-outputs';
+    final command = _getCommandWithWrapper('flutter', c.split(' ').toList(), annotation);
     ProcessResult runnerOutput;
-    runnerOutput = await Process.run('flutter', c.split(' ').toList(),
+    runnerOutput = await Process.run(command.executable, command.arguments,
         runInShell: Platform.isWindows, workingDirectory: '$outputDirectory');
     print(runnerOutput.stderr);
     return runnerOutput;
@@ -259,6 +261,26 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         .join(',');
   }
 
+  Command _getCommandWithWrapper(String command, List<String> arguments, ConstantReader annotation){
+    final wrapper = _readFieldValueAsEnum<annots.Wrapper>(annotation, 'wrapper', annots.Wrapper.none);
+    switch(wrapper){
+      case annots.Wrapper.flutterw:
+        return Command('./flutterw', arguments);
+      case annots.Wrapper.fvm:
+        return Command('fvm', [command, ...arguments]);
+      case annots.Wrapper.none:
+      default:
+        return Command(command, arguments);
+    }
+  }
+
+  T _readFieldValueAsEnum<T>(ConstantReader annotation, String fieldName,
+      [T defaultValue]) {
+    var reader = annotation.read(fieldName);
+
+    return reader.isNull ? defaultValue : reader.enumValue<T>() ?? defaultValue;
+  }
+
   String _readFieldValueAsString(ConstantReader annotation, String fieldName,
       [String defaultValue]) {
     var reader = annotation.read(fieldName);
@@ -279,4 +301,11 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
 
     return reader.isNull ? defaultValue : reader.boolValue ?? defaultValue;
   }
+}
+
+class Command {
+  final String executable;
+  final List<String> arguments;
+
+  Command(this.executable, this.arguments);
 }
