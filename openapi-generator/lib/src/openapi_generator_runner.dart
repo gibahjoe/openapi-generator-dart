@@ -262,7 +262,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   }
 
   Command _getCommandWithWrapper(String command, List<String> arguments, ConstantReader annotation){
-    final wrapper = _readFieldValueAsEnum<annots.Wrapper>(annotation, 'wrapper', annots.Wrapper.none);
+    final wrapper = annotation.read('additionalProperties')?.read('wrapper')?.enumValue<annots.Wrapper>() ?? annots.Wrapper.none;
     switch(wrapper){
       case annots.Wrapper.flutterw:
         return Command('./flutterw', arguments);
@@ -272,13 +272,6 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       default:
         return Command(command, arguments);
     }
-  }
-
-  T _readFieldValueAsEnum<T>(ConstantReader annotation, String fieldName,
-      [T defaultValue]) {
-    var reader = annotation.read(fieldName);
-
-    return reader.isNull ? defaultValue : reader.enumValue<T>() ?? defaultValue;
   }
 
   String _readFieldValueAsString(ConstantReader annotation, String fieldName,
