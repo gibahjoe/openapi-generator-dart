@@ -15,7 +15,6 @@ This repo contains the following dart libraries
 
 
 
-
 ## Usage
 
 Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generator_annotations) as a dependency in the dependencies section of your pubspec.yaml file :
@@ -58,7 +57,7 @@ Annotate a dart class with @Openapi() annotation
     additionalProperties:
     AdditionalProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep'),
     inputSpecFile: 'example/openapi-spec.yaml',
-    generatorName: Generator.DART2_API,
+    generatorName: Generator.dart,
     outputDirectory: 'api/petstore_api')
 class Example extends OpenapiGeneratorConfig {}
 ```

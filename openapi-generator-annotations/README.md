@@ -16,7 +16,7 @@ Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generat
 
 ```yaml
 dependencies:
-  openapi_generator_annotations: ^1.1.4
+  openapi_generator_annotations: ^2.2.0
 ```
 
 
@@ -24,7 +24,7 @@ Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev d
 
 ```yaml
 dev_dependencies:
-  openapi_generator: ^1.1.4
+  openapi_generator: ^2.2.0
 ```
 
 
@@ -33,9 +33,9 @@ Annotate a dart class with @Openapi() annotation
 ```dart
 @Openapi(
     additionalProperties:
-    AdditionalProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep'),
+    AdditionalProperties(pubName: 'petstore_api', pubAuthor: 'Johnny depp'),
     inputSpecFile: 'example/openapi-spec.yaml',
-    generatorName: 'dart-jaguar',
+    generatorName: Genrator.dart,
     outputDirectory: 'api/petstore_api')
 class Example extends OpenapiGeneratorConfig {}
 ```
@@ -46,6 +46,8 @@ flutter pub run build_runner build --delete-conflicting-outputs
 ```
 
 The api sdk will be generated in the folder specified in the annotation. See examples for more details
+
+Give a thumbs up if you like this library
 
 ## Features and bugs
 

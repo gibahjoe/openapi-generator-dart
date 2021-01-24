@@ -16,12 +16,15 @@ Run
 ```cmd
 pub global activate openapi_generator_cli
 ```
+
 Then you can run the generator using the command below.
 ```cmd
 openapi-generator generate -i http://127.0.0.1:8111/v3/api-docs -g dart
 ```
-
 See [OpenAPITools/openapi-generator](https://github.com/OpenAPITools/openapi-generator) for more commands
+
+Note:
+Pub installs executables into `{flutter sdk dir}/.pub-cache/bin`, which has to be in your `PATH` for the above command to work.
 
 ### Dart/Flutter
 

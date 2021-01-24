@@ -1,3 +1,8 @@
+## 2.2.0
+
+- Added support for flutter wrappers
+- Bumped dart-ogurets generator to 4.1 with [breaking changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
+
 ## 2.0.0
 
 - Bumped generator version to 5.0.0. This has some breaking changes. [Click here](https://github.com/OpenAPITools/openapi-generator/releases/tag/v5.0.0) to view changes

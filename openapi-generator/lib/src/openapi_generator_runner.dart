@@ -24,13 +24,6 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           todo: 'Remove the [Openapi] annotation from `$friendlyName`.',
         );
       }
-      // genericReader
-      //   ..addDecoder<annots.Generator>(
-      //       (constantReader) => constantReader.enumValue<annots.Generator>())
-      //   ..addDecoder<annots.DioDateLibrary>((constantReader) =>
-      //       constantReader.enumValue<annots.DioDateLibrary>())
-      //   ..addDecoder<annots.SerializationFormat>((constantReader) =>
-      //       constantReader.enumValue<annots.SerializationFormat>());
       var separator = '?*?';
       var command = 'generate';
 
@@ -106,8 +99,10 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       }
 
       if (exitCode == 0) {
-        final command = _getCommandWithWrapper('flutter', ['pub', 'get'], annotation);
-        var installOutput = await Process.run(command.executable, command.arguments,
+        final command =
+            _getCommandWithWrapper('flutter', ['pub', 'get'], annotation);
+        var installOutput = await Process.run(
+            command.executable, command.arguments,
             runInShell: Platform.isWindows,
             workingDirectory: '$outputDirectory');
 
@@ -127,14 +122,19 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         //run buildrunner to generate files
         switch (generatorName) {
           case annots.Generator.DART:
-          case annots.Generator.DART2_API:
+          case annots.Generator.dart:
             print(
                 'OpenapiGenerator :: skipping source gen because generator does not need it ::');
             break;
           case annots.Generator.DART_DIO:
+          case annots.Generator.dio:
+          case annots.Generator.jaguar:
+          case annots.Generator.DART2_API:
+          case annots.Generator.dioAlt:
           case annots.Generator.DART_JAGUAR:
             try {
-              var runnerOutput = await runSourceGen(annotation, outputDirectory);
+              var runnerOutput =
+                  await runSourceGen(annotation, outputDirectory);
               print(
                   'OpenapiGenerator :: build runner exited with code ${runnerOutput.exitCode} ::');
             } catch (e) {
@@ -151,10 +151,12 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     return '';
   }
 
-  Future<ProcessResult> runSourceGen(ConstantReader annotation, String outputDirectory) async {
+  Future<ProcessResult> runSourceGen(
+      ConstantReader annotation, String outputDirectory) async {
     print('OpenapiGenerator :: running source code generation ::');
     var c = 'pub run build_runner build --delete-conflicting-outputs';
-    final command = _getCommandWithWrapper('flutter', c.split(' ').toList(), annotation);
+    final command =
+        _getCommandWithWrapper('flutter', c.split(' ').toList(), annotation);
     ProcessResult runnerOutput;
     runnerOutput = await Process.run(command.executable, command.arguments,
         runInShell: Platform.isWindows, workingDirectory: '$outputDirectory');
@@ -207,19 +209,28 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     var genName = 'dart';
     switch (generator) {
       case annots.Generator.DART:
+      case annots.Generator.dart:
         break;
       case annots.Generator.DART_DIO:
+      case annots.Generator.dio:
         genName = 'dart-dio';
         break;
       case annots.Generator.DART2_API:
+      case annots.Generator.dioAlt:
         genName = 'dart2-api';
         break;
       case annots.Generator.DART_JAGUAR:
+      case annots.Generator.jaguar:
         genName = 'dart-jaguar';
         break;
       default:
         throw InvalidGenerationSourceError(
-          'Generator name must be any of dart, dart2-api, dart-dio, dart-jaguar.',
+          'Generator name must be any of ${annots.Generator.values.where((value) => ![
+                annots.Generator.DART,
+                annots.Generator.DART_DIO,
+                annots.Generator.DART2_API,
+                annots.Generator.DART_JAGUAR
+              ].contains(value)).toList()}.',
         );
     }
     return genName;
@@ -261,9 +272,14 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         .join(',');
   }
 
-  Command _getCommandWithWrapper(String command, List<String> arguments, ConstantReader annotation){
-    final wrapper = annotation.read('additionalProperties')?.read('wrapper')?.enumValue<annots.Wrapper>() ?? annots.Wrapper.none;
-    switch(wrapper){
+  Command _getCommandWithWrapper(
+      String command, List<String> arguments, ConstantReader annotation) {
+    final wrapper = annotation
+            .read('additionalProperties')
+            ?.read('wrapper')
+            ?.enumValue<annots.Wrapper>() ??
+        annots.Wrapper.none;
+    switch (wrapper) {
       case annots.Wrapper.flutterw:
         return Command('./flutterw', arguments);
       case annots.Wrapper.fvm:
