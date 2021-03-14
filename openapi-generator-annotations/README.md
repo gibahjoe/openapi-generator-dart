@@ -49,6 +49,26 @@ The api sdk will be generated in the folder specified in the annotation. See exa
 
 Give a thumbs up if you like this library
 
+
+## Known Issues
+### Dependency issues/conflicts
+This is not an issue with this library but with flutter/dart in general. If you are having issues with dependencies, what
+you can do is make use of dependency overrides. This is added to the pubspec.yaml of the generated package and then the pubspec
+must be added to the .openapi-generator-ignore of the generated package.
+For example, let's assume you want to override the analyzer package for the generated source
+
+in generatedsource/pubspec.yaml add the following
+```yaml
+dependency_overrides:
+    analyzer: 1.0.0
+```
+Then in generatedsources/.openapi-generator-ignore, add the below so that the pubspec is not overwritten next time you run source gen
+```.gitignore
+pubspec.yaml
+```
+The above steps are usefull when you have issues with dependency conflicts, clashes. You can even use it to upgrade the library packages in the generated source.
+
+
 ## Features and bugs
 
 Please file feature requests and bugs at the [issue tracker][tracker].

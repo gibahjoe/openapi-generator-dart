@@ -23,13 +23,13 @@ dependency_overrides:
 dependencies:
   flutter:
     sdk: flutter
-  openapi_generator_annotations: ^1.1.0
-  cupertino_icons: ^0.1.3
+  openapi_generator_annotations: ^2.2.0
+  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  openapi_generator: ^1.1.0
+  openapi_generator: ^2.2.0
 
 
 # For information on the generic Dart part of this file, see the

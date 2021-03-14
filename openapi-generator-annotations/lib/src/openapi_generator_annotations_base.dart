@@ -247,18 +247,6 @@ enum SerializationFormat { JSON, PROTO }
 
 /// The name of the generator to use
 enum Generator {
-  @Deprecated('Use Generator.dart instead')
-  DART,
-
-  @Deprecated('Use Generator.dio instead')
-  DART_DIO,
-
-  @Deprecated('Use Generator.dioAlt instead')
-  DART2_API,
-
-  @Deprecated('Use Generator.jaguar instead')
-  DART_JAGUAR,
-
   /// This generator uses the default http package that comes with dart
   /// corresponds to dart
   dart,
@@ -271,7 +259,7 @@ enum Generator {
   /// https://pub.flutter-io.cn/packages/dio
   dio,
 
-  /// This uses the generator provided by bluetrainsoftware which internally uses the dio packaget
+  /// This uses the generator provided by bluetrainsoftware which internally uses the dio package
   ///
   /// You can read more about it here https://github.com/dart-ogurets/dart-openapi-maven
   dioAlt,

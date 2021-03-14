@@ -121,17 +121,13 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       if (exitCode == 0) {
         //run buildrunner to generate files
         switch (generatorName) {
-          case annots.Generator.DART:
           case annots.Generator.dart:
             print(
                 'OpenapiGenerator :: skipping source gen because generator does not need it ::');
             break;
-          case annots.Generator.DART_DIO:
           case annots.Generator.dio:
           case annots.Generator.jaguar:
-          case annots.Generator.DART2_API:
           case annots.Generator.dioAlt:
-          case annots.Generator.DART_JAGUAR:
             try {
               var runnerOutput =
                   await runSourceGen(annotation, outputDirectory);
@@ -208,29 +204,20 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   String getGeneratorNameFromEnum(annots.Generator? generator) {
     var genName = 'dart';
     switch (generator) {
-      case annots.Generator.DART:
       case annots.Generator.dart:
         break;
-      case annots.Generator.DART_DIO:
       case annots.Generator.dio:
         genName = 'dart-dio';
         break;
-      case annots.Generator.DART2_API:
       case annots.Generator.dioAlt:
         genName = 'dart2-api';
         break;
-      case annots.Generator.DART_JAGUAR:
       case annots.Generator.jaguar:
         genName = 'dart-jaguar';
         break;
       default:
         throw InvalidGenerationSourceError(
-          'Generator name must be any of ${annots.Generator.values.where((value) => ![
-                annots.Generator.DART,
-                annots.Generator.DART_DIO,
-                annots.Generator.DART2_API,
-                annots.Generator.DART_JAGUAR
-              ].contains(value)).toList()}.',
+          'Generator name must be any of ${annots.Generator.values}.',
         );
     }
     return genName;
@@ -290,8 +277,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     }
   }
 
-  String _readFieldValueAsString(ConstantReader annotation, String fieldName,
-      [String defaultValue]) {
+  String _readFieldValueAsString(
+      ConstantReader annotation, String fieldName, String defaultValue) {
     var reader = annotation.read(fieldName);
 
     return reader.isNull ? defaultValue : reader.stringValue ?? defaultValue;

@@ -7,13 +7,13 @@ import 'package:source_gen/source_gen.dart' show ConstantReader;
 extension TypeMethods on ConstantReader {
   /// Returns `true` if `this` represents a constant expression
   /// with type `dynamic`.
-  bool get isDynamic => objectValue.type.isDynamic;
+  bool get isDynamic => objectValue.type?.isDynamic??false;
 
   /// Returns the static type of `this`.
-  DartType get type => objectValue.type;
+  DartType? get type => objectValue?.type;
 
   /// Returns a `List` of type arguments or the empty list.
-  List<DartType> get typeArgs => objectValue.type.typeArguments ?? <DartType>[];
+  List<DartType> get typeArgs => objectValue.type?.typeArguments ?? <DartType>[];
 
   /// Reads a instance of a Dart enumeration.
   ///
