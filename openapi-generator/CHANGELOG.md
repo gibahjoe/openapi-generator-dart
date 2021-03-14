@@ -2,10 +2,18 @@
 
 - Added support for flutter wrappers
 - Bumped dart-ogurets generator to 4.1 with [breaking changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
+## 3.0.0-nullsafety.1
+
+- Bumped generator version to 5.0.0. This has some breaking changes. [Click here](https://github.com/OpenAPITools/openapi-generator/releases/tag/v5.0.0) to view changes
+- bumped null safety
 
 ## 2.0.0
 
 - Bumped generator version to 5.0.0. This has some breaking changes. [Click here](https://github.com/OpenAPITools/openapi-generator/releases/tag/v5.0.0) to view changes
+
+## 2.0.0-nullsafety.0
+
+- Migrated to null safety
 
 ## 1.1.4
 

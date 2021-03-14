@@ -6,7 +6,7 @@ void main(List<String> arguments) async {
   exitCode = 0; // presume success
 
   var binPath = (await Isolate.resolvePackageUri(
-          Uri.parse('package:openapi_generator_cli/openapi-generator.jar')))
+          Uri.parse('package:openapi_generator_cli/openapi-generator.jar')))!
       .toFilePath(windows: Platform.isWindows);
   var JAVA_OPTS = Platform.environment['JAVA_OPTS'] ?? '';
 
