@@ -1,4 +1,9 @@
-## 3.0.1
+## 3.1.0
+- **BREAKING CHANGES**
+- Bumped dart-ogurets (_dioAlt_) generator to 5.0 with [breaking changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
+- Bumped official openapi generator to 5.1.0. See [change log](https://github.com/OpenAPITools/openapi-generator/releases/tag/v5.1.0)
+
+## 3.0.2
 - ###BREAKING CHANGE -> Updated generator enums to camelCase and removed old ones.
 
 ## 3.0.0-nullsafety.1

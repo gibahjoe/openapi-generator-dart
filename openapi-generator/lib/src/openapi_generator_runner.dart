@@ -37,7 +37,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       command = '$command$separator-g$separator$generator';
 
       var outputDirectory =
-          _readFieldValueAsString(annotation, 'outputDirectory', '')!;
+          _readFieldValueAsString(annotation, 'outputDirectory', '');
       if (outputDirectory.isNotEmpty) {
         var alwaysRun = _readFieldValueAsBool(annotation, 'alwaysRun', false)!;
         var filePath = path.join(outputDirectory, 'lib/api.dart');
@@ -141,7 +141,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         }
       }
     } catch (e) {
-      print('Error generating spec ${e}');
+      print('Error generating spec $e');
       rethrow;
     }
     return '';
@@ -173,9 +173,9 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
                   '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${entry.key}=${entry.value.toStringValue()}'
             });
 
-    if (additionalProperties != null && additionalProperties.isNotEmpty) {
+    if (additionalProperties.isNotEmpty) {
       command =
-          '$command$separator--additional-properties=${additionalProperties}';
+          '$command$separator--additional-properties=$additionalProperties';
     }
     return command;
   }
@@ -226,18 +226,18 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   String appendTemplateDirCommandArgs(
       ConstantReader annotation, String command, String separator) {
     var templateDir =
-        _readFieldValueAsString(annotation, 'templateDirectory', '')!;
+        _readFieldValueAsString(annotation, 'templateDirectory', '');
     if (templateDir.isNotEmpty) {
-      command = '$command$separator-t$separator${templateDir}';
+      command = '$command$separator-t$separator$templateDir';
     }
     return command;
   }
 
   String appendInputFileCommandArgs(
       ConstantReader annotation, String command, String separator) {
-    var inputFile = _readFieldValueAsString(annotation, 'inputSpecFile', '')!;
+    var inputFile = _readFieldValueAsString(annotation, 'inputSpecFile', '');
     if (inputFile.isNotEmpty) {
-      command = '$command$separator-i$separator${inputFile}';
+      command = '$command$separator-i$separator$inputFile';
     }
     return command;
   }
