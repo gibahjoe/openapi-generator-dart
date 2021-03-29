@@ -32,8 +32,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       command = appendTemplateDirCommandArgs(annotation, command, separator);
 
       var generatorName =
-          annotation.peek('generatorName').enumValue<annots.Generator>();
-      var generator = getGeneratorNameFromEnum(generatorName);
+          annotation.peek('generatorName')?.enumValue<annots.Generator>();
+      var generator = getGeneratorNameFromEnum(generatorName!);
       command = '$command$separator-g$separator$generator';
 
       var outputDirectory =
@@ -46,7 +46,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
               'OpenapiGenerator :: Codegen skipped because alwaysRun is set to [$alwaysRun] and $filePath already exists');
           return '';
         }
-        command = '$command$separator-o$separator${outputDirectory}';
+        command = '$command$separator-o$separator$outputDirectory';
       }
 
       command = appendTypeMappingCommandArgs(annotation, command, separator);
@@ -201,7 +201,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     return command;
   }
 
-  String getGeneratorNameFromEnum(annots.Generator? generator) {
+  String getGeneratorNameFromEnum(annots.Generator generator) {
     var genName = 'dart';
     switch (generator) {
       case annots.Generator.dart:
@@ -263,9 +263,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       String command, List<String> arguments, ConstantReader annotation) {
     final wrapper = annotation
             .read('additionalProperties')
-            ?.read('wrapper')
-            ?.enumValue<annots.Wrapper>() ??
-        annots.Wrapper.none;
+            .read('wrapper')
+            .enumValue<annots.Wrapper>();
     switch (wrapper) {
       case annots.Wrapper.flutterw:
         return Command('./flutterw', arguments);
@@ -281,21 +280,21 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       ConstantReader annotation, String fieldName, String defaultValue) {
     var reader = annotation.read(fieldName);
 
-    return reader.isNull ? defaultValue : reader.stringValue ?? defaultValue;
+    return reader.isNull ? defaultValue : reader.stringValue;
   }
 
   Map? _readFieldValueAsMap(ConstantReader annotation, String fieldName,
       [Map? defaultValue]) {
     var reader = annotation.read(fieldName);
 
-    return reader.isNull ? defaultValue : reader.mapValue ?? defaultValue;
+    return reader.isNull ? defaultValue : reader.mapValue;
   }
 
   bool? _readFieldValueAsBool(ConstantReader annotation, String fieldName,
       [bool? defaultValue]) {
     var reader = annotation.read(fieldName);
 
-    return reader.isNull ? defaultValue : reader.boolValue ?? defaultValue;
+    return reader.isNull ? defaultValue : reader.boolValue;
   }
 }
 
