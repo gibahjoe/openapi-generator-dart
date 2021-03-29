@@ -262,9 +262,9 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   Command _getCommandWithWrapper(
       String command, List<String> arguments, ConstantReader annotation) {
     final wrapper = annotation
-            .read('additionalProperties')
-            .read('wrapper')
-            .enumValue<annots.Wrapper>();
+        .read('additionalProperties')
+        .read('wrapper')
+        .enumValue<annots.Wrapper>();
     switch (wrapper) {
       case annots.Wrapper.flutterw:
         return Command('./flutterw', arguments);
