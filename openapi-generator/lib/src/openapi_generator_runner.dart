@@ -126,6 +126,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
                 'OpenapiGenerator :: skipping source gen because generator does not need it ::');
             break;
           case annots.Generator.dio:
+          case annots.Generator.dioNext:
           case annots.Generator.jaguar:
           case annots.Generator.dioAlt:
             try {
@@ -208,6 +209,9 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         break;
       case annots.Generator.dio:
         genName = 'dart-dio';
+        break;
+      case annots.Generator.dioNext:
+        genName = 'dart-dio-next';
         break;
       case annots.Generator.dioAlt:
         genName = 'dart2-api';

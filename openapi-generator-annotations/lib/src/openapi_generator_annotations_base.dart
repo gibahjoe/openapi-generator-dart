@@ -264,6 +264,11 @@ enum Generator {
   /// You can read more about it here https://github.com/dart-ogurets/dart-openapi-maven
   dioAlt,
 
+  /// This uses the next gen dio generator. This is experimental and use at your own risk. It might be removed or renamed in the future
+  ///
+  /// You can read more about it here https://github.com/OpenAPITools/openapi-generator/pull/8869
+  dioNext,
+
   /// This generates code based on the jaguar package Source gen is required
   /// after generating code with this generator
   /// corresponds to dart-jaguar
