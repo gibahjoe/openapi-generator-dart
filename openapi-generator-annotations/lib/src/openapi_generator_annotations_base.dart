@@ -61,7 +61,24 @@ class Openapi {
   ///Defaults to true
   final bool? runSourceGenOnOutput;
 
+  ///  sets mappings between OpenAPI spec types and generated code types in
+  ///  the format of OpenAPIType=generatedType,OpenAPIType=generatedType.
+  ///  For example: array=List,map=Map,string=String. You can also have
+  ///  multiple occurrences of this option. To map a specified format, use
+  ///  type+format, e.g. string+password=EncryptedString will map `type:
+  ///  string, format: password` to `EncryptedString`.
+  ///
+  ///   --type-mappings
   final Map<String, String>? typeMappings;
+
+  /// specifies mappings between a given class and the import that should
+  /// be used for that class in the format of type=import,type=import. You
+  /// can also have multiple occurrences of this option.
+  ///
+  /// --import-mappings
+  ///
+  /// e.g {'OffsetDate': 'package:time_machine/time_machine.dart'}
+  final Map<String, String>? importMappings;
 
   const Openapi(
       {this.additionalProperties,
@@ -72,6 +89,7 @@ class Openapi {
       required this.generatorName,
       this.outputDirectory,
       this.typeMappings,
+      this.importMappings,
       this.reservedWordsMappings,
       this.apiPackage,
       this.fetchDependencies = true,
@@ -205,6 +223,62 @@ class DioProperties extends AdditionalProperties {
   const DioProperties(
       {this.dateLibrary,
       this.nullableFields,
+      bool allowUnicodeIdentifiers = false,
+      bool ensureUniqueParams = true,
+      bool prependFormOrBodyParameters = false,
+      String? pubAuthor,
+      String? pubAuthorEmail,
+      String? pubDescription,
+      String? pubHomepage,
+      String? pubName,
+      String? pubVersion,
+      bool sortModelPropertiesByRequiredFlag = true,
+      bool sortParamsByRequiredFlag = true,
+      bool useEnumExtension = true,
+      String? sourceFolder})
+      : super(
+            allowUnicodeIdentifiers: allowUnicodeIdentifiers,
+            ensureUniqueParams: ensureUniqueParams,
+            prependFormOrBodyParameters: prependFormOrBodyParameters,
+            pubAuthor: pubAuthor,
+            pubAuthorEmail: pubAuthorEmail,
+            pubDescription: pubDescription,
+            pubHomepage: pubHomepage,
+            pubName: pubName,
+            pubVersion: pubVersion,
+            sortModelPropertiesByRequiredFlag:
+                sortModelPropertiesByRequiredFlag,
+            sortParamsByRequiredFlag: sortParamsByRequiredFlag,
+            sourceFolder: sourceFolder,
+            useEnumExtension: useEnumExtension);
+}
+
+class DioAltProperties extends AdditionalProperties {
+  /// Changes the minimum version of Dart to 2.12 and generate null safe code
+  final bool? nullSafe;
+
+  /// nullSafe-array-default
+  /// Makes even arrays that are not listed as being required in your OpenAPI "required"
+  /// but making them always generate a default value of []
+  final bool? nullSafeArrayDefault;
+
+  /// This will turn off AnyOf support. This would be a bit weird, but you can do it if you want.
+  final bool? listAnyOf;
+
+  /// Anything in this will be split on a command added to the dependencies section of your generated code.
+  /// pubspec-dependencies
+  final String? pubspecDependencies;
+
+  /// pubspec-dev-dependencies
+  /// Anything here will be added to the dev dependencies of your generated code.
+  final String? pubspecDevDependencies;
+
+  const DioAltProperties(
+      {this.nullSafe,
+      this.nullSafeArrayDefault,
+      this.pubspecDependencies,
+      this.pubspecDevDependencies,
+      this.listAnyOf,
       bool allowUnicodeIdentifiers = false,
       bool ensureUniqueParams = true,
       bool prependFormOrBodyParameters = false,

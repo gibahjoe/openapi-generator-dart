@@ -44,7 +44,7 @@ dependency_overrides:
     analyzer: 1.0.0
 ```
 Then in generatedsources/.openapi-generator-ignore, add the below so that the pubspec is not overwritten next time you run source gen
-```.gitignore
+```
 pubspec.yaml
 ```
 The above steps are usefull when you have issues with dependency conflicts, clashes. You can even use it to upgrade the library packages in the generated source.

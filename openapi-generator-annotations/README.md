@@ -47,6 +47,8 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 The api sdk will be generated in the folder specified in the annotation. See examples for more details
 
+To use the generated api in your project, import it into your pubspec
+
 Give a thumbs up if you like this library
 
 

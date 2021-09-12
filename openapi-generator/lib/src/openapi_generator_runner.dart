@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:build/src/builder/build_step.dart';
@@ -13,6 +14,10 @@ import 'package:source_gen/source_gen.dart';
 import 'extensions/type_methods.dart';
 
 class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
+  final Function(String command)? test;
+
+  OpenapiGenerator({this.test});
+
   @override
   FutureOr<String> generateForAnnotatedElement(
       Element element, ConstantReader annotation, BuildStep buildStep) async {
@@ -65,7 +70,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       var binPath = (await Isolate.resolvePackageUri(Uri.parse(
               'package:openapi_generator_cli/openapi-generator.jar')))!
           .toFilePath(windows: Platform.isWindows);
-
+      test?.call(command.replaceAll(separator, ' '));
       // Include java environment variables in command
       var JAVA_OPTS = Platform.environment['JAVA_OPTS'] ?? '';
 
@@ -171,7 +176,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         .entries
         .forEach((entry) => {
               additionalProperties =
-                  '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${entry.key}=${entry.value.toStringValue()}'
+                  '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${convertToPropertyKey(entry.key)}=${convertToPropertyValue(entry.value)}'
             });
 
     if (additionalProperties.isNotEmpty) {
@@ -187,6 +192,17 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     if (typeMappingsMap.isNotEmpty) {
       command =
           '$command$separator--type-mappings=${getMapAsString(typeMappingsMap)}';
+    }
+    return command;
+  }
+
+  String appendImportMappingCommandArgs(
+      ConstantReader annotation, String command, String separator) {
+    var importMappings =
+        _readFieldValueAsMap(annotation, 'importMappings', {})!;
+    if (importMappings.isNotEmpty) {
+      command =
+          '$command$separator--import-mappings=${getMapAsString(importMappings)}';
     }
     return command;
   }
@@ -299,6 +315,28 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     var reader = annotation.read(fieldName);
 
     return reader.isNull ? defaultValue : reader.boolValue;
+  }
+
+  String convertToPropertyKey(String key) {
+    switch (key) {
+      case 'nullSafeArrayDefault':
+        return 'nullSafe-array-default';
+      case 'pubspecDependencies':
+        return 'pubspec-dependencies';
+      case 'pubspecDevDependencies':
+        return 'pubspec-dev-dependencies';
+    }
+    return key;
+  }
+
+  String convertToPropertyValue(DartObject value) {
+    if (value.isNull) {
+      return '';
+    }
+    return value.toStringValue() ??
+        value.toBoolValue()?.toString() ??
+        value.toIntValue()?.toString() ??
+        '';
   }
 }
 

@@ -47,13 +47,13 @@
         <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>openapi-generator-cli</artifactId>
-            <version>5.1.1</version>
+            <version>5.2.1</version>
         </dependency>
         
         <dependency>
             <groupId>com.bluetrainsoftware.maven</groupId>
             <artifactId>openapi-dart-generator</artifactId>
-            <version>5.3</version>
+            <version>5.9</version>
         </dependency>        
     </dependencies>
 </project>

@@ -1,0 +1,5291 @@
+---
+openapi: "3.0.3"
+info:
+  title: "OpenAPI definition"
+  version: "v0.1"
+paths:
+  /v0.1/transactions:
+    post:
+      tags:
+      - "gateway-controller"
+      operationId: "createGatewayPendingTransactions"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTransactionRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/LogEvent"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayApiError"
+  /v0.1/currency/rate:
+    get:
+      tags:
+      - "currency-controller"
+      operationId: "getCurrencyRate"
+      parameters:
+      - name: "blockchain"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      - name: "address"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "at"
+        in: "query"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrencyRate"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrencyApiError"
+  /v0.1/erc20/balances/{contract}/{owner}:
+    get:
+      tags:
+      - "erc20-balance-controller"
+      operationId: "getErc20Balance"
+      parameters:
+      - name: "contract"
+        in: "path"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "owner"
+        in: "path"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erc20DecimalBalance"
+  /v0.1/erc20/tokens/{contract}:
+    get:
+      tags:
+      - "erc20-token-controller"
+      operationId: "getErc20TokenById"
+      parameters:
+      - name: "contract"
+        in: "path"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erc20Token"
+        "404":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erc20IndexerApiError"
+        "500":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erc20IndexerApiError"
+  /v0.1/nft/transactions:
+    post:
+      tags:
+      - "nft-transaction-controller"
+      description: "Create pending transaction for NFT"
+      operationId: "createNftPendingTransaction"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTransactionRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/LogEvent"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/mints:
+    post:
+      tags:
+      - "nft-lazy-mint-controller"
+      description: "Lazy mint of NFT"
+      operationId: "mintNftAsset"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LazyNft"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftItem"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/activities/search:
+    post:
+      tags:
+      - "nft-activity-controller"
+      operationId: "getNftActivities"
+      parameters:
+      - name: "continuation"
+        in: "query"
+        description: "continuation value from previous response"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        description: "how many items to return"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "sort"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/ActivitySort"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NftActivityFilter"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftActivities"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/ownerships/{ownershipId}:
+    get:
+      tags:
+      - "nft-ownership-controller"
+      operationId: "getNftOwnershipById"
+      parameters:
+      - name: "ownershipId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOwnership"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/ownerships/byItem:
+    get:
+      tags:
+      - "nft-ownership-controller"
+      operationId: "getNftOwnershipsByItem"
+      parameters:
+      - name: "contract"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "tokenId"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/BigInteger"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOwnerships"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/ownerships/all:
+    get:
+      tags:
+      - "nft-ownership-controller"
+      operationId: "getNftAllOwnerships"
+      parameters:
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOwnerships"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/items/{itemId}/meta:
+    get:
+      tags:
+      - "nft-item-controller"
+      operationId: "getNftItemMetaById"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftItemMeta"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/items/{itemId}/resetMeta:
+    delete:
+      tags:
+      - "nft-item-controller"
+      operationId: "resetNftItemMetaById"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/items/{itemId}/lazy:
+    get:
+      tags:
+      - "nft-item-controller"
+      operationId: "getNftLazyItemById"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LazyNft"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/items/{itemId}:
+    get:
+      tags:
+      - "nft-item-controller"
+      description: "returns Item by identifier"
+      operationId: "getNftItemById"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "includeMeta"
+        in: "query"
+        required: false
+        schema:
+          type: "boolean"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftItem"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/items/byOwner:
+    get:
+      tags:
+      - "nft-item-controller"
+      operationId: "getNftItemsByOwner"
+      parameters:
+      - name: "owner"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "includeMeta"
+        in: "query"
+        required: false
+        schema:
+          type: "boolean"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftItems"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/items/byCreator:
+    get:
+      tags:
+      - "nft-item-controller"
+      operationId: "getNftItemsByCreator"
+      parameters:
+      - name: "creator"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "includeMeta"
+        in: "query"
+        required: false
+        schema:
+          type: "boolean"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftItems"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/items/byCollection:
+    get:
+      tags:
+      - "nft-item-controller"
+      operationId: "getNftItemsByCollection"
+      parameters:
+      - name: "collection"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "includeMeta"
+        in: "query"
+        required: false
+        schema:
+          type: "boolean"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftItems"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/items/all:
+    get:
+      tags:
+      - "nft-item-controller"
+      operationId: "getNftAllItems"
+      parameters:
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "showDeleted"
+        in: "query"
+        required: false
+        schema:
+          type: "boolean"
+      - name: "lastUpdatedFrom"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int64"
+      - name: "lastUpdatedTo"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int64"
+      - name: "includeMeta"
+        in: "query"
+        required: false
+        schema:
+          type: "boolean"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftItems"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/collections/{collection}/generate_token_id:
+    get:
+      tags:
+      - "nft-collection-controller"
+      description: "Returns next available tokenId for minter"
+      operationId: "generateNftTokenId"
+      parameters:
+      - name: "collection"
+        in: "path"
+        description: "collection address"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "minter"
+        in: "query"
+        description: "minter address"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftTokenId"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/collections/{collection}:
+    get:
+      tags:
+      - "nft-collection-controller"
+      description: "Returns Collection by address"
+      operationId: "getNftCollectionById"
+      parameters:
+      - name: "collection"
+        in: "path"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftCollection"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/collections/byOwner:
+    get:
+      tags:
+      - "nft-collection-controller"
+      operationId: "searchNftCollectionsByOwner"
+      parameters:
+      - name: "owner"
+        in: "query"
+        description: "owner of searching collections"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftCollections"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/nft/collections/all:
+    get:
+      tags:
+      - "nft-collection-controller"
+      operationId: "searchNftAllCollections"
+      parameters:
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftCollections"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftIndexerApiError"
+  /v0.1/order/transactions:
+    post:
+      tags:
+      - "order-transaction-controller"
+      description: "Create pending transaction for order"
+      operationId: "createOrderPendingTransaction"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTransactionRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/LogEvent"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/orders:
+    post:
+      tags:
+      - "order-controller"
+      description: "Create or update Order"
+      operationId: "upsertOrder"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderForm"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/aggregations/nftSellByMaker:
+    get:
+      tags:
+      - "order-aggregation-controller"
+      operationId: "aggregateNftSellByMaker"
+      description: "Aggregate nft sell order by maker"
+      parameters:
+      - name: "startDate"
+        in: "query"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      - name: "endDate"
+        in: "query"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int64"
+      - name: "source"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Platform"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/AggregationData"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/aggregations/nftPurchaseByTaker:
+    get:
+      tags:
+      - "order-aggregation-controller"
+      operationId: "aggregateNftPurchaseByTaker"
+      description: "Aggregate nft purchase by taker"
+      parameters:
+      - name: "startDate"
+        in: "query"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      - name: "endDate"
+        in: "query"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int64"
+      - name: "source"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Platform"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/AggregationData"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/aggregations/nftPurchaseByCollection:
+    get:
+      tags:
+      - "order-aggregation-controller"
+      operationId: "aggregateNftPurchaseBuyCollection"
+      description: "Aggregate nft purchase by collection"
+      parameters:
+      - name: "startDate"
+        in: "query"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      - name: "endDate"
+        in: "query"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int64"
+      - name: "source"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Platform"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/AggregationData"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/encoder/order:
+    post:
+      tags:
+      - "order-encode-controller"
+      operationId: "encodeOrder"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderForm"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncodedOrder"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/encoder/data:
+    post:
+      tags:
+      - "order-encode-controller"
+      operationId: "encodeOrderData"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderData"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncodedOrderData"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/encoder/assetType:
+    post:
+      tags:
+      - "order-encode-controller"
+      operationId: "encodeOrderAssetType"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssetType"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncodedOrderData"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/activities/search:
+    post:
+      tags:
+      - "order-activity-controller"
+      operationId: "getOrderActivities"
+      parameters:
+      - name: "continuation"
+        in: "query"
+        description: "continuation value from previous response"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        description: "how many items to return"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "sort"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/ActivitySort"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderActivityFilter"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderActivities"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/orders/{hash}/prepareTx:
+    post:
+      tags:
+      - "order-controller"
+      operationId: "prepareOrderTransaction"
+      parameters:
+      - name: "hash"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PrepareOrderTxForm"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrepareOrderTxResponse"
+  /v0.1/order/orders/{hash}/prepareV2Tx:
+    post:
+      deprecated: true
+      tags:
+      - "order-controller"
+      operationId: "prepareOrderV2Transaction"
+      parameters:
+      - name: "hash"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderForm"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrepareOrderTxResponse"
+  /v0.1/order/orders/{hash}/invert:
+    post:
+      deprecated: true
+      tags:
+      - "order-controller"
+      operationId: "invertOrder"
+      parameters:
+      - name: "hash"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvertOrderForm"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderForm"
+  /v0.1/order/orders/{hash}/prepareCancelTx:
+    post:
+      tags:
+      - "order-controller"
+      operationId: "prepareOrderCancelTransaction"
+      parameters:
+      - name: "hash"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PreparedOrderTx"
+  /v0.1/order/orders/{hash}:
+    get:
+      tags:
+      - "order-controller"
+      operationId: "getOrderByHash"
+      parameters:
+      - name: "hash"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/orders/{hash}/updateMakeStock:
+    get:
+      tags:
+      - "order-controller"
+      operationId: "updateOrderMakeStock"
+      parameters:
+      - name: "hash"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/orders/all:
+    get:
+      tags:
+      - "order-controller"
+      operationId: "getOrdersAll"
+      parameters:
+      - name: "origin"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "platform"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Platform"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          minimum: 1
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrdersPagination"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/orders/buyerFeeSignature:
+    post:
+      tags:
+      - "order-controller"
+      operationId: "buyerFeeSignature"
+      parameters:
+      - name: "fee"
+        in: "query"
+        required: true
+        schema:
+          type: "integer"
+          minimum: 0
+          format: "int32"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderForm"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Binary"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/orders/sell/byMaker:
+    get:
+      tags:
+      - "order-controller"
+      operationId: "getSellOrdersByMaker"
+      parameters:
+      - name: "maker"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "origin"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "platform"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Platform"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          minimum: 1
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrdersPagination"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/orders/sell/byItem:
+    get:
+      tags:
+      - "order-controller"
+      operationId: "getSellOrdersByItem"
+      parameters:
+      - name: "contract"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "tokenId"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/BigInteger"
+      - name: "maker"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "origin"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "platform"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Platform"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          minimum: 1
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrdersPagination"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/orders/sell/byCollection:
+    get:
+      tags:
+      - "order-controller"
+      operationId: "getSellOrdersByCollection"
+      parameters:
+      - name: "collection"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "origin"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "platform"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Platform"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          minimum: 1
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrdersPagination"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/orders/sell:
+    get:
+      tags:
+      - "order-controller"
+      operationId: "getSellOrders"
+      parameters:
+      - name: "origin"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "platform"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Platform"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          minimum: 1
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrdersPagination"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/orders/bids/byMaker:
+    get:
+      tags:
+      - "order-controller"
+      operationId: "getOrderBidsByMaker"
+      parameters:
+      - name: "maker"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "origin"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "platform"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Platform"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          minimum: 1
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrdersPagination"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/orders/bids/byItem:
+    get:
+      tags:
+      - "order-controller"
+      operationId: "getOrderBidsByItem"
+      parameters:
+      - name: "contract"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "tokenId"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/BigInteger"
+      - name: "maker"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "origin"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "platform"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Platform"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          minimum: 1
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrdersPagination"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/order/bids/byItem:
+    get:
+      tags:
+      - "order-bid-controller"
+      operationId: "getBidsByItem"
+      parameters:
+      - name: "contract"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "tokenId"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/BigInteger"
+      - name: "status"
+        in: "query"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/OrderBidStatus"
+      - name: "maker"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "platform"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/Platform"
+      - name: "startDate"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+          format: "date-time"
+      - name: "endDate"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+          format: "date-time"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          minimum: 1
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderBidsPagination"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderIndexerApiError"
+  /v0.1/unlockable/item/{itemId}/lock:
+    post:
+      tags:
+      - "lock-controller"
+      operationId: "createLock"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LockForm"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lock"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnlockableApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnlockableApiError"
+  /v0.1/unlockable/item/{itemId}/content:
+    post:
+      tags:
+      - "lock-controller"
+      operationId: "getLockContent"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignatureForm"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "string"
+        "400":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnlockableApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnlockableApiError"
+  /v0.1/unlockable/item/{itemId}/isUnlockable:
+    get:
+      tags:
+      - "lock-controller"
+      operationId: "isUnlockable"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "boolean"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnlockableApiError"
+  /v0.1/nft-order/ownerships/{ownershipId}:
+    get:
+      tags:
+      - "nft-order-ownership-controller"
+      operationId: "getNftOrderOwnershipById"
+      parameters:
+      - name: "ownershipId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderOwnership"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+        "404":
+          description: "Ownership not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/ownerships/byItem:
+    get:
+      tags:
+      - "nft-order-ownership-controller"
+      operationId: "getNftOrderOwnershipsByItem"
+      parameters:
+      - name: "contract"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "tokenId"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/BigInteger"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageNftOrderOwnershipItem"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/ownerships/all:
+    get:
+      tags:
+      - "nft-order-ownership-controller"
+      operationId: "getNftOrderAllOwnerships"
+      parameters:
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageNftOrderOwnershipItem"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/items/{itemId}:
+    get:
+      tags:
+      - "nft-order-item-controller"
+      operationId: "getNftOrderItemById"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "includeMeta"
+        in: "query"
+        required: false
+        schema:
+          type: "boolean"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderItem"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+        "404":
+          description: "Item not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/mints:
+    post:
+      tags:
+      - "nft-order-lazy-mint-controller"
+      description: "Lazy mint of NFT"
+      operationId: "mintNftOrderAsset"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LazyNft"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderItem"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/items/{itemId}/meta:
+    get:
+      tags:
+      - "nft-order-item-controller"
+      operationId: "getNftOrderItemMetaById"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftItemMeta"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/items/{itemId}/lazy:
+    get:
+      tags:
+      - "nft-order-item-controller"
+      operationId: "getNftOrderLazyItemById"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LazyNft"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/items/byOwner:
+    get:
+      tags:
+      - "nft-order-item-controller"
+      operationId: "getNftOrderItemsByOwner"
+      parameters:
+      - name: "owner"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "includeMeta"
+        in: "query"
+        required: false
+        schema:
+          type: "boolean"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageNftOrderItem"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/items/byCreator:
+    get:
+      tags:
+      - "nft-order-item-controller"
+      operationId: "getNftOrderItemsByCreator"
+      parameters:
+      - name: "creator"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "includeMeta"
+        in: "query"
+        required: false
+        schema:
+          type: "boolean"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageNftOrderItem"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/items/byCollection:
+    get:
+      tags:
+      - "nft-order-item-controller"
+      operationId: "getNftOrderItemsByCollection"
+      parameters:
+      - name: "collection"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "includeMeta"
+        in: "query"
+        required: false
+        schema:
+          type: "boolean"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageNftOrderItem"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/items/all:
+    get:
+      tags:
+      - "nft-order-item-controller"
+      operationId: "getNftOrderAllItems"
+      parameters:
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "showDeleted"
+        in: "query"
+        required: false
+        schema:
+          type: "boolean"
+      - name: "lastUpdatedFrom"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int64"
+      - name: "lastUpdatedTo"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int64"
+      - name: "includeMeta"
+        in: "query"
+        required: false
+        schema:
+          type: "boolean"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageNftOrderItem"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/activities/byUser:
+    get:
+      tags:
+      - "nft-order-activity-controller"
+      operationId: "getNftOrderActivitiesByUser"
+      parameters:
+      - name: "type"
+        in: "query"
+        required: true
+        schema:
+          type: "array"
+          items:
+            type: "string"
+            enum:
+            - "TRANSFER_FROM"
+            - "TRANSFER_TO"
+            - "MINT"
+            - "BURN"
+            - "MAKE_BID"
+            - "GET_BID"
+            - "LIST"
+            - "BUY"
+            - "SELL"
+      - name: "user"
+        in: "query"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Address"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "sort"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/ActivitySort"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activities"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/activities/byItem:
+    get:
+      tags:
+      - "nft-order-activity-controller"
+      operationId: "getNftOrderActivitiesByItem"
+      parameters:
+      - name: "type"
+        in: "query"
+        required: true
+        schema:
+          type: "array"
+          items:
+            type: "string"
+            enum:
+            - "TRANSFER"
+            - "MINT"
+            - "BURN"
+            - "BID"
+            - "LIST"
+            - "SELL"
+      - name: "contract"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "tokenId"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/BigInteger"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "sort"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/ActivitySort"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activities"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/activities/byCollection:
+    get:
+      tags:
+      - "nft-order-activity-controller"
+      operationId: "getNftOrderActivitiesByCollection"
+      parameters:
+      - name: "type"
+        in: "query"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ActivityFilterTypes"
+      - name: "collection"
+        in: "query"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "sort"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/ActivitySort"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activities"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/activities/all:
+    get:
+      tags:
+      - "nft-order-activity-controller"
+      operationId: "getNftOrderAllActivities"
+      parameters:
+      - name: "type"
+        in: "query"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ActivityFilterTypes"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      - name: "sort"
+        in: "query"
+        required: false
+        schema:
+          $ref: "#/components/schemas/ActivitySort"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activities"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/collections/{collection}/generate_token_id:
+    get:
+      tags:
+      - "nft-order-collection-controller"
+      description: "Returns next available tokenId for minter"
+      operationId: "generateNftOrderTokenId"
+      parameters:
+      - name: "collection"
+        in: "path"
+        description: "collection address"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "minter"
+        in: "query"
+        description: "minter address"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftTokenId"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/collections/{collection}:
+    get:
+      tags:
+      - "nft-order-collection-controller"
+      description: "Returns Collection by address"
+      operationId: "getNftOrderCollectionById"
+      parameters:
+      - name: "collection"
+        in: "path"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftCollection"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/collections/byOwner:
+    get:
+      tags:
+      - "nft-order-collection-controller"
+      operationId: "searchNftOrderCollectionsByOwner"
+      parameters:
+      - name: "owner"
+        in: "query"
+        description: "owner of searching collections"
+        required: true
+        schema:
+          $ref: "#/components/schemas/Address"
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftCollections"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+  /v0.1/nft-order/collections/all:
+    get:
+      tags:
+      - "nft-order-collection-controller"
+      operationId: "searchNftOrderAllCollections"
+      parameters:
+      - name: "continuation"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+          format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftCollections"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NftOrderApiError"
+components:
+  schemas:
+    GatewayApiError:
+      required:
+      - "code"
+      - "message"
+      - "status"
+      type: "object"
+      properties:
+        status:
+          type: "integer"
+          format: "int32"
+        code:
+          type: "string"
+          enum:
+          - "UNKNOWN"
+          - "VALIDATION"
+        message:
+          type: "string"
+    CurrencyRate:
+      type: "object"
+      required:
+      - "fromCurrencyId"
+      - "toCurrencyId"
+      - "rate"
+      - "date"
+      properties:
+        fromCurrencyId:
+          type: "string"
+        toCurrencyId:
+          type: "string"
+        rate:
+          $ref: "#/components/schemas/BigDecimal"
+        date:
+          type: "string"
+          format: "date-time"
+    CurrencyApiError:
+      required:
+      - "code"
+      - "message"
+      - "status"
+      type: "object"
+      properties:
+        status:
+          type: "integer"
+          format: "int32"
+        code:
+          type: "string"
+          enum:
+          - "UNKNOWN"
+          - "VALIDATION"
+          - "FIRST_TEMPLATE_OBJECT_NOT_FOUND"
+          - "SECOND_TEMPLATE_OBJECT_NOT_FOUND"
+        message:
+          type: "string"
+    BigDecimal:
+      type: "string"
+      example: 717802.342336
+    Address:
+      type: "string"
+      example: "0x60f80121c31a0d46b5279700f9df786054aa5ee5"
+    Erc20Balance:
+      type: "object"
+      required:
+      - "contract"
+      - "owner"
+      - "balance"
+      properties:
+        contract:
+          $ref: "#/components/schemas/Address"
+        owner:
+          $ref: "#/components/schemas/Address"
+        balance:
+          $ref: "#/components/schemas/BigInteger"
+    Erc20DecimalBalance:
+      type: "object"
+      required:
+      - "contract"
+      - "owner"
+      - "balance"
+      - "decimalBalance"
+      properties:
+        contract:
+          $ref: "#/components/schemas/Address"
+        owner:
+          $ref: "#/components/schemas/Address"
+        balance:
+          $ref: "#/components/schemas/BigInteger"
+        decimalBalance:
+          $ref: "#/components/schemas/BigDecimal"
+    Erc20Token:
+      type: "object"
+      required:
+      - "id"
+      properties:
+        id:
+          $ref: "#/components/schemas/Address"
+        name:
+          type: "string"
+        symbol:
+          type: "string"
+    Erc20IndexerApiError:
+      type: "object"
+      required:
+      - "status"
+      - "code"
+      - "message"
+      properties:
+        status:
+          type: "integer"
+        code:
+          type: "string"
+          enum:
+          - "UNKNOWN"
+          - "VALIDATION"
+          - "TOKEN_NOT_FOUND"
+          - "BALANCE_NOT_FOUND"
+        message:
+          type: "string"
+    Erc20BalanceEvent:
+      type: "object"
+      required:
+      - "eventId"
+      - "balanceId"
+      properties:
+        eventId:
+          type: "string"
+        balanceId:
+          type: "string"
+      discriminator:
+        propertyName: "type"
+        mapping:
+          UPDATE: "#/components/schemas/Erc20BalanceUpdateEvent"
+      oneOf:
+      - $ref: "#/components/schemas/Erc20BalanceUpdateEvent"
+    Erc20BalanceUpdateEvent:
+      type: "object"
+      required:
+      - "balance"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "UPDATE"
+        balance:
+          $ref: "#/components/schemas/Erc20Balance"
+    BigInteger:
+      type: "string"
+      example: 717802
+    NftActivities:
+      required:
+      - "items"
+      type: "object"
+      properties:
+        continuation:
+          type: "string"
+          description: "Continuation token to paginate items search result"
+        items:
+          type: "array"
+          description: "List of found activities"
+          items:
+            $ref: "#/components/schemas/NftActivity"
+    NftCollection:
+      required:
+      - "features"
+      - "id"
+      - "name"
+      - "type"
+      - "supportsLazyMint"
+      type: "object"
+      properties:
+        id:
+          $ref: "#/components/schemas/Address"
+        type:
+          type: "string"
+          enum:
+          - "ERC721"
+          - "ERC1155"
+          - "CRYPTO_PUNKS"
+        owner:
+          $ref: "#/components/schemas/Address"
+        name:
+          type: "string"
+        symbol:
+          type: "string"
+        features:
+          type: "array"
+          items:
+            type: "string"
+            enum:
+            - "APPROVE_FOR_ALL"
+            - "SET_URI_PREFIX"
+            - "BURN"
+            - "MINT_WITH_ADDRESS"
+            - "SECONDARY_SALE_FEES"
+            - "MINT_AND_TRANSFER"
+        supportsLazyMint:
+          type: "boolean"
+    NftCollections:
+      required:
+      - "total"
+      - "collections"
+      type: "object"
+      properties:
+        total:
+          type: "integer"
+          description: "Number of collections were found by request"
+          format: "int64"
+        continuation:
+          type: "string"
+          description: "Continuation token to paginate items search result"
+        collections:
+          type: "array"
+          description: "List of found collections"
+          items:
+            $ref: "#/components/schemas/NftCollection"
+    NftCollectionHistory:
+      required:
+      - "id"
+      properties:
+        id:
+          $ref: "#/components/schemas/Address"
+      discriminator:
+        propertyName: "type"
+        mapping:
+          COLLECTION_CREATE: "#/components/schemas/NftCreateCollection"
+      oneOf:
+      - $ref: "#/components/schemas/NftCreateCollection"
+    NftCreateCollection:
+      type: "object"
+      required:
+      - "owner"
+      - "name"
+      - "symbol"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "COLLECTION_CREATE"
+        owner:
+          $ref: "#/components/schemas/Address"
+        name:
+          type: "string"
+        symbol:
+          type: "string"
+    NftSignature:
+      required:
+      - "r"
+      - "s"
+      - "v"
+      type: "object"
+      properties:
+        v:
+          type: "string"
+          format: "byte"
+        r:
+          $ref: "#/components/schemas/Binary"
+        s:
+          $ref: "#/components/schemas/Binary"
+    NftTokenId:
+      required:
+      - "signature"
+      - "tokenId"
+      type: "object"
+      properties:
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        signature:
+          $ref: "#/components/schemas/NftSignature"
+    NftIndexerApiError:
+      required:
+      - "code"
+      - "message"
+      - "status"
+      type: "object"
+      properties:
+        status:
+          type: "integer"
+          format: "int32"
+        code:
+          type: "string"
+          enum:
+          - "UNKNOWN"
+          - "BAD_REQUEST"
+          - "VALIDATION"
+          - "ITEM_NOT_FOUND"
+          - "LAZY_ITEM_NOT_FOUND"
+          - "TOKEN_NOT_FOUND"
+          - "TOKEN_URI_NOT_FOUND"
+          - "TOKEN_PROPERTIES_EXTRACT"
+          - "OWNERSHIP_NOT_FOUND"
+          - "COLLECTION_NOT_FOUND"
+          - "INCORRECT_LAZY_NFT"
+        message:
+          type: "string"
+    NftItemFilter:
+      type: "object"
+      required:
+      - "sort"
+      properties:
+        sort:
+          type: "string"
+          enum:
+          - "LAST_UPDATE"
+      oneOf:
+      - $ref: "#/components/schemas/NftItemFilterAll"
+      - $ref: "#/components/schemas/NftItemFilterByOwner"
+      - $ref: "#/components/schemas/NftItemFilterByCreator"
+      - $ref: "#/components/schemas/NftItemFilterByCollection"
+    NftItemFilterAll:
+      type: "object"
+      required:
+      - "@type"
+      - "showDeleted"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "all"
+        showDeleted:
+          type: "boolean"
+        lastUpdatedFrom:
+          type: "string"
+          format: "date-time"
+    NftItemFilterByOwner:
+      type: "object"
+      required:
+      - "@type"
+      - "owner"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_owner"
+        owner:
+          $ref: "#/components/schemas/Address"
+    NftItemFilterByCreator:
+      type: "object"
+      required:
+      - "@type"
+      - "creator"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_creator"
+        creator:
+          $ref: "#/components/schemas/Address"
+    NftItemFilterByCollection:
+      type: "object"
+      required:
+      - "@type"
+      - "collection"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_collection"
+        collection:
+          $ref: "#/components/schemas/Address"
+    NftOwnershipFilter:
+      type: "object"
+      required:
+      - "sort"
+      properties:
+        sort:
+          type: "string"
+          enum:
+          - "LAST_UPDATE"
+      oneOf:
+      - $ref: "#/components/schemas/NftOwnershipFilterAll"
+      - $ref: "#/components/schemas/NftOwnershipFilterByOwner"
+      - $ref: "#/components/schemas/NftOwnershipFilterByCreator"
+      - $ref: "#/components/schemas/NftOwnershipFilterByCollection"
+      - $ref: "#/components/schemas/NftOwnershipFilterByItem"
+    NftOwnershipFilterAll:
+      type: "object"
+      required:
+      - "@type"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "all"
+    NftOwnershipFilterByOwner:
+      type: "object"
+      required:
+      - "@type"
+      - "owner"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_owner"
+        owner:
+          $ref: "#/components/schemas/Address"
+    NftOwnershipFilterByCreator:
+      type: "object"
+      required:
+      - "@type"
+      - "creator"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_creator"
+        creator:
+          $ref: "#/components/schemas/Address"
+    NftOwnershipFilterByCollection:
+      type: "object"
+      required:
+      - "@type"
+      - "collection"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_collection"
+        collection:
+          $ref: "#/components/schemas/Address"
+    NftOwnershipFilterByItem:
+      type: "object"
+      required:
+      - "@type"
+      - "contract"
+      - "tokenId"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_item"
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+    NftSort:
+      type: "object"
+      required:
+      - "property"
+      - "direction"
+      properties:
+        property:
+          type: "string"
+        direction:
+          type: "string"
+          enum:
+          - "ASC"
+          - "DESC"
+    NftItem:
+      required:
+      - "id"
+      - "contract"
+      - "tokenId"
+      - "creators"
+      - "supply"
+      - "lazySupply"
+      - "owners"
+      - "royalties"
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: "Item identifier, has format \"contract:tokenId\""
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        creators:
+          type: "array"
+          description: "Creators of the target item"
+          items:
+            $ref: "#/components/schemas/Part"
+        supply:
+          $ref: "#/components/schemas/BigInteger"
+        lazySupply:
+          $ref: "#/components/schemas/BigInteger"
+        owners:
+          type: "array"
+          description: "Owners of the target items"
+          items:
+            $ref: "#/components/schemas/Address"
+        royalties:
+          type: "array"
+          description: "List of royalties"
+          items:
+            $ref: "#/components/schemas/Part"
+        date:
+          type: "string"
+          format: "date-time"
+        pending:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ItemTransfer"
+        deleted:
+          type: "boolean"
+        meta:
+          $ref: "#/components/schemas/NftItemMeta"
+    NftItemAttribute:
+      required:
+      - "key"
+      type: "object"
+      properties:
+        key:
+          type: "string"
+        value:
+          type: "string"
+    NftDeletedItem:
+      required:
+      - "id"
+      - "token"
+      - "tokenId"
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: "Item identifier, has format \"contract:tokenId\""
+        token:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+    NftItemEvent:
+      required:
+      - "eventId"
+      - "itemId"
+      properties:
+        eventId:
+          type: "string"
+        itemId:
+          type: "string"
+      discriminator:
+        propertyName: "type"
+        mapping:
+          UPDATE: "#/components/schemas/NftItemUpdateEvent"
+          DELETE: "#/components/schemas/NftItemDeleteEvent"
+      oneOf:
+      - $ref: "#/components/schemas/NftItemUpdateEvent"
+      - $ref: "#/components/schemas/NftItemDeleteEvent"
+    NftItemUpdateEvent:
+      type: "object"
+      required:
+      - "item"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "UPDATE"
+        item:
+          $ref: "#/components/schemas/NftItem"
+    NftItemDeleteEvent:
+      type: "object"
+      required:
+      - "item"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "DELETE"
+        item:
+          $ref: "#/components/schemas/NftDeletedItem"
+    NftItems:
+      required:
+      - "total"
+      - "items"
+      type: "object"
+      properties:
+        total:
+          type: "integer"
+          description: "Number of items were found by request"
+          format: "int64"
+        continuation:
+          type: "string"
+          description: "Continuation token to paginate items search result"
+        items:
+          type: "array"
+          description: "List of found items"
+          items:
+            $ref: "#/components/schemas/NftItem"
+    NftItemMeta:
+      required:
+      - "name"
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        description:
+          type: "string"
+        attributes:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/NftItemAttribute"
+        image:
+          $ref: "#/components/schemas/NftMedia"
+        animation:
+          $ref: "#/components/schemas/NftMedia"
+    NftMedia:
+      required:
+      - "meta"
+      - "url"
+      type: "object"
+      properties:
+        url:
+          type: "object"
+          additionalProperties:
+            type: "string"
+        meta:
+          type: "object"
+          additionalProperties:
+            $ref: "#/components/schemas/NftMediaMeta"
+    NftMediaMeta:
+      required:
+      - "type"
+      type: "object"
+      properties:
+        type:
+          type: "string"
+        width:
+          type: "integer"
+          format: "int32"
+        height:
+          type: "integer"
+          format: "int32"
+    LazyNft:
+      type: "object"
+      required:
+      - "contract"
+      - "tokenId"
+      - "uri"
+      - "creators"
+      - "royalties"
+      - "signatures"
+      properties:
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        uri:
+          type: "string"
+        creators:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Part"
+        royalties:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Part"
+        signatures:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Binary"
+      description: "Type of an Asset"
+      oneOf:
+      - $ref: "#/components/schemas/LazyErc721"
+      - $ref: "#/components/schemas/LazyErc1155"
+    LazyErc1155:
+      type: "object"
+      required:
+      - "@type"
+      - "supply"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "ERC1155"
+        supply:
+          $ref: "#/components/schemas/BigInteger"
+    LazyErc721:
+      type: "object"
+      required:
+      - "@type"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "ERC721"
+    NftDeletedOwnership:
+      required:
+      - "id"
+      - "token"
+      - "tokenId"
+      - "owner"
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: "Ownership identifier, has format \"token:tokenId:owner\""
+        token:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        owner:
+          $ref: "#/components/schemas/Address"
+    NftOwnership:
+      required:
+      - "id"
+      - "contract"
+      - "tokenId"
+      - "owner"
+      - "creators"
+      - "value"
+      - "lazyValue"
+      - "date"
+      - "pending"
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: "Ownership identifier, has format \"token:tokenId:owner\""
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        owner:
+          $ref: "#/components/schemas/Address"
+        creators:
+          type: "array"
+          description: "Creators of the target item"
+          items:
+            $ref: "#/components/schemas/Part"
+        value:
+          $ref: "#/components/schemas/BigInteger"
+        lazyValue:
+          $ref: "#/components/schemas/BigInteger"
+        date:
+          type: "string"
+          description: "Start date of ownership"
+          format: "date-time"
+        pending:
+          type: "array"
+          description: "History of ownership"
+          items:
+            $ref: "#/components/schemas/ItemHistory"
+    NftOwnershipEvent:
+      required:
+      - "eventId"
+      - "ownershipId"
+      properties:
+        eventId:
+          type: "string"
+        ownershipId:
+          type: "string"
+      discriminator:
+        propertyName: "type"
+        mapping:
+          UPDATE: "#/components/schemas/NftOwnershipUpdateEvent"
+          DELETE: "#/components/schemas/NftOwnershipDeleteEvent"
+      oneOf:
+      - $ref: "#/components/schemas/NftOwnershipUpdateEvent"
+      - $ref: "#/components/schemas/NftOwnershipDeleteEvent"
+    NftOwnershipUpdateEvent:
+      type: "object"
+      required:
+      - "ownership"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "UPDATE"
+        ownership:
+          $ref: "#/components/schemas/NftOwnership"
+    NftOwnershipDeleteEvent:
+      type: "object"
+      required:
+      - "ownership"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "DELETE"
+        ownership:
+          $ref: "#/components/schemas/NftDeletedOwnership"
+    NftOwnerships:
+      required:
+      - "ownerships"
+      - "total"
+      type: "object"
+      properties:
+        total:
+          type: "integer"
+          description: "Number of ownerships were found by request"
+          format: "int64"
+        continuation:
+          type: "string"
+          description: "Continuation token to paginate Ownerships search result"
+        ownerships:
+          type: "array"
+          description: "List of found ownerships"
+          items:
+            $ref: "#/components/schemas/NftOwnership"
+    NftMediaSize:
+      type: "string"
+      enum:
+      - "ORIGINAL"
+      - "BIG"
+      - "PREVIEW"
+    Activity:
+      type: "object"
+      required:
+      - "id"
+      - "date"
+      properties:
+        id:
+          type: "string"
+        date:
+          type: "string"
+          format: "date-time"
+      oneOf:
+      - $ref: "#/components/schemas/OrderActivity"
+      - $ref: "#/components/schemas/NftActivity"
+    OrderActivityMatchSide:
+      type: "object"
+      required:
+      - "maker"
+      - "hash"
+      - "asset"
+      properties:
+        maker:
+          $ref: "#/components/schemas/Address"
+        hash:
+          $ref: "#/components/schemas/Word"
+        asset:
+          $ref: "#/components/schemas/Asset"
+        type:
+          type: "string"
+          enum:
+          - "SELL"
+          - "BID"
+    OrderActivity:
+      type: "object"
+      required:
+      - "id"
+      - "date"
+      - "source"
+      properties:
+        id:
+          type: "string"
+        date:
+          type: "string"
+          format: "date-time"
+        source:
+          type: "string"
+          enum:
+          - "RARIBLE"
+          - "OPEN_SEA"
+      oneOf:
+      - $ref: "#/components/schemas/OrderActivityMatch"
+      - $ref: "#/components/schemas/OrderActivityBid"
+      - $ref: "#/components/schemas/OrderActivityList"
+      - $ref: "#/components/schemas/OrderActivityCancelBid"
+      - $ref: "#/components/schemas/OrderActivityCancelList"
+    OrderActivityMatch:
+      type: "object"
+      required:
+      - "@type"
+      - "left"
+      - "right"
+      - "price"
+      - "transactionHash"
+      - "blockHash"
+      - "blockNumber"
+      - "logIndex"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "match"
+        left:
+          $ref: "#/components/schemas/OrderActivityMatchSide"
+        right:
+          $ref: "#/components/schemas/OrderActivityMatchSide"
+        price:
+          $ref: "#/components/schemas/BigDecimal"
+        priceUsd:
+          $ref: "#/components/schemas/BigDecimal"
+        transactionHash:
+          $ref: "#/components/schemas/Word"
+        blockHash:
+          $ref: "#/components/schemas/Word"
+        blockNumber:
+          type: "integer"
+          format: "int64"
+        logIndex:
+          type: "integer"
+    OrderActivityBid:
+      type: "object"
+      required:
+      - "@type"
+      - "hash"
+      - "maker"
+      - "make"
+      - "take"
+      - "price"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "bid"
+        hash:
+          $ref: "#/components/schemas/Word"
+        maker:
+          $ref: "#/components/schemas/Address"
+        make:
+          $ref: "#/components/schemas/Asset"
+        take:
+          $ref: "#/components/schemas/Asset"
+        price:
+          $ref: "#/components/schemas/BigDecimal"
+        priceUsd:
+          $ref: "#/components/schemas/BigDecimal"
+    OrderActivityList:
+      type: "object"
+      required:
+      - "@type"
+      - "hash"
+      - "maker"
+      - "make"
+      - "take"
+      - "price"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "list"
+        hash:
+          $ref: "#/components/schemas/Word"
+        maker:
+          $ref: "#/components/schemas/Address"
+        make:
+          $ref: "#/components/schemas/Asset"
+        take:
+          $ref: "#/components/schemas/Asset"
+        price:
+          $ref: "#/components/schemas/BigDecimal"
+        priceUsd:
+          $ref: "#/components/schemas/BigDecimal"
+    OrderActivityCancelBid:
+      type: "object"
+      required:
+      - "@type"
+      - "hash"
+      - "maker"
+      - "make"
+      - "take"
+      - "transactionHash"
+      - "blockHash"
+      - "blockNumber"
+      - "logIndex"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "cancel_bid"
+        hash:
+          $ref: "#/components/schemas/Word"
+        maker:
+          $ref: "#/components/schemas/Address"
+        make:
+          $ref: "#/components/schemas/AssetType"
+        take:
+          $ref: "#/components/schemas/AssetType"
+        transactionHash:
+          $ref: "#/components/schemas/Word"
+        blockHash:
+          $ref: "#/components/schemas/Word"
+        blockNumber:
+          type: "integer"
+          format: "int64"
+        logIndex:
+          type: "integer"
+    OrderActivityCancelList:
+      type: "object"
+      required:
+      - "@type"
+      - "hash"
+      - "maker"
+      - "make"
+      - "take"
+      - "transactionHash"
+      - "blockHash"
+      - "blockNumber"
+      - "logIndex"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "cancel_list"
+        hash:
+          $ref: "#/components/schemas/Word"
+        maker:
+          $ref: "#/components/schemas/Address"
+        make:
+          $ref: "#/components/schemas/AssetType"
+        take:
+          $ref: "#/components/schemas/AssetType"
+        transactionHash:
+          $ref: "#/components/schemas/Word"
+        blockHash:
+          $ref: "#/components/schemas/Word"
+        blockNumber:
+          type: "integer"
+          format: "int64"
+        logIndex:
+          type: "integer"
+    NftActivity:
+      type: "object"
+      required:
+      - "owner"
+      - "contract"
+      - "tokenId"
+      - "value"
+      - "transactionHash"
+      - "blockHash"
+      - "blockNumber"
+      - "logIndex"
+      properties:
+        owner:
+          $ref: "#/components/schemas/Address"
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        value:
+          $ref: "#/components/schemas/BigInteger"
+        transactionHash:
+          $ref: "#/components/schemas/Word"
+        blockHash:
+          $ref: "#/components/schemas/Word"
+        blockNumber:
+          type: "integer"
+          format: "int64"
+        logIndex:
+          type: "integer"
+      oneOf:
+      - $ref: "#/components/schemas/Mint"
+      - $ref: "#/components/schemas/Burn"
+      - $ref: "#/components/schemas/Transfer"
+    Mint:
+      type: "object"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "mint"
+    Burn:
+      type: "object"
+      required:
+      - "@type"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "burn"
+    Transfer:
+      type: "object"
+      required:
+      - "@type"
+      - "from"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "transfer"
+        from:
+          $ref: "#/components/schemas/Address"
+    Activities:
+      type: "object"
+      required:
+      - "items"
+      properties:
+        continuation:
+          type: "string"
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Activity"
+    ActivityContinuation:
+      type: "object"
+      required:
+      - "afterDate"
+      - "afterId"
+      properties:
+        afterDate:
+          type: "string"
+          format: "date-time"
+        afterId:
+          type: "string"
+    ActivitySort:
+      type: "string"
+      enum:
+      - "LATEST_FIRST"
+      - "EARLIEST_FIRST"
+    ActivityFilter:
+      type: "object"
+      oneOf:
+      - $ref: "#/components/schemas/ActivityFilterAll"
+      - $ref: "#/components/schemas/ActivityFilterByUser"
+      - $ref: "#/components/schemas/ActivityFilterByItem"
+      - $ref: "#/components/schemas/ActivityFilterByCollection"
+    ActivityFilterAll:
+      type: "object"
+      required:
+      - "@type"
+      - "types"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "all"
+        types:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ActivityFilterTypes"
+    ActivityFilterTypes:
+      type: "string"
+      enum:
+        - "TRANSFER"
+        - "MINT"
+        - "BURN"
+        - "BID"
+        - "LIST"
+        - "SELL"
+    ActivityFilterByUser:
+      type: "object"
+      required:
+      - "@type"
+      - "types"
+      - "users"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_user"
+        users:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Address"
+        types:
+          type: "array"
+          items:
+            type: "string"
+            enum:
+            - "TRANSFER_FROM"
+            - "TRANSFER_TO"
+            - "MINT"
+            - "BURN"
+            - "MAKE_BID"
+            - "GET_BID"
+            - "LIST"
+            - "BUY"
+            - "SELL"
+    ActivityFilterByItem:
+      type: "object"
+      required:
+      - "@type"
+      - "contract"
+      - "tokenId"
+      - "types"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_item"
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        types:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ActivityTypes"
+    ActivityFilterByCollection:
+      type: "object"
+      required:
+      - "@type"
+      - "contract"
+      - "types"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_collection"
+        contract:
+          $ref: "#/components/schemas/Address"
+        types:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ActivityTypes"
+    ActivityTypes:
+      type: "string"
+      enum:
+        - "TRANSFER"
+        - "MINT"
+        - "BURN"
+        - "BID"
+        - "LIST"
+        - "MATCH"
+    NftActivityFilter:
+      type: "object"
+      oneOf:
+      - $ref: "#/components/schemas/NftActivityFilterAll"
+      - $ref: "#/components/schemas/NftActivityFilterByUser"
+      - $ref: "#/components/schemas/NftActivityFilterByItem"
+      - $ref: "#/components/schemas/NftActivityFilterByCollection"
+    NftActivityFilterAll:
+      type: "object"
+      required:
+      - "@type"
+      - "types"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "all"
+        types:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/NftActivityFilterTypes"
+    NftActivityFilterTypes:
+      type: "string"
+      enum:
+        - "TRANSFER"
+        - "MINT"
+        - "BURN"
+    NftActivityFilterByUser:
+      type: "object"
+      required:
+      - "@type"
+      - "types"
+      - "users"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_user"
+        users:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Address"
+        types:
+          type: "array"
+          items:
+            type: "string"
+            enum:
+            - "TRANSFER_FROM"
+            - "TRANSFER_TO"
+            - "MINT"
+            - "BURN"
+    NftActivityFilterByItem:
+      type: "object"
+      required:
+      - "@type"
+      - "contract"
+      - "tokenId"
+      - "types"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_item"
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        types:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/NftActivityFilterTypes"
+    NftActivityFilterByCollection:
+      type: "object"
+      required:
+      - "@type"
+      - "contract"
+      - "types"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_collection"
+        contract:
+          $ref: "#/components/schemas/Address"
+        types:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/NftActivityFilterTypes"
+    OrderActivityFilter:
+      type: "object"
+      oneOf:
+      - $ref: "#/components/schemas/OrderActivityFilterAll"
+      - $ref: "#/components/schemas/OrderActivityFilterByUser"
+      - $ref: "#/components/schemas/OrderActivityFilterByItem"
+      - $ref: "#/components/schemas/OrderActivityFilterByCollection"
+    OrderActivityFilterAll:
+      type: "object"
+      required:
+      - "@type"
+      - "types"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "all"
+        types:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/OrderActivityFilterByCollectionTypes"
+    OrderActivityFilterByUser:
+      type: "object"
+      required:
+      - "@type"
+      - "types"
+      - "users"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_user"
+        users:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Address"
+        types:
+          type: "array"
+          items:
+            type: "string"
+            enum:
+            - "MAKE_BID"
+            - "GET_BID"
+            - "LIST"
+            - "BUY"
+            - "SELL"
+    OrderActivityFilterByItem:
+      type: "object"
+      required:
+      - "@type"
+      - "contract"
+      - "tokenId"
+      - "types"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_item"
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        types:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/OrderActivityFilterByCollectionTypes"
+    OrderActivityFilterByCollection:
+      type: "object"
+      required:
+      - "@type"
+      - "contract"
+      - "types"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "by_collection"
+        contract:
+          $ref: "#/components/schemas/Address"
+        types:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/OrderActivityFilterByCollectionTypes"
+    OrderActivityFilterByCollectionTypes:
+      type: "string"
+      enum:
+        - "BID"
+        - "LIST"
+        - "MATCH"
+    ItemHistory:
+      type: "object"
+      required:
+      - "contract"
+      - "tokenId"
+      - "date"
+      properties:
+        owner:
+          $ref: "#/components/schemas/Address"
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        value:
+          $ref: "#/components/schemas/BigInteger"
+        date:
+          type: "string"
+          format: "date-time"
+      description: "History of item"
+      discriminator:
+        propertyName: "type"
+        mapping:
+          ROYALTY: "#/components/schemas/ItemRoyalty"
+          TRANSFER: "#/components/schemas/ItemTransfer"
+      oneOf:
+      - $ref: "#/components/schemas/ItemRoyalty"
+      - $ref: "#/components/schemas/ItemTransfer"
+    ItemRoyalty:
+      required:
+      - "type"
+      - "royalties"
+      type: "object"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "ROYALTY"
+        royalties:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Part"
+    ItemTransfer:
+      required:
+      - "type"
+      - "owner"
+      - "value"
+      - "from"
+      type: "object"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "TRANSFER"
+        from:
+          $ref: "#/components/schemas/Address"
+    AssetType:
+      type: "object"
+      discriminator:
+        propertyName: "assetClass"
+        mapping:
+          ETH: "#/components/schemas/EthAssetType"
+          FLOW: "#/components/schemas/FlowAssetType"
+          ERC20: "#/components/schemas/Erc20AssetType"
+          ERC721: "#/components/schemas/Erc721AssetType"
+          ERC1155: "#/components/schemas/Erc1155AssetType"
+          ERC721_LAZY: "#/components/schemas/Erc721LazyAssetType"
+          ERC1155_LAZY: "#/components/schemas/Erc1155LazyAssetType"
+          GEN_ART: "#/components/schemas/GenerativeArtAssetType"
+      oneOf:
+      - $ref: "#/components/schemas/EthAssetType"
+      - $ref: "#/components/schemas/FlowAssetType"
+      - $ref: "#/components/schemas/Erc20AssetType"
+      - $ref: "#/components/schemas/Erc721AssetType"
+      - $ref: "#/components/schemas/Erc1155AssetType"
+      - $ref: "#/components/schemas/Erc721LazyAssetType"
+      - $ref: "#/components/schemas/Erc1155LazyAssetType"
+      - $ref: "#/components/schemas/GenerativeArtAssetType"
+    EthAssetType:
+      type: "object"
+      required:
+      - "assetClass"
+      properties:
+        assetClass:
+          type: "string"
+          enum:
+          - "ETH"
+    GenerativeArtAssetType:
+      required:
+      - "assetClass"
+      - "contract"
+      type: "object"
+      properties:
+        assetClass:
+          type: "string"
+          enum:
+          - "GEN_ART"
+        contract:
+          $ref: "#/components/schemas/Address"
+    FlowAssetType:
+      type: "object"
+      required:
+      - "assetClass"
+      properties:
+        assetClass:
+          type: "string"
+          enum:
+          - "FLOW"
+    Erc20AssetType:
+      required:
+      - "assetClass"
+      - "contract"
+      type: "object"
+      properties:
+        assetClass:
+          type: "string"
+          enum:
+          - "ERC20"
+        contract:
+          $ref: "#/components/schemas/Address"
+    Erc721AssetType:
+      required:
+      - "assetClass"
+      - "contract"
+      - "tokenId"
+      type: "object"
+      properties:
+        assetClass:
+          type: "string"
+          enum:
+          - "ERC721"
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+    Erc1155AssetType:
+      required:
+      - "assetClass"
+      - "contract"
+      - "tokenId"
+      type: "object"
+      properties:
+        assetClass:
+          type: "string"
+          enum:
+          - "ERC1155"
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+    Erc721LazyAssetType:
+      required:
+      - "assetClass"
+      - "contract"
+      - "tokenId"
+      - "uri"
+      - "creators"
+      - "royalties"
+      - "signatures"
+      type: "object"
+      properties:
+        assetClass:
+          type: "string"
+          enum:
+          - "ERC721_LAZY"
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        uri:
+          type: "string"
+        creators:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Part"
+        royalties:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Part"
+        signatures:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Binary"
+    Erc1155LazyAssetType:
+      required:
+      - "assetClass"
+      - "contract"
+      - "tokenId"
+      - "uri"
+      - "supply"
+      - "creators"
+      - "royalties"
+      - "signatures"
+      type: "object"
+      properties:
+        assetClass:
+          type: "string"
+          enum:
+          - "ERC1155_LAZY"
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        uri:
+          type: "string"
+        supply:
+          $ref: "#/components/schemas/BigInteger"
+        creators:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Part"
+        royalties:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Part"
+        signatures:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Binary"
+    Asset:
+      type: "object"
+      required:
+      - "assetType"
+      - "value"
+      properties:
+        assetType:
+          $ref: "#/components/schemas/AssetType"
+        value:
+          $ref: "#/components/schemas/BigInteger"
+    Part:
+      required:
+      - "account"
+      - "value"
+      type: "object"
+      properties:
+        account:
+          $ref: "#/components/schemas/Address"
+        value:
+          type: "integer"
+    CreateTransactionRequest:
+      required:
+      - "from"
+      - "hash"
+      - "input"
+      - "nonce"
+      type: "object"
+      properties:
+        hash:
+          $ref: "#/components/schemas/Word"
+        from:
+          $ref: "#/components/schemas/Address"
+        nonce:
+          type: "integer"
+          format: "int64"
+        to:
+          $ref: "#/components/schemas/Address"
+        input:
+          $ref: "#/components/schemas/Binary"
+    LogEvent:
+      required:
+      - "transactionHash"
+      - "status"
+      - "address"
+      - "topic"
+      type: "object"
+      properties:
+        transactionHash:
+          $ref: "#/components/schemas/Word"
+        status:
+          type: "string"
+          enum:
+          - "PENDING"
+          - "CONFIRMED"
+          - "REVERTED"
+          - "DROPPED"
+          - "INACTIVE"
+        address:
+          $ref: "#/components/schemas/Address"
+        topic:
+          $ref: "#/components/schemas/Word"
+    Word:
+      type: "string"
+    Binary:
+      type: "string"
+    OrderActivities:
+      required:
+      - "items"
+      type: "object"
+      properties:
+        continuation:
+          type: "string"
+          description: "Continuation token to paginate items search result"
+        items:
+          type: "array"
+          description: "List of found activities"
+          items:
+            $ref: "#/components/schemas/OrderActivity"
+    OrderIndexerApiError:
+      required:
+      - "code"
+      - "message"
+      - "status"
+      type: "object"
+      properties:
+        status:
+          type: "integer"
+          format: "int32"
+        code:
+          type: "string"
+          enum:
+          - "UNKNOWN"
+          - "SERVER_ERROR"
+          - "ABSENCE_OF_REQUIRED_FIELD"
+          - "INVALID_ARGUMENT"
+          - "ORDER_NOT_FOUND"
+          - "BALANCE_NOT_FOUND"
+          - "OWNERSHIP_NOT_FOUND"
+          - "LAZY_ITEM_NOT_FOUND"
+          - "INCORRECT_SIGNATURE"
+          - "INCORRECT_ORDER_DATA"
+          - "INCORRECT_LAZY_ASSET"
+          - "ORDER_CANCELED"
+          - "ORDER_INVALID_UPDATE"
+          - "ASSET_BALANCE_NOT_FOUND"
+        message:
+          type: "string"
+    AggregationData:
+      type: "object"
+      required:
+      - "address"
+      - "sum"
+      - "count"
+      properties:
+        address:
+          $ref: "#/components/schemas/Address"
+        sum:
+          $ref: "#/components/schemas/BigDecimal"
+        count:
+          type: "integer"
+          format: "int64"
+    OrderBid:
+      type: "object"
+      required:
+      - "orderHash"
+      - "status"
+      - "maker"
+      - "make"
+      - "take"
+      - "fill"
+      - "makeStock"
+      - "cancelled"
+      - "salt"
+      - "createdAt"
+      properties:
+        orderHash:
+          $ref: "#/components/schemas/Word"
+        status:
+          $ref: "#/components/schemas/OrderBidStatus"
+        maker:
+          $ref: "#/components/schemas/Address"
+        taker:
+          $ref: "#/components/schemas/Address"
+        make:
+          $ref: "#/components/schemas/Asset"
+        take:
+          $ref: "#/components/schemas/Asset"
+        makeBalance:
+          $ref: "#/components/schemas/BigInteger"
+        makePriceUsd:
+          $ref: "#/components/schemas/BigDecimal"
+        takePriceUsd:
+          $ref: "#/components/schemas/BigDecimal"
+        fill:
+          $ref: "#/components/schemas/BigInteger"
+        makeStock:
+          $ref: "#/components/schemas/BigInteger"
+        cancelled:
+          type: "boolean"
+        salt:
+          $ref: "#/components/schemas/Binary"
+        signature:
+          $ref: "#/components/schemas/Binary"
+        createdAt:
+          type: "string"
+          format: "date-time"
+      discriminator:
+        propertyName: "type"
+        mapping:
+          RARIBLE_V1: "#/components/schemas/LegacyOrderBid"
+          RARIBLE_V2: "#/components/schemas/RaribleV2OrderBid"
+          OPEN_SEA_V1: "#/components/schemas/OpenSeaV1OrderBid"
+      oneOf:
+      - $ref: "#/components/schemas/LegacyOrderBid"
+      - $ref: "#/components/schemas/RaribleV2OrderBid"
+      - $ref: "#/components/schemas/OpenSeaV1OrderBid"
+    LegacyOrderBid:
+      type: "object"
+      required:
+      - "type"
+      - "data"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "RARIBLE_V1"
+        data:
+          $ref: "#/components/schemas/OrderDataLegacy"
+    RaribleV2OrderBid:
+      type: "object"
+      required:
+      - "type"
+      - "data"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "RARIBLE_V2"
+        data:
+          $ref: "#/components/schemas/OrderRaribleV2DataV1"
+    OpenSeaV1OrderBid:
+      type: "object"
+      required:
+      - "type"
+      - "data"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "OPEN_SEA_V1"
+        data:
+          $ref: "#/components/schemas/OrderOpenSeaV1DataV1"
+    OrderBidStatus:
+      type: "string"
+      enum:
+      - "ACTIVE"
+      - "FILLED"
+      - "HISTORICAL"
+      - "INACTIVE"
+      - "CANCELLED"
+    EncodedOrderData:
+      type: "object"
+      required:
+      - "type"
+      - "data"
+      properties:
+        type:
+          $ref: "#/components/schemas/Binary"
+        data:
+          $ref: "#/components/schemas/Binary"
+    SignMessage:
+      type: "object"
+      oneOf:
+      - $ref: "#/components/schemas/EIP712SignMessage"
+      - $ref: "#/components/schemas/TextSignMessage"
+    EIP712SignMessage:
+      type: "object"
+      required:
+      - "@type"
+      - "domain"
+      - "struct"
+      - "structType"
+      - "types"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "EIP712"
+        domain:
+          $ref: "#/components/schemas/EIP712Domain"
+        struct:
+          $ref: "#/components/schemas/ObjectNode"
+        structType:
+          type: "string"
+        types:
+          $ref: "#/components/schemas/ObjectNode"
+    EIP712Domain:
+      type: "object"
+      required:
+      - "name"
+      - "version"
+      - "chainId"
+      - "verifyingContract"
+      properties:
+        name:
+          type: "string"
+        version:
+          type: "string"
+        chainId:
+          type: "integer"
+        verifyingContract:
+          $ref: "#/components/schemas/Address"
+    TextSignMessage:
+      type: "object"
+      required:
+      - "@type"
+      - "message"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "TEXT"
+        message:
+          type: "string"
+    EncodedOrder:
+      type: "object"
+      required:
+      - "signMessage"
+      properties:
+        transferProxyAddress:
+          $ref: "#/components/schemas/Address"
+        signMessage:
+          $ref: "#/components/schemas/SignMessage"
+    OrderExchangeHistory:
+      type: "object"
+      required:
+      - "hash"
+      - "date"
+      properties:
+        hash:
+          $ref: "#/components/schemas/Word"
+        make:
+          $ref: "#/components/schemas/Asset"
+        take:
+          $ref: "#/components/schemas/Asset"
+        date:
+          type: "string"
+          format: "date-time"
+        maker:
+          $ref: "#/components/schemas/Address"
+      discriminator:
+        propertyName: "type"
+        mapping:
+          CANCEL: "#/components/schemas/OrderCancel"
+          ORDER_SIDE_MATCH: "#/components/schemas/OrderSideMatch"
+      oneOf:
+      - $ref: "#/components/schemas/OrderCancel"
+      - $ref: "#/components/schemas/OrderSideMatch"
+    ItemBuy:
+      type: "object"
+      required:
+      - "fill"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "BUY"
+        fill:
+          $ref: "#/components/schemas/BigInteger"
+        buyer:
+          $ref: "#/components/schemas/Address"
+    OrderSide:
+      type: "string"
+      enum:
+      - "LEFT"
+      - "RIGHT"
+    OrderSideMatch:
+      type: "object"
+      required:
+      - "type"
+      - "fill"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "ORDER_SIDE_MATCH"
+        side:
+          $ref: "#/components/schemas/OrderSide"
+        fill:
+          $ref: "#/components/schemas/BigInteger"
+        taker:
+          $ref: "#/components/schemas/Address"
+        counterHash:
+          $ref: "#/components/schemas/Word"
+        makeUsd:
+          $ref: "#/components/schemas/BigDecimal"
+        takeUsd:
+          $ref: "#/components/schemas/BigDecimal"
+        makePriceUsd:
+          $ref: "#/components/schemas/BigDecimal"
+        takePriceUsd:
+          $ref: "#/components/schemas/BigDecimal"
+    OrderCancel:
+      type: "object"
+      required:
+      - "type"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "CANCEL"
+        owner:
+          $ref: "#/components/schemas/Address"
+    OrderBidsPagination:
+      type: "object"
+      required:
+      - "items"
+      properties:
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/OrderBid"
+        continuation:
+          type: "string"
+    OrderData:
+      type: "object"
+      discriminator:
+        propertyName: "dataType"
+        mapping:
+          RARIBLE_V2_DATA_V1: "#/components/schemas/OrderRaribleV2DataV1"
+          LEGACY: "#/components/schemas/OrderDataLegacy"
+          OPEN_SEA_V1_DATA_V1: "#/components/schemas/OrderOpenSeaV1DataV1"
+      oneOf:
+      - $ref: "#/components/schemas/OrderRaribleV2DataV1"
+      - $ref: "#/components/schemas/OrderDataLegacy"
+      - $ref: "#/components/schemas/OrderOpenSeaV1DataV1"
+    OrderRaribleV2DataV1:
+      type: "object"
+      required:
+      - "dataType"
+      - "payouts"
+      - "originFees"
+      properties:
+        dataType:
+          type: "string"
+          enum:
+          - "RARIBLE_V2_DATA_V1"
+        payouts:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Part"
+        originFees:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Part"
+    OrderDataLegacy:
+      type: "object"
+      required:
+      - "fee"
+      - "dataType"
+      properties:
+        dataType:
+          type: "string"
+          enum:
+          - "LEGACY"
+        fee:
+          type: "integer"
+    OrderOpenSeaV1DataV1:
+      type: "object"
+      required:
+      - "dataType"
+      - "exchange"
+      - "makerRelayerFee"
+      - "takerRelayerFee"
+      - "makerProtocolFee"
+      - "takerProtocolFee"
+      - "feeRecipient"
+      - "feeMethod"
+      - "side"
+      - "saleKind"
+      - "howToCall"
+      - "callData"
+      - "replacementPattern"
+      - "staticTarget"
+      - "staticExtraData"
+      - "extra"
+      properties:
+        dataType:
+          type: "string"
+          enum:
+          - "OPEN_SEA_V1_DATA_V1"
+        exchange:
+          $ref: "#/components/schemas/Address"
+        makerRelayerFee:
+          $ref: "#/components/schemas/BigInteger"
+        takerRelayerFee:
+          $ref: "#/components/schemas/BigInteger"
+        makerProtocolFee:
+          $ref: "#/components/schemas/BigInteger"
+        takerProtocolFee:
+          $ref: "#/components/schemas/BigInteger"
+        feeRecipient:
+          $ref: "#/components/schemas/Address"
+        feeMethod:
+          type: "string"
+          enum:
+          - "PROTOCOL_FEE"
+          - "SPLIT_FEE"
+        side:
+          type: "string"
+          enum:
+          - "BUY"
+          - "SELL"
+        saleKind:
+          type: "string"
+          enum:
+          - "FIXED_PRICE"
+          - "DUTCH_AUCTION"
+        howToCall:
+          type: "string"
+          enum:
+          - "CALL"
+          - "DELEGATE_CALL"
+        callData:
+          $ref: "#/components/schemas/Binary"
+        replacementPattern:
+          $ref: "#/components/schemas/Binary"
+        staticTarget:
+          $ref: "#/components/schemas/Address"
+        staticExtraData:
+          $ref: "#/components/schemas/Binary"
+        extra:
+          $ref: "#/components/schemas/BigInteger"
+    Order:
+      type: "object"
+      required:
+      - "maker"
+      - "make"
+      - "take"
+      - "fill"
+      - "makeStock"
+      - "cancelled"
+      - "salt"
+      - "createdAt"
+      - "lastUpdateAt"
+      - "hash"
+      properties:
+        maker:
+          $ref: "#/components/schemas/Address"
+        taker:
+          $ref: "#/components/schemas/Address"
+        make:
+          $ref: "#/components/schemas/Asset"
+        take:
+          $ref: "#/components/schemas/Asset"
+        fill:
+          $ref: "#/components/schemas/BigInteger"
+        start:
+          type: "integer"
+          format: "int64"
+        end:
+          type: "integer"
+          format: "int64"
+        makeStock:
+          $ref: "#/components/schemas/BigInteger"
+        cancelled:
+          type: "boolean"
+        salt:
+          $ref: "#/components/schemas/Word"
+        signature:
+          $ref: "#/components/schemas/Binary"
+        createdAt:
+          type: "string"
+          format: "date-time"
+        lastUpdateAt:
+          type: "string"
+          format: "date-time"
+        pending:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/OrderExchangeHistory"
+        hash:
+          $ref: "#/components/schemas/Word"
+        makeBalance:
+          $ref: "#/components/schemas/BigInteger"
+        makePriceUsd:
+          $ref: "#/components/schemas/BigDecimal"
+        takePriceUsd:
+          $ref: "#/components/schemas/BigDecimal"
+        priceHistory:
+          type: "array"
+          default: []
+          items:
+            $ref: "#/components/schemas/OrderPriceHistoryRecord"
+      discriminator:
+        propertyName: "type"
+        mapping:
+          RARIBLE_V1: "#/components/schemas/LegacyOrder"
+          RARIBLE_V2: "#/components/schemas/RaribleV2Order"
+          OPEN_SEA_V1: "#/components/schemas/OpenSeaV1Order"
+      oneOf:
+      - $ref: "#/components/schemas/LegacyOrder"
+      - $ref: "#/components/schemas/RaribleV2Order"
+      - $ref: "#/components/schemas/OpenSeaV1Order"
+    LegacyOrder:
+      type: "object"
+      required:
+      - "type"
+      - "data"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "RARIBLE_V1"
+        data:
+          $ref: "#/components/schemas/OrderDataLegacy"
+    RaribleV2Order:
+      type: "object"
+      required:
+      - "type"
+      - "data"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "RARIBLE_V2"
+        data:
+          $ref: "#/components/schemas/OrderRaribleV2DataV1"
+    OpenSeaV1Order:
+      type: "object"
+      required:
+      - "type"
+      - "data"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "OPEN_SEA_V1"
+        data:
+          $ref: "#/components/schemas/OrderOpenSeaV1DataV1"
+    OrderPriceHistoryRecord:
+      type: "object"
+      required:
+      - "date"
+      - "makeValue"
+      - "takeValue"
+      properties:
+        date:
+          type: "string"
+          format: "date-time"
+        makeValue:
+          $ref: "#/components/schemas/BigDecimal"
+        takeValue:
+          $ref: "#/components/schemas/BigDecimal"
+    OrderForm:
+      type: "object"
+      required:
+      - "maker"
+      - "make"
+      - "take"
+      - "salt"
+      properties:
+        maker:
+          $ref: "#/components/schemas/Address"
+        taker:
+          $ref: "#/components/schemas/Address"
+        make:
+          $ref: "#/components/schemas/Asset"
+        take:
+          $ref: "#/components/schemas/Asset"
+        salt:
+          $ref: "#/components/schemas/BigInteger"
+        start:
+          type: "integer"
+          format: "int64"
+        end:
+          type: "integer"
+          format: "int64"
+        signature:
+          $ref: "#/components/schemas/Binary"
+      discriminator:
+        propertyName: "type"
+        mapping:
+          RARIBLE_V1: "#/components/schemas/LegacyOrderForm"
+          RARIBLE_V2: "#/components/schemas/RaribleV2OrderForm"
+          OPEN_SEA_V1: "#/components/schemas/OpenSeaV1OrderForm"
+      oneOf:
+      - $ref: "#/components/schemas/LegacyOrderForm"
+      - $ref: "#/components/schemas/RaribleV2OrderForm"
+      - $ref: "#/components/schemas/OpenSeaV1OrderForm"
+    LegacyOrderForm:
+      type: "object"
+      required:
+      - "type"
+      - "data"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "RARIBLE_V1"
+        data:
+          $ref: "#/components/schemas/OrderDataLegacy"
+    RaribleV2OrderForm:
+      type: "object"
+      required:
+      - "type"
+      - "data"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "RARIBLE_V2"
+        data:
+          $ref: "#/components/schemas/OrderRaribleV2DataV1"
+    OpenSeaV1OrderForm:
+      type: "object"
+      required:
+      - "type"
+      - "data"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "OPEN_SEA_V1"
+        data:
+          $ref: "#/components/schemas/OrderOpenSeaV1DataV1"
+    Platform:
+      type: "string"
+      enum:
+      - "ALL"
+      - "RARIBLE"
+      - "OPEN_SEA"
+    InvertOrderForm:
+      type: "object"
+      required:
+      - "maker"
+      - "amount"
+      - "originFees"
+      - "salt"
+      properties:
+        maker:
+          $ref: "#/components/schemas/Address"
+        amount:
+          $ref: "#/components/schemas/BigInteger"
+        salt:
+          $ref: "#/components/schemas/BigInteger"
+        originFees:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Part"
+    OrdersPagination:
+      type: "object"
+      required:
+      - "orders"
+      properties:
+        orders:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Order"
+        continuation:
+          type: "string"
+    OrderEvent:
+      type: "object"
+      required:
+      - "eventId"
+      - "orderId"
+      properties:
+        eventId:
+          type: "string"
+        orderId:
+          type: "string"
+      discriminator:
+        propertyName: "type"
+        mapping:
+          UPDATE: "#/components/schemas/OrderUpdateEvent"
+      oneOf:
+      - $ref: "#/components/schemas/OrderUpdateEvent"
+    OrderUpdateEvent:
+      type: "object"
+      required:
+      - "order"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "UPDATE"
+        order:
+          $ref: "#/components/schemas/Order"
+    OrderFilter:
+      type: "object"
+      required:
+      - "sort"
+      properties:
+        origin:
+          $ref: "#/components/schemas/Address"
+        platform:
+          $ref: "#/components/schemas/Platform"
+        sort:
+          type: "string"
+          enum:
+          - "LAST_UPDATE"
+          - "TAKE_PRICE_DESC"
+          - "MAKE_PRICE_ASC"
+      oneOf:
+      - $ref: "#/components/schemas/OrderFilterAll"
+      - $ref: "#/components/schemas/OrderFilterSell"
+      - $ref: "#/components/schemas/OrderFilterSellByItem"
+      - $ref: "#/components/schemas/OrderFilterSellByCollection"
+      - $ref: "#/components/schemas/OrderFilterSellByMaker"
+      - $ref: "#/components/schemas/OrderFilterBidByItem"
+      - $ref: "#/components/schemas/OrderFilterBidByMaker"
+    OrderFilterAll:
+      type: "object"
+      required:
+      - "@type"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "all"
+    OrderFilterSell:
+      type: "object"
+      required:
+      - "@type"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "sell"
+    OrderFilterSellByItem:
+      type: "object"
+      required:
+      - "@type"
+      - "contract"
+      - "tokenId"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "sell_by_item"
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        maker:
+          $ref: "#/components/schemas/Address"
+    OrderFilterSellByCollection:
+      type: "object"
+      required:
+      - "@type"
+      - "collection"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "sell_by_collection"
+        collection:
+          $ref: "#/components/schemas/Address"
+    OrderFilterSellByMaker:
+      type: "object"
+      required:
+      - "@type"
+      - "maker"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "sell_by_maker"
+        maker:
+          $ref: "#/components/schemas/Address"
+    OrderFilterBidByItem:
+      type: "object"
+      required:
+      - "@type"
+      - "contract"
+      - "tokenId"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "bid_by_item"
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        maker:
+          $ref: "#/components/schemas/Address"
+    OrderFilterBidByMaker:
+      type: "object"
+      required:
+      - "@type"
+      - "maker"
+      properties:
+        '@type':
+          type: "string"
+          enum:
+          - "bid_by_maker"
+        maker:
+          $ref: "#/components/schemas/Address"
+    PrepareOrderTxForm:
+      type: "object"
+      required:
+      - "maker"
+      - "amount"
+      - "payouts"
+      - "originFees"
+      properties:
+        maker:
+          $ref: "#/components/schemas/Address"
+        amount:
+          $ref: "#/components/schemas/BigInteger"
+        payouts:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Part"
+        originFees:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Part"
+    PrepareOrderTxResponse:
+      type: "object"
+      required:
+      - "asset"
+      - "transaction"
+      properties:
+        transferProxyAddress:
+          $ref: "#/components/schemas/Address"
+        asset:
+          $ref: "#/components/schemas/Asset"
+        transaction:
+          $ref: "#/components/schemas/PreparedOrderTx"
+    PreparedOrderTx:
+      type: "object"
+      required:
+      - "to"
+      - "data"
+      properties:
+        to:
+          $ref: "#/components/schemas/Address"
+        data:
+          $ref: "#/components/schemas/Binary"
+    ObjectNode:
+      type: "object"
+    Lock:
+      type: "object"
+      required:
+      - "id"
+      - "itemId"
+      - "content"
+      - "author"
+      properties:
+        id:
+          type: "string"
+        itemId:
+          type: "string"
+        content:
+          type: "string"
+        author:
+          $ref: "#/components/schemas/Address"
+        signature:
+          $ref: "#/components/schemas/Binary"
+        unlockDate:
+          type: "string"
+          format: "date-time"
+        version:
+          type: "integer"
+          format: "int64"
+    LockForm:
+      type: "object"
+      required:
+      - "content"
+      properties:
+        signature:
+          $ref: "#/components/schemas/Binary"
+        content:
+          type: "string"
+    SignatureForm:
+      type: "object"
+      required:
+      - "content"
+      properties:
+        signature:
+          $ref: "#/components/schemas/Binary"
+    UnlockableApiError:
+      required:
+      - "code"
+      - "message"
+      - "status"
+      type: "object"
+      properties:
+        status:
+          type: "integer"
+          format: "int32"
+        code:
+          type: "string"
+          enum:
+          - "UNKNOWN"
+          - "LOCK_EXISTS"
+          - "OWNERHIP_ERROR"
+        message:
+          type: "string"
+    UnlockableEvent:
+      required:
+      - "eventId"
+      - "itemId"
+      - "type"
+      type: "object"
+      properties:
+        eventId:
+          type: "string"
+        itemId:
+          type: "string"
+        type:
+          type: "string"
+          enum:
+          - "LOCK_CREATED"
+          - "LOCK_UNLOCKED"
+    NftOrderApiError:
+      required:
+      - "code"
+      - "message"
+      - "status"
+      type: "object"
+      properties:
+        status:
+          type: "integer"
+          format: "int32"
+        code:
+          type: "string"
+          enum:
+          - "UNKNOWN"
+          - "INVALID_ARGUMENT"
+          - "ABSENCE_OF_REQUIRED_FIELD"
+          - "UNLOCKABLE_API_ERROR"
+          - "NFT_API_ERROR"
+          - "ORDER_API_ERROR"
+          - "UNEXPECTED_API_ERROR"
+        message:
+          type: "string"
+    NftOrderItem:
+      type: "object"
+      required:
+      - "id"
+      - "contract"
+      - "tokenId"
+      - "unlockable"
+      - "creators"
+      - "supply"
+      - "lazySupply"
+      - "owners"
+      - "royalties"
+      - "date"
+      - "pending"
+      - "totalStock"
+      - "sellers"
+      properties:
+        id:
+          type: "string"
+          description: "Item identifier, has format \"token:tokenId\""
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        unlockable:
+          type: "boolean"
+          description: "Was item locked"
+        creators:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Part"
+        supply:
+          $ref: "#/components/schemas/BigInteger"
+        lazySupply:
+          $ref: "#/components/schemas/BigInteger"
+        owners:
+          type: "array"
+          description: "Owners of the target items"
+          items:
+            $ref: "#/components/schemas/Address"
+        royalties:
+          type: "array"
+          description: "List of royalties"
+          items:
+            $ref: "#/components/schemas/Part"
+        date:
+          type: "string"
+          format: "date-time"
+        pending:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ItemTransfer"
+        meta:
+          $ref: "#/components/schemas/NftItemMeta"
+        bestSellOrder:
+          $ref: "#/components/schemas/Order"
+        bestBidOrder:
+          $ref: "#/components/schemas/Order"
+        totalStock:
+          $ref: "#/components/schemas/BigInteger"
+        sellers:
+          type: "integer"
+    NftOrderDeletedItem:
+      required:
+      - "id"
+      - "token"
+      - "tokenId"
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        token:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+    NftOrderItemEvent:
+      required:
+      - "eventId"
+      - "itemId"
+      properties:
+        eventId:
+          type: "string"
+        itemId:
+          type: "string"
+      discriminator:
+        propertyName: "type"
+        mapping:
+          UPDATE: "#/components/schemas/NftOrderItemUpdateEvent"
+          DELETE: "#/components/schemas/NftOrderItemDeleteEvent"
+      oneOf:
+      - $ref: "#/components/schemas/NftOrderItemUpdateEvent"
+      - $ref: "#/components/schemas/NftOrderItemDeleteEvent"
+    NftOrderItemUpdateEvent:
+      type: "object"
+      required:
+      - "item"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "UPDATE"
+        item:
+          $ref: "#/components/schemas/NftOrderItem"
+    NftOrderItemDeleteEvent:
+      type: "object"
+      required:
+      - "item"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "DELETE"
+        item:
+          $ref: "#/components/schemas/NftOrderDeletedItem"
+    NftOrderOwnership:
+      type: "object"
+      required:
+      - "id"
+      - "contract"
+      - "tokenId"
+      - "owner"
+      - "value"
+      - "lazyValue"
+      - "date"
+      - "pending"
+      properties:
+        id:
+          type: "string"
+          description: "Ownership identifier, has format \"token:tokenId:owner\""
+        contract:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        owner:
+          $ref: "#/components/schemas/Address"
+        creators:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Part"
+        value:
+          $ref: "#/components/schemas/BigInteger"
+        lazyValue:
+          $ref: "#/components/schemas/BigInteger"
+        date:
+          type: "string"
+          format: "date-time"
+        pending:
+          type: "array"
+          description: "History of ownership"
+          items:
+            $ref: "#/components/schemas/ItemHistory"
+        bestSellOrder:
+          $ref: "#/components/schemas/Order"
+    NftOrderDeletedOwnership:
+      required:
+      - "id"
+      - "token"
+      - "tokenId"
+      - "owner"
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        token:
+          $ref: "#/components/schemas/Address"
+        tokenId:
+          $ref: "#/components/schemas/BigInteger"
+        owner:
+          $ref: "#/components/schemas/Address"
+    NftOrderOwnershipEvent:
+      required:
+      - "eventId"
+      - "ownershipId"
+      properties:
+        eventId:
+          type: "string"
+        ownershipId:
+          type: "string"
+      discriminator:
+        propertyName: "type"
+        mapping:
+          UPDATE: "#/components/schemas/NftOrderOwnershipUpdateEvent"
+          DELETE: "#/components/schemas/NftOrderOwnershipDeleteEvent"
+      oneOf:
+      - $ref: "#/components/schemas/NftOrderOwnershipUpdateEvent"
+      - $ref: "#/components/schemas/NftOrderOwnershipDeleteEvent"
+    NftOrderOwnershipUpdateEvent:
+      type: "object"
+      required:
+      - "ownership"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "UPDATE"
+        ownership:
+          $ref: "#/components/schemas/NftOrderOwnership"
+    NftOrderOwnershipDeleteEvent:
+      type: "object"
+      required:
+      - "ownership"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "DELETE"
+        ownership:
+          $ref: "#/components/schemas/NftOrderDeletedOwnership"
+    PageNftOrderOwnershipItem:
+      required:
+      - "data"
+      type: "object"
+      properties:
+        continuation:
+          type: "string"
+          description: "Continuation token to paginate the search result"
+        data:
+          type: "array"
+          description: "List of found data items"
+          items:
+            $ref: "#/components/schemas/NftOrderOwnership"
+    PageNftOrderItem:
+      required:
+      - "data"
+      type: "object"
+      properties:
+        continuation:
+          type: "string"
+          description: "Continuation token to paginate the search result"
+        data:
+          type: "array"
+          description: "List of found data items"
+          items:
+            $ref: "#/components/schemas/NftOrderItem"

@@ -1,3 +1,16 @@
+## 3.2.1
+- Bumped dart-ogurets (_dioAlt_) generator to 5.9 with [changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
+- Bumped official openapi generator to 5.2.1. See [change log](https://github.com/OpenAPITools/openapi-generator/releases/tag/v5.2.1)
+
+## 3.2.0+2
+- fixed boolean additional properties returning null
+
+## 3.2.0
+- Bumped dart-ogurets (_dioAlt_) generator to 5.8 with [changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
+- Bumped official openapi generator to 5.2.0. See [change log](https://github.com/OpenAPITools/openapi-generator/releases/tag/v5.2.0)
+- Added support for nullSafe for _dioAlt_ generator
+- Added support for import mappings
+
 ## 3.1.3
 - Bumped dart-ogurets (_dioAlt_) generator to 5.3 with [changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
 - Bumped official openapi generator to 5.1.1. See [change log](https://github.com/OpenAPITools/openapi-generator/releases/tag/v5.1.1)

@@ -42,8 +42,7 @@ extension TypeMethods on ConstantReader {
   DartType? get dartType => objectValue.type;
 
   /// Returns a `List` of type arguments or the empty list.
-  List<DartType> get dartTypeArgs =>
-      objectValue.type?.typeArguments ?? <DartType>[];
+  List<DartType> get dartTypeArgs => <DartType>[];
 
   /// Reads a instance of a Dart enumeration.
   ///
