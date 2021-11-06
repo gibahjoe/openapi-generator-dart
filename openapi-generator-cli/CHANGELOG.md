@@ -1,10 +1,23 @@
+## 3.3.0
+
+- Bumped dart-ogurets (_dioAlt_) generator to 5.11
+  with [changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
+- Bumped official openapi generator to 5.3/0.
+  See [change log](https://github.com/OpenAPITools/openapi-generator/releases/tag/v5.3.0)
+
 ## 3.2.1
-- Bumped dart-ogurets (_dioAlt_) generator to 5.9 with [changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
-- Bumped official openapi generator to 5.2.1. See [change log](https://github.com/OpenAPITools/openapi-generator/releases/tag/v5.2.1)
+
+- Bumped dart-ogurets (_dioAlt_) generator to 5.9
+  with [changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
+- Bumped official openapi generator to 5.2.1.
+  See [change log](https://github.com/OpenAPITools/openapi-generator/releases/tag/v5.2.1)
 
 ## 3.2.0
-- Bumped dart-ogurets (_dioAlt_) generator to 5.8 with [changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
-- Bumped official openapi generator to 5.2.0. See [change log](https://github.com/OpenAPITools/openapi-generator/releases/tag/v5.2.0)
+
+- Bumped dart-ogurets (_dioAlt_) generator to 5.8
+  with [changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
+- Bumped official openapi generator to 5.2.0.
+  See [change log](https://github.com/OpenAPITools/openapi-generator/releases/tag/v5.2.0)
 
 ## 3.1.3
 - Bumped dart-ogurets (_dioAlt_) generator to 5.3 with [changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
