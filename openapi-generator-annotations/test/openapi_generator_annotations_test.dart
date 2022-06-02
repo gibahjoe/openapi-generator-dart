@@ -1,4 +1,3 @@
-import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 import 'package:test/test.dart';
 
 void main() {

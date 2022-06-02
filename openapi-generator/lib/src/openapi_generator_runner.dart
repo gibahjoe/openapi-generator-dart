@@ -76,7 +76,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
 
       var arguments = [
         '-jar',
-        "${"${binPath}"}",
+        "${"$binPath"}",
         ...command.split(separator).toList(),
       ];
       if (JAVA_OPTS.isNotEmpty) {
