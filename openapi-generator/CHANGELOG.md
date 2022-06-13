@@ -1,3 +1,7 @@
+## 3.3.1
+
+- Update the _analyzer_ constraint
+
 ## 3.3.0+1
 
 - Bumped dart-ogurets (_dioAlt_) generator to 5.11

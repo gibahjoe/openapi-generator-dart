@@ -12,7 +12,7 @@ void main(List<String> arguments) async {
 
   var commands = [
     '-jar',
-    "${"${binPath}"}",
+    "${"$binPath"}",
     ...arguments,
   ];
   if (JAVA_OPTS.isNotEmpty) {
