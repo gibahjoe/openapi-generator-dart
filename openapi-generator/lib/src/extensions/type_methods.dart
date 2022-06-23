@@ -1,7 +1,7 @@
 import 'dart:mirrors';
 
 import 'package:analyzer/dart/element/type.dart';
-import 'package:source_gen/source_gen.dart' show ConstantReader;
+import 'package:source_gen/source_gen.dart' show ConstantReader, TypeChecker;
 
 /// Extension adding the type methods to `ConstantReader`.
 extension TypeMethods on ConstantReader {
@@ -54,26 +54,20 @@ extension TypeMethods on ConstantReader {
     }
 
     final classMirror = reflectClass(T);
-    final typeMirror = reflectType(T);
     if (!classMirror.isEnum) {
       throw Exception(
           'Could not read constant via enumValue<$T>(). $T is not a Dart enum.');
     }
-    final varMirrors = <VariableMirror>[];
-    for (final item in classMirror.declarations.values) {
-      if (item is VariableMirror && item.type == typeMirror) {
-        varMirrors.add(item);
-      }
+
+    if (!instanceOf(TypeChecker.fromRuntime(T))) {
+      throw Exception('Not an instance of $T.');
     }
+
     // Access enum field 'values'.
     final values = classMirror.getField(const Symbol('values')).reflectee;
-    for (final varMirror in varMirrors) {
-      final name = MirrorSystem.getName(varMirror.simpleName);
-      final index = peek(name)?.intValue;
-      if (index != null) {
-        return values[index];
-      }
-    }
-    throw Exception('Could not read enum instance of type $T.');
+    // Get enum field 'index'.
+    final enumIndex = objectValue.getField('index')!.toIntValue();
+
+    return values[enumIndex];
   }
 }
