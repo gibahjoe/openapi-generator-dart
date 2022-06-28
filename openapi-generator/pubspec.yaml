@@ -12,7 +12,7 @@ dependencies:
   path: '>=1.0.0 <=2.0.0'
   openapi_generator_annotations: ^3.3.0
   analyzer: '>=1.4.0 <=5.0.0'
-  openapi_generator_cli: ^3.3.0
+  openapi_generator_cli: ^4.0.0
 
 dev_dependencies:
   pedantic:
