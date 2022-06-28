@@ -1,3 +1,13 @@
+## 4.0.0
+
+- **BREAKING CHANGES**
+  - `dioNext` and `jaguar` generators are removed
+
+- Bumped dart-ogurets (_dioAlt_) generator to 5.13
+  with [changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
+- Bumped official openapi generator to 6.0.0.
+  See [change log](https://github.com/OpenAPITools/openapi-generator/releases/tag/v6.0.0)
+
 ## 3.3.2
 
 - Fix the enum value retrieval error
