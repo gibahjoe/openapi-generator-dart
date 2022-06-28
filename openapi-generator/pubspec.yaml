@@ -10,7 +10,7 @@ dependencies:
   build: '>=0.12.6 <=3.0.0'
   source_gen: '>=1.0.0 <=2.0.0'
   path: '>=1.0.0 <=2.0.0'
-  openapi_generator_annotations: ^3.3.0
+  openapi_generator_annotations: ^4.0.0
   analyzer: '>=1.4.0 <=5.0.0'
   openapi_generator_cli: ^4.0.0
 
