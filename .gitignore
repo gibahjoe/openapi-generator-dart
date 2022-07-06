@@ -11,3 +11,6 @@ build/
 doc/api/
 .idea/vcs.xml
 .idea/
+
+# macOS
+.DS_Store
