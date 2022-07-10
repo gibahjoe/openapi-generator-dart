@@ -13,7 +13,7 @@ void main() {
     typeMappings: {
       'Pet': 'ExamplePet'
     },
-    generatorName: Generator.dioNext,
+    generatorName: Generator.dio,
     outputDirectory: 'api/petstore_api')
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
