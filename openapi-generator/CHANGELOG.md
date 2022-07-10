@@ -1,3 +1,7 @@
+## 3.3.2
+
+- Fix the enum value retrieval error
+
 ## 3.3.1
 
 - Update the _analyzer_ constraint
