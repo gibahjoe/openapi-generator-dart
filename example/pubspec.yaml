@@ -25,6 +25,9 @@ dependency_overrides:
     path: ../openapi-generator-annotations
   openapi_generator:
     path: ../openapi-generator
+  openapi_generator_cli:
+    path: ../openapi-generator-cli
+
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -35,7 +38,7 @@ dependency_overrides:
 dependencies:
   flutter:
     sdk: flutter
-  openapi_generator_annotations: ^3.2.1
+  openapi_generator_annotations: ^4.0.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -46,7 +49,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner:
-  openapi_generator: ^3.2.1
+  openapi_generator: ^4.0.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

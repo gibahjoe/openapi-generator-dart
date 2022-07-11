@@ -317,6 +317,7 @@ enum DioDateLibrary {
   /// support for timezones, calendars, cultures, formatting and parsing.
   timemachine
 }
+
 enum SerializationFormat { JSON, PROTO }
 
 /// The name of the generator to use
@@ -338,4 +339,5 @@ enum Generator {
   /// You can read more about it here https://github.com/dart-ogurets/dart-openapi-maven
   dioAlt,
 }
+
 enum Wrapper { fvm, flutterw, none }

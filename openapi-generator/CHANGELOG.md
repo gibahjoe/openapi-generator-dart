@@ -1,7 +1,7 @@
 ## 4.0.0
 
 - **BREAKING CHANGES**
-  - `dioNext` and `jaguar` generators are removed
+  - `dioNext` (replaced with `dio`) and `jaguar` generators are removed
 
 - Bumped dart-ogurets (_dioAlt_) generator to 5.13
   with [changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
