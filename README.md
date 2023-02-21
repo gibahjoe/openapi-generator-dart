@@ -63,7 +63,11 @@ class Example extends OpenapiGeneratorConfig {}
 ```
 
 Run 
-```cmd
+```shell
+dart run build_runner build --delete-conflicting-outputs
+```
+or
+```shell
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
 to generate open api client sdk from spec file specified in annotation. 
