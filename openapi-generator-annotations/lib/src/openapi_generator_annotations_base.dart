@@ -216,6 +216,7 @@ class JaguarProperties extends AdditionalProperties {
 class DioProperties extends AdditionalProperties {
   /// Choose serialization format JSON or PROTO is supported
   final DioDateLibrary? dateLibrary;
+  final DioSerializationLibrary? serializationLibrary;
 
   /// Is the null fields should be in the JSON payload
   final bool? nullableFields;
@@ -223,6 +224,7 @@ class DioProperties extends AdditionalProperties {
   const DioProperties(
       {this.dateLibrary,
       this.nullableFields,
+      this.serializationLibrary,
       bool allowUnicodeIdentifiers = false,
       bool ensureUniqueParams = true,
       bool prependFormOrBodyParameters = false,
@@ -317,6 +319,8 @@ enum DioDateLibrary {
   /// support for timezones, calendars, cultures, formatting and parsing.
   timemachine
 }
+
+enum DioSerializationLibrary { built_value, json_serializable }
 
 enum SerializationFormat { JSON, PROTO }
 
