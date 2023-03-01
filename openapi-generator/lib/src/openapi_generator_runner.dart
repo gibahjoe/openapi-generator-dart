@@ -328,6 +328,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     return value.toStringValue() ??
         value.toBoolValue()?.toString() ??
         value.toIntValue()?.toString() ??
+        value.getField('_name')?.toStringValue() ??
         '';
   }
 }
