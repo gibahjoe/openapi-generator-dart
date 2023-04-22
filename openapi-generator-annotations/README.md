@@ -35,7 +35,7 @@ Annotate a dart class with @Openapi() annotation
     additionalProperties:
     AdditionalProperties(pubName: 'petstore_api', pubAuthor: 'Johnny depp'),
     inputSpecFile: 'example/openapi-spec.yaml',
-    generatorName: Genrator.dart,
+    generatorName: Generator.dart,
     outputDirectory: 'api/petstore_api')
 class Example extends OpenapiGeneratorConfig {}
 ```
