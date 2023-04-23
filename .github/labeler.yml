@@ -1,11 +1,11 @@
-github_actions:
+github actions:
   - '.github/workflows/*'
 generator:
-  - 'openapi-generator/*'
+  - 'openapi-generator/**/*'
 annotations:
-  - 'openapi-generator-annotations/*'
+  - 'openapi-generator-annotations/**/*'
 cli:
-  - 'openapi-generator-cli/*'
+  - 'openapi-generator-cli/**/*'
 docs:
   - 'README.md'
   - 'CHANGELOG.md'
