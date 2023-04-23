@@ -1,19 +1,21 @@
 ![pub package](https://img.shields.io/pub/v/openapi_generator.svg) ![Pub Likes](https://img.shields.io/pub/likes/openapi_generator?) ![Pub Points](https://img.shields.io/pub/points/openapi_generator) ![Pub Popularity](https://img.shields.io/pub/popularity/openapi_generator) ![GitHub Repo stars](https://img.shields.io/github/stars/gibahjoe/openapi-generator-dart)
 
+### Do not forget to give a star or like if you like this library.
+
 This codebase houses the dart/flutter implementations of the openapi client sdk code generation libraries.
 
-With this project, you can generate openapi client sdk libraries for your openapi specification right in your flutter/dart projects. (see example)
+With this project, you can generate openapi client sdk libraries for your openapi specification right in your
+flutter/dart projects. (see example)
 
 [license](https://github.com/gibahjoe/openapi-generator-dart/blob/master/openapi-generator-annotations/LICENSE).
 
-
 This repo contains the following dart libraries
 
-| Library       | Description | latest version |
-|---------------|-------------|---------------|
-| openapi-generator |Dev dependency for generating openapi sdk via dart source gen [see here for usage](https://pub.dev/packages/openapi_generator)| [![pub package](https://img.shields.io/pub/v/openapi_generator.svg)](https://pub.dev/packages/openapi_generator)|
-| openapi-generator-annotations|Annotations for annotating dart class with instructions for generating openapi sdk [see here for usage](https://pub.dev/packages/openapi_generator_annotations)|[![pub package](https://img.shields.io/pub/v/openapi_generator_annotations.svg)](https://pub.dev/packages/openapi_generator)|
-| openapi-generator-cli |Cli code openapi sdk generator for dart [see here for usage](https://pub.dev/packages/openapi_generator_cli)|[![pub package](https://img.shields.io/pub/v/openapi_generator_cli.svg)](https://pub.dev/packages/openapi_generator_cli)|
+| Library                       | Description                                                                                                                                                     | latest version                                                                                                               |
+|-------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| openapi-generator             | Dev dependency for generating openapi sdk via dart source gen [see here for usage](https://pub.dev/packages/openapi_generator)                                  | [![pub package](https://img.shields.io/pub/v/openapi_generator.svg)](https://pub.dev/packages/openapi_generator)             |
+| openapi-generator-annotations | Annotations for annotating dart class with instructions for generating openapi sdk [see here for usage](https://pub.dev/packages/openapi_generator_annotations) | [![pub package](https://img.shields.io/pub/v/openapi_generator_annotations.svg)](https://pub.dev/packages/openapi_generator) |
+| openapi-generator-cli         | Cli code openapi sdk generator for dart [see here for usage](https://pub.dev/packages/openapi_generator_cli)                                                    | [![pub package](https://img.shields.io/pub/v/openapi_generator_cli.svg)](https://pub.dev/packages/openapi_generator_cli)     |
 
 
 
