@@ -1,0 +1,8 @@
+github_actions:
+  - '.github/workflows/*'
+generator:
+  - 'openapi-generator/*'
+annotations:
+  - 'openapi-generator-annotations/*'
+cli:
+  - 'openapi-generator-cli/*'

@@ -1,0 +1,23 @@
+name: Stable release 🕊️📦
+
+on:
+  release:
+    types:
+      - released
+      - prereleased
+
+jobs:
+  publish:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Publish
+        uses: sakebook/actions-flutter-pub-publisher@v1.3.1
+        with:
+          credential: ${{ secrets.PUB_CREDENTIAL_JSON }}
+          flutter_package: true
+          skip_test: true
+          dry_run: true
