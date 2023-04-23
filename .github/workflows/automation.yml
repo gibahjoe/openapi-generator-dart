@@ -1,0 +1,31 @@
+name: Automation 🤖
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**/*.md'
+  pull_request_target:
+
+jobs:
+  label:
+    name: Labeling 🏷️
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label PR depending on modified files
+        uses: actions/labeler@v4
+        if: ${{ github.event_name == 'pull_request_target' }}
+        continue-on-error: true
+        with:
+          repo-token: '${{ secrets.OG_BOT_TOKEN }}'
+
+      - name: Check all PRs for merge conflicts ⛔
+        uses: eps1lon/actions-label-merge-conflict@v2.1.0
+        with:
+          dirtyLabel: 'merge conflict'
+          repoToken: ${{ secrets.OG_BOT_TOKEN }}

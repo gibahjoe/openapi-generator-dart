@@ -1,0 +1,56 @@
+name: Stable release 🕊️📦
+
+on:
+  release:
+    types:
+      - released
+      - prereleased
+
+jobs:
+  publish-cli:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Publish
+        uses: sakebook/actions-flutter-pub-publisher@v1.3.1
+        with:
+          credential: ${{ secrets.PUB_CREDENTIAL_JSON }}
+          package_directory: ./openapi-generator-cli
+          flutter_package: true
+          skip_test: true
+          dry_run: false
+
+  publish-annotation:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Publish
+        uses: sakebook/actions-flutter-pub-publisher@v1.3.1
+        with:
+          credential: ${{ secrets.PUB_CREDENTIAL_JSON }}
+          package_directory: ./openapi-generator-annotations
+          flutter_package: true
+          skip_test: true
+          dry_run: false
+
+  publish-generator:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Publish
+        uses: sakebook/actions-flutter-pub-publisher@v1.3.1
+        with:
+          credential: ${{ secrets.PUB_CREDENTIAL_JSON }}
+          package_directory: ./openapi-generator
+          flutter_package: true
+          skip_test: true
+          dry_run: false

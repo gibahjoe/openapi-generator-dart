@@ -1,3 +1,10 @@
+## 4.10.0
+
+- Bumped dart-ogurets (_dioAlt_) generator to 7.1
+  with [changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
+- Bumped official openapi generator to 6.4.0.
+  See [change log](https://github.com/OpenAPITools/openapi-generator/releases/tag/v6.4.0)
+
 ## 4.0.0
 
 - Bumped dart-ogurets (_dioAlt_) generator to 5.13
