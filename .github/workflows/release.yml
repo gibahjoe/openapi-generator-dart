@@ -21,7 +21,7 @@ jobs:
           package_directory: ./openapi-generator-cli
           flutter_package: true
           skip_test: true
-          dry_run: true
+          dry_run: false
 
   publish-annotation:
 
@@ -37,7 +37,7 @@ jobs:
           package_directory: ./openapi-generator-annotations
           flutter_package: true
           skip_test: true
-          dry_run: true
+          dry_run: false
 
   publish-generator:
 
@@ -53,4 +53,4 @@ jobs:
           package_directory: ./openapi-generator
           flutter_package: true
           skip_test: true
-          dry_run: true
+          dry_run: false
