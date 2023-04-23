@@ -12,6 +12,7 @@ on:
       - '**/*.md'
   pull_request_target:
 
+jobs:
   label:
     name: Labeling 🏷️
     runs-on: ubuntu-latest
