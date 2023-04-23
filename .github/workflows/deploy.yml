@@ -30,21 +30,6 @@ jobs:
           echo "pr_number=$(cat PR_number)" >> $GITHUB_ENV
           echo "pr_sha=$(cat PR_sha)" >> $GITHUB_ENV
 
-  compose-comment:
-    name: Compose comment
-    if: ${{ always() }}
-    uses: ./.github/workflows/job_messages.yml
-    needs:
-      - pr-context
-
-    with:
-      branch: ${{ github.event.workflow_run.head_branch }}
-      commit: ${{ needs.pr-context.outputs.commit != '' && needs.pr-context.outputs.commit || github.event.workflow_run.head_sha }}
-      preview_url: ${{ needs.cf-pages.outputs.url }}
-      build_workflow_run_id: ${{ github.event.workflow_run.id }}
-      commenting_workflow_run_id: ${{ github.run_id }}
-      in_progress: false
-
   comment-status:
     name: Create comment status
     if: |
