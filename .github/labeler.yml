@@ -1,4 +1,4 @@
-github actions:
+'github actions':
   - '.github/workflows/*'
 generator:
   - 'openapi-generator/**/*'
