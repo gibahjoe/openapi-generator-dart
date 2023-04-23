@@ -1,3 +1,5 @@
+![pub package](https://img.shields.io/pub/v/openapi_generator.svg) ![Pub Likes](https://img.shields.io/pub/likes/openapi_generator?) ![Pub Points](https://img.shields.io/pub/points/openapi_generator) ![Pub Popularity](https://img.shields.io/pub/popularity/openapi_generator) ![GitHub Repo stars](https://img.shields.io/github/stars/gibahjoe/openapi-generator-dart)
+
 This codebase houses the dart/flutter implementations of the openapi client sdk code generation libraries.
 
 With this project, you can generate openapi client sdk libraries for your openapi specification right in your flutter/dart projects. (see example)

@@ -6,3 +6,7 @@ annotations:
   - 'openapi-generator-annotations/*'
 cli:
   - 'openapi-generator-cli/*'
+docs:
+  - 'README.md'
+  - 'CHANGELOG.md'
+  - 'LICENSE'

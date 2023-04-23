@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    name: Build frontend 🛠️
+    name: Build example project 🛠️
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -30,7 +30,7 @@ jobs:
           cache: true
           channel: 'stable'
       - run: flutter pub get
-  #    - run: flutter test
+      - run: flutter pub run build_runner build --delete-conflicting-outputs
       - run: flutter build apk
 
 #      - name: Upload artifact (Client) ⬆️💻
