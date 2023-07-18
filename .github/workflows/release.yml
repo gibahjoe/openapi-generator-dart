@@ -52,5 +52,5 @@ jobs:
           credential: ${{ secrets.PUB_CREDENTIAL_JSON }}
           package_directory: ./openapi-generator
           flutter_package: true
-          skip_test: true
+          skip_test: false
           dry_run: false

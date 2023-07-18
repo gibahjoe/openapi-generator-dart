@@ -8,6 +8,11 @@ class Openapi {
   /// --additional-properties
   final AdditionalProperties? additionalProperties;
 
+  // /// Allows you to customize how inline schemas are handled or named
+  // ///
+  // /// --inline-schema-options
+  // final InlineSchemaOptions? inlineSchemaOptions;
+
   /// The package of the api. defaults to lib.api
   ///
   /// --api-package
@@ -80,6 +85,15 @@ class Openapi {
   /// e.g {'OffsetDate': 'package:time_machine/time_machine.dart'}
   final Map<String, String>? importMappings;
 
+  /// Inline schemas are created as separate schemas automatically and the
+  /// auto-generated schema name may not look good to everyone. One can customize
+  /// the name using the title field or the inlineSchemaNameMapping option.
+  ///
+  /// --inline-schema-name-mappings
+  ///
+  /// e.g {'inline_object_2': 'SomethingMapped'}
+  final Map<String, String>? inlineSchemaNameMappings;
+
   const Openapi(
       {this.additionalProperties,
       this.overwriteExistingFiles,
@@ -91,6 +105,8 @@ class Openapi {
       this.typeMappings,
       this.importMappings,
       this.reservedWordsMappings,
+      this.inlineSchemaNameMappings,
+      // this.inlineSchemaOptions,
       this.apiPackage,
       this.fetchDependencies = true,
       this.runSourceGenOnOutput = true,
@@ -173,44 +189,30 @@ class AdditionalProperties {
       this.wrapper = Wrapper.none});
 }
 
-class JaguarProperties extends AdditionalProperties {
-  /// Choose serialization format JSON or PROTO is supported
-  final SerializationFormat? serialization;
+/// Allows you to customize how inline schemas are handled or named
+class InlineSchemaOptions {
+  ///  sets the array item suffix
+  final String? arrayItemSuffix;
 
-  /// Is the null fields should be in the JSON payload
-  final bool? nullableFields;
+  /// set the map item suffix
+  final String? mapItemSuffix;
 
-  const JaguarProperties(
-      {this.serialization,
-      this.nullableFields,
-      bool allowUnicodeIdentifiers = false,
-      bool ensureUniqueParams = true,
-      bool prependFormOrBodyParameters = false,
-      String? pubAuthor,
-      String? pubAuthorEmail,
-      String? pubDescription,
-      String? pubHomepage,
-      String? pubName,
-      String? pubVersion,
-      bool sortModelPropertiesByRequiredFlag = true,
-      bool sortParamsByRequiredFlag = true,
-      bool useEnumExtension = true,
-      String? sourceFolder})
-      : super(
-            allowUnicodeIdentifiers: allowUnicodeIdentifiers,
-            ensureUniqueParams: ensureUniqueParams,
-            prependFormOrBodyParameters: prependFormOrBodyParameters,
-            pubAuthor: pubAuthor,
-            pubAuthorEmail: pubAuthorEmail,
-            pubDescription: pubDescription,
-            pubHomepage: pubHomepage,
-            pubName: pubName,
-            pubVersion: pubVersion,
-            sortModelPropertiesByRequiredFlag:
-                sortModelPropertiesByRequiredFlag,
-            sortParamsByRequiredFlag: sortParamsByRequiredFlag,
-            sourceFolder: sourceFolder,
-            useEnumExtension: useEnumExtension);
+  /// special value to skip reusing inline schemas during refactoring
+  final bool skipSchemaReuse;
+
+  ///	will restore the 6.x (or below) behaviour to refactor allOf inline schemas
+  ///into $ref. (v7.0.0 will skip the refactoring of these allOf inline schmeas by default)
+  final bool refactorAllofInlineSchemas;
+
+  /// 	Email address of the author in generated pubspec
+  final bool resolveInlineEnums;
+
+  const InlineSchemaOptions(
+      {this.arrayItemSuffix,
+      this.mapItemSuffix,
+      this.skipSchemaReuse = true,
+      this.refactorAllofInlineSchemas = true,
+      this.resolveInlineEnums = true});
 }
 
 class DioProperties extends AdditionalProperties {

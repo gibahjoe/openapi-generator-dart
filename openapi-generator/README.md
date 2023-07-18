@@ -15,7 +15,7 @@ Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generat
 
 ```yaml
 dependencies:
-  openapi_generator_annotations: ^1.1.4
+  openapi_generator_annotations: ^4.11.0
 ```
 
 
@@ -23,7 +23,7 @@ Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev d
 
 ```yaml
 dev_dependencies:
-  openapi_generator: ^1.1.4
+  openapi_generator: ^4.11.0
 ```
 
 
@@ -54,18 +54,34 @@ must be added to the .openapi-generator-ignore of the generated package.
 For example, let's assume you want to override the analyzer package for the generated source
 
 in generatedsource/pubspec.yaml add the following
+
 ```yaml
 dependency_overrides:
-    analyzer: 1.0.0
+  analyzer: 1.0.0
 ```
-Then in generatedsources/.openapi-generator-ignore, add the below so that the pubspec is not overwritten next time you run source gen
+
+Then in generatedsources/.openapi-generator-ignore, add the below so that the pubspec is not overwritten next time you
+run source gen
+
 ```.gitignore
 pubspec.yaml
 ```
-The above steps are usefull when you have issues with dependency conflicts, clashes. You can even use it to upgrade the library packages in the generated source.
+
+The above steps are useful when you have issues with dependency conflicts, clashes. You can even use it to upgrade the
+library packages in the generated source.
+
+## FAQ
+
+Q: I run source gen (`flutter pub run build_runner build --delete-conflicting-outputs`), The api generator doesnot run.
+
+A: The source generator of flutter only runs when there are changes to the file that has the annotation. If this ever
+happens, just go to the file that has the `@openapi` annotation and edit something in the file.
 
 ## Features and bugs
 
 Please file feature requests and bugs at the [issue tracker][tracker].
 
 [tracker]: https://github.com/gibahjoe/openapi-generator-dart/issues
+
+
+<a href="https://www.buymeacoffee.com/gibahjoe" target="_blank"><img src="https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>

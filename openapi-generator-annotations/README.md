@@ -68,11 +68,15 @@ Then in generatedsources/.openapi-generator-ignore, add the below so that the pu
 ```.gitignore
 pubspec.yaml
 ```
-The above steps are usefull when you have issues with dependency conflicts, clashes. You can even use it to upgrade the library packages in the generated source.
 
+The above steps are usefull when you have issues with dependency conflicts, clashes. You can even use it to upgrade the
+library packages in the generated source.
 
 ## Features and bugs
 
 Please file feature requests and bugs at the [issue tracker][tracker].
 
 [tracker]: https://github.com/gibahjoe/openapi-generator-dart/issues
+
+
+<a href="https://www.buymeacoffee.com/gibahjoe" target="_blank"><img src="https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>

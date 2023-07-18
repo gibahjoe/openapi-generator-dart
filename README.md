@@ -74,13 +74,13 @@ or
 ```shell
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
-to generate open api client sdk from spec file specified in annotation. 
+to generate open api client sdk from spec file specified in annotation.
 The api sdk will be generated in the folder specified in the annotation. See examples for more details
-
-
 
 ## Features and bugs
 
 Please file feature requests and bugs at the [issue tracker][tracker].
 
 [tracker]: https://github.com/gibahjoe/openapi-generator-dart/issues
+
+<a href="https://www.buymeacoffee.com/gibahjoe" target="_blank"><img src="https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>

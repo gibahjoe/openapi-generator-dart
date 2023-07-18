@@ -5,7 +5,6 @@ import 'dart:isolate';
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
-import 'package:build/src/builder/build_step.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart'
     as annots;
 import 'package:path/path.dart' as path;
@@ -14,13 +13,17 @@ import 'package:source_gen/source_gen.dart';
 import 'extensions/type_methods.dart';
 
 class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
-  final Function(String command)? test;
+  final bool testMode;
 
-  OpenapiGenerator({this.test});
+  OpenapiGenerator({this.testMode = false});
 
   @override
   FutureOr<String> generateForAnnotatedElement(
       Element element, ConstantReader annotation, BuildStep buildStep) async {
+    log.info(' - :::::::::::::::::::::::::::::::::::::::::::');
+    log.info(' - ::      Openapi generator for dart       ::');
+    log.info(' - :::::::::::::::::::::::::::::::::::::::::::');
+
     try {
       if (element is! ClassElement) {
         final friendlyName = element.displayName;
@@ -30,16 +33,18 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         );
       }
       var separator = '?*?';
-      var command = 'generate';
+      var openApiCliCommand = 'generate';
 
-      command = appendInputFileCommandArgs(annotation, command, separator);
+      openApiCliCommand =
+          appendInputFileCommandArgs(annotation, openApiCliCommand, separator);
 
-      command = appendTemplateDirCommandArgs(annotation, command, separator);
+      openApiCliCommand = appendTemplateDirCommandArgs(
+          annotation, openApiCliCommand, separator);
 
       var generatorName =
           annotation.peek('generatorName')?.enumValue<annots.Generator>();
       var generator = getGeneratorNameFromEnum(generatorName!);
-      command = '$command$separator-g$separator$generator';
+      openApiCliCommand = '$openApiCliCommand$separator-g$separator$generator';
 
       var outputDirectory =
           _readFieldValueAsString(annotation, 'outputDirectory', '');
@@ -51,55 +56,63 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
               'OpenapiGenerator :: Codegen skipped because alwaysRun is set to [$alwaysRun] and $filePath already exists');
           return '';
         }
-        command = '$command$separator-o$separator$outputDirectory';
+        openApiCliCommand =
+            '$openApiCliCommand$separator-o$separator$outputDirectory';
       }
 
-      command = appendTypeMappingCommandArgs(annotation, command, separator);
+      openApiCliCommand = appendTypeMappingCommandArgs(
+          annotation, openApiCliCommand, separator);
 
-      command =
-          appendReservedWordsMappingCommandArgs(annotation, command, separator);
+      openApiCliCommand = appendImportMappingCommandArgs(
+          annotation, openApiCliCommand, separator);
 
-      command =
-          appendAdditionalPropertiesCommandArgs(annotation, command, separator);
+      openApiCliCommand = appendReservedWordsMappingCommandArgs(
+          annotation, openApiCliCommand, separator);
 
-      command =
-          appendSkipValidateSpecCommandArgs(annotation, command, separator);
+      openApiCliCommand = appendInlineSchemaNameMappingCommandArgs(
+          annotation, openApiCliCommand, separator);
 
-      print('OpenapiGenerator :: [${command.replaceAll(separator, ' ')}]');
+      openApiCliCommand = appendAdditionalPropertiesCommandArgs(
+          annotation, openApiCliCommand, separator);
+
+      // openApiCliCommand = appendInlineSchemeOptionsCommandArgs(
+      //     annotation, openApiCliCommand, separator);
+
+      openApiCliCommand = appendSkipValidateSpecCommandArgs(
+          annotation, openApiCliCommand, separator);
+
+      log.info(
+          'OpenapiGenerator :: [${openApiCliCommand.replaceAll(separator, ' ')}]');
 
       var binPath = (await Isolate.resolvePackageUri(Uri.parse(
               'package:openapi_generator_cli/openapi-generator.jar')))!
           .toFilePath(windows: Platform.isWindows);
-      test?.call(command.replaceAll(separator, ' '));
-      // Include java environment variables in command
-      var JAVA_OPTS = Platform.environment['JAVA_OPTS'] ?? '';
+
+      // Include java environment variables in openApiCliCommand
+      var javaOpts = Platform.environment['JAVA_OPTS'] ?? '';
 
       var arguments = [
         '-jar',
         "${"$binPath"}",
-        ...command.split(separator).toList(),
+        ...openApiCliCommand.split(separator).toList(),
       ];
-      if (JAVA_OPTS.isNotEmpty) {
-        arguments.insert(0, JAVA_OPTS);
+      if (javaOpts.isNotEmpty) {
+        arguments.insert(0, javaOpts);
       }
-
-      var spaced = '|                                                     |';
-      var horiborder = '------------------------------------------------------';
-      print(
-          '$horiborder\n$spaced\n|             Openapi generator for dart              |\n$spaced\n$spaced\n$horiborder');
-      print('Executing command [${command.replaceAll(separator, ' ')}]');
 
       var exitCode = 0;
       var pr = await Process.run('java', arguments);
+      log.info(pr.stdout);
+      if (pr.exitCode != 0) {
+        log.severe(pr.stderr);
+      }
 
-      print(pr.stderr);
-      print(
-          'OpenapiGenerator :: Codegen ${pr.exitCode != 0 ? 'Failed' : 'completed successfully'}');
+      log.info(
+          ' - :: Codegen ${pr.exitCode != 0 ? 'Failed' : 'completed successfully'}');
       exitCode = pr.exitCode;
 
       if (!_readFieldValueAsBool(annotation, 'fetchDependencies')!) {
-        print(
-            'OpenapiGenerator :: Skipping install step because you said so...');
+        log.warning(' - :: Skipping install step because you said so...');
         return '';
       }
 
@@ -111,15 +124,15 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
             runInShell: Platform.isWindows,
             workingDirectory: '$outputDirectory');
 
-        print(installOutput.stderr);
-        print(
-            'OpenapiGenerator :: Install exited with code ${installOutput.exitCode}');
+        if (installOutput.exitCode != 0) {
+          log.severe(installOutput.stderr);
+        }
+        print(' :: Install exited with code ${installOutput.exitCode}');
         exitCode = installOutput.exitCode;
       }
 
       if (!_readFieldValueAsBool(annotation, 'runSourceGenOnOutput')!) {
-        print(
-            'OpenapiGenerator :: Skipping source gen step because you said so...');
+        log.warning(' :: Skipping source gen step because you said so...');
         return '';
       }
 
@@ -127,25 +140,28 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         //run buildrunner to generate files
         switch (generatorName) {
           case annots.Generator.dart:
-            print(
-                'OpenapiGenerator :: skipping source gen because generator does not need it ::');
+            log.info(
+                ' :: skipping source gen because generator does not need it ::');
             break;
           case annots.Generator.dio:
           case annots.Generator.dioAlt:
             try {
               var runnerOutput =
                   await runSourceGen(annotation, outputDirectory);
-              print(
-                  'OpenapiGenerator :: build runner exited with code ${runnerOutput.exitCode} ::');
+              if (runnerOutput.exitCode != 0) {
+                log.severe(runnerOutput.stderr);
+              }
+              log.info(
+                  ' :: build runner exited with code ${runnerOutput.exitCode} ::');
             } catch (e) {
-              print(e);
-              print('OpenapiGenerator :: could not complete source gen ::');
+              log.severe(e);
+              log.severe(' :: could not complete source gen ::');
             }
             break;
         }
       }
     } catch (e) {
-      print('Error generating spec $e');
+      log.severe('Error generating spec $e');
       rethrow;
     }
     return '';
@@ -153,33 +169,49 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
 
   Future<ProcessResult> runSourceGen(
       ConstantReader annotation, String outputDirectory) async {
-    print('OpenapiGenerator :: running source code generation ::');
+    log.info(':: running source code generation ::');
     var c = 'pub run build_runner build --delete-conflicting-outputs';
     final command =
         _getCommandWithWrapper('flutter', c.split(' ').toList(), annotation);
     ProcessResult runnerOutput;
     runnerOutput = await Process.run(command.executable, command.arguments,
         runInShell: Platform.isWindows, workingDirectory: '$outputDirectory');
-    print(runnerOutput.stderr);
+    log.severe(runnerOutput.stderr);
     return runnerOutput;
   }
 
   String appendAdditionalPropertiesCommandArgs(
       ConstantReader annotation, String command, String separator) {
     var additionalProperties = '';
-    annotation
-        .read('additionalProperties')
-        .revive()
-        .namedArguments
-        .entries
-        .forEach((entry) => {
-              additionalProperties =
-                  '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${convertToPropertyKey(entry.key)}=${convertToPropertyValue(entry.value)}'
-            });
+    var reader = annotation.read('additionalProperties');
+    if (!reader.isNull) {
+      reader.revive().namedArguments.entries.forEach((entry) => {
+            additionalProperties =
+                '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${convertToPropertyKey(entry.key)}=${convertToPropertyValue(entry.value)}'
+          });
+    }
 
     if (additionalProperties.isNotEmpty) {
       command =
           '$command$separator--additional-properties=$additionalProperties';
+    }
+    return command;
+  }
+
+  String appendInlineSchemeOptionsCommandArgs(
+      ConstantReader annotation, String command, String separator) {
+    var inlineSchemaOptions = '';
+    var reader = annotation.read('inlineSchemaOptions');
+    if (!reader.isNull) {
+      reader.revive().namedArguments.entries.forEach((entry) => {
+            inlineSchemaOptions =
+                '$inlineSchemaOptions${inlineSchemaOptions.isEmpty ? '' : ','}${convertToPropertyKey(entry.key)}=${convertToPropertyValue(entry.value)}'
+          });
+    }
+
+    if (inlineSchemaOptions.isNotEmpty) {
+      command =
+          '$command$separator--inline-schema-options $inlineSchemaOptions';
     }
     return command;
   }
@@ -212,6 +244,17 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     if (reservedWordsMappingsMap.isNotEmpty) {
       command =
           '$command$separator--reserved-words-mappings=${getMapAsString(reservedWordsMappingsMap)}';
+    }
+    return command;
+  }
+
+  String appendInlineSchemaNameMappingCommandArgs(
+      ConstantReader annotation, String command, String separator) {
+    var inlineSchemaNameMappings =
+        _readFieldValueAsMap(annotation, 'inlineSchemaNameMappings', {})!;
+    if (inlineSchemaNameMappings.isNotEmpty) {
+      command =
+          '$command$separator--inline-schema-name-mappings=${getMapAsString(inlineSchemaNameMappings)}';
     }
     return command;
   }
@@ -317,6 +360,16 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         return 'pubspec-dependencies';
       case 'pubspecDevDependencies':
         return 'pubspec-dev-dependencies';
+      case 'arrayItemSuffix':
+        return 'ARRAY_ITEM_SUFFIX';
+      case 'mapItemSuffix':
+        return 'MAP_ITEM_SUFFIX';
+      case 'skipSchemaReuse':
+        return 'SKIP_SCHEMA_REUSE';
+      case 'refactorAllofInlineSchemas':
+        return 'REFACTOR_ALLOF_INLINE_SCHEMAS';
+      case 'resolveInlineEnums':
+        return 'RESOLVE_INLINE_ENUMS';
     }
     return key;
   }

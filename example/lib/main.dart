@@ -7,7 +7,7 @@ void main() {
 
 @Openapi(
     additionalProperties:
-        DioProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep...'),
+        DioProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep..'),
     inputSpecFile: 'openapi-spec.yaml',
     typeMappings: {'Pet': 'ExamplePet'},
     generatorName: Generator.dio,

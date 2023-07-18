@@ -14,23 +14,30 @@ description: A new Flutter application.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependency_overrides:
 #  analyzer: '0.39.14'
-  meta: ^1.2.2
+#  meta: ^1.2.2
+  openapi_generator_annotations:
+    path: ../../openapi-generator-annotations
+  openapi_generator:
+    path: ../../openapi-generator
+  openapi_generator_cli:
+    path: ../../openapi-generator-cli
 
 dependencies:
   flutter:
     sdk: flutter
-  openapi_generator_annotations: ^3.2.1
+  openapi_generator_annotations: ^4.10.0
   cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner:
-  openapi_generator: ^3.2.1
+  openapi_generator_annotations: ^4.10.0
+  openapi_generator: ^4.10.0
 
 
 # For information on the generic Dart part of this file, see the
