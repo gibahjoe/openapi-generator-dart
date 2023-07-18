@@ -102,7 +102,6 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
 
       var exitCode = 0;
       var pr = await Process.run('java', arguments);
-      log.info(pr.stdout);
       if (pr.exitCode != 0) {
         log.severe(pr.stderr);
       }
