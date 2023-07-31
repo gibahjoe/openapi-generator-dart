@@ -1,3 +1,8 @@
+## 4.11.0+1
+
+- Removed ```log.severe``` that shows event though generation is successful
+- Updated documentation
+
 ## 4.11.0
 
 - Bumped dart-ogurets (_dioAlt_) generator to 7.2

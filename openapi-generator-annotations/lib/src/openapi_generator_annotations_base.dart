@@ -25,6 +25,8 @@ class Openapi {
 
   /// folder containing the template files
   ///
+  /// You can read more about templating here
+  /// https://github.com/OpenAPITools/openapi-generator/blob/master/docs/templating.md
   /// -t
   final String? templateDirectory;
 

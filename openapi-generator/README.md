@@ -72,10 +72,15 @@ library packages in the generated source.
 
 ## FAQ
 
-Q: I run source gen (`flutter pub run build_runner build --delete-conflicting-outputs`), The api generator doesnot run.
+Q: I run source gen (`flutter pub run build_runner build --delete-conflicting-outputs`), The api generator does not run.
 
 A: The source generator of flutter only runs when there are changes to the file that has the annotation. If this ever
 happens, just go to the file that has the `@openapi` annotation and edit something in the file.
+
+Q: How do I prevent files from being generated e.g tests
+
+A: To prevent any files from being generated, you need to add it to ```.openapi-generator-ignore```. This file is in the
+root of the generated code. For example, to prevent generating tests, add ```test/*``` to the file.
 
 ## Features and bugs
 

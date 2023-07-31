@@ -20,9 +20,10 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   @override
   FutureOr<String> generateForAnnotatedElement(
       Element element, ConstantReader annotation, BuildStep buildStep) async {
-    log.info(' - :::::::::::::::::::::::::::::::::::::::::::');
-    log.info(' - ::      Openapi generator for dart       ::');
-    log.info(' - :::::::::::::::::::::::::::::::::::::::::::');
+    var line1 = ' - :::::::::::::::::::::::::::::::::::::::::::';
+    var line2 = ' - ::      Openapi generator for dart       ::';
+    var line3 = ' - :::::::::::::::::::::::::::::::::::::::::::';
+    print('$line1\n$line2\n$line3');
 
     try {
       if (element is! ClassElement) {
@@ -149,9 +150,12 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
                   await runSourceGen(annotation, outputDirectory);
               if (runnerOutput.exitCode != 0) {
                 log.severe(runnerOutput.stderr);
+                log.severe(
+                    ' :: build runner exited with code ${runnerOutput.exitCode} ::');
+              } else {
+                log.info(
+                    ' :: build runner exited with code ${runnerOutput.exitCode} ::');
               }
-              log.info(
-                  ' :: build runner exited with code ${runnerOutput.exitCode} ::');
             } catch (e) {
               log.severe(e);
               log.severe(' :: could not complete source gen ::');
@@ -175,7 +179,6 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     ProcessResult runnerOutput;
     runnerOutput = await Process.run(command.executable, command.arguments,
         runInShell: Platform.isWindows, workingDirectory: '$outputDirectory');
-    log.severe(runnerOutput.stderr);
     return runnerOutput;
   }
 
