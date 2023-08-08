@@ -187,10 +187,9 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     var additionalProperties = '';
     var reader = annotation.read('additionalProperties');
     if (!reader.isNull) {
-      reader.revive().namedArguments.entries.forEach((entry) => {
-            additionalProperties =
-                '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${convertToPropertyKey(entry.key)}=${convertToPropertyValue(entry.value)}'
-          });
+      reader.revive().namedArguments.entries.forEach((entry) =>
+          additionalProperties =
+              '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${convertToPropertyKey(entry.key)}=${convertToPropertyValue(entry.value)}');
     }
 
     if (additionalProperties.isNotEmpty) {
@@ -205,10 +204,9 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     var inlineSchemaOptions = '';
     var reader = annotation.read('inlineSchemaOptions');
     if (!reader.isNull) {
-      reader.revive().namedArguments.entries.forEach((entry) => {
-            inlineSchemaOptions =
-                '$inlineSchemaOptions${inlineSchemaOptions.isEmpty ? '' : ','}${convertToPropertyKey(entry.key)}=${convertToPropertyValue(entry.value)}'
-          });
+      reader.revive().namedArguments.entries.forEach((entry) =>
+          inlineSchemaOptions =
+              '$inlineSchemaOptions${inlineSchemaOptions.isEmpty ? '' : ','}${convertToPropertyKey(entry.key)}=${convertToPropertyValue(entry.value)}');
     }
 
     if (inlineSchemaOptions.isNotEmpty) {

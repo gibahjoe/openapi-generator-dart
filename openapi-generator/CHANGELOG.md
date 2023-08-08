@@ -1,4 +1,4 @@
-## 4.11.0+1
+## 4.11.1
 
 - Removed ```log.severe``` that shows event though generation is successful
 - Updated documentation

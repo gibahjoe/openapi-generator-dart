@@ -25,7 +25,7 @@ void main() {
           outputDirectory: 'api/petstore_api')
       '''),
           contains(
-              "generate -i ../openapi-spec.yaml -g dart-dio -o api/petstore_api --type-mappings=Pet=ExamplePet --additional-properties=pubName=petstore_api,pubAuthor=Johnny dep..."));
+              'generate -i ../openapi-spec.yaml -g dart-dio -o api/petstore_api --type-mappings=Pet=ExamplePet --additional-properties=pubName=petstore_api,pubAuthor=Johnny dep...'));
     });
 
     test('to generate command with import and type mappings', () async {
