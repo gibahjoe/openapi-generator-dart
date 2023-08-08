@@ -27,14 +27,14 @@ dependency_overrides:
     path: ../../openapi-generator-cli
 
 dependencies:
-  flutter:
-    sdk: flutter
+#  flutter:
+#    sdk: flutter
   openapi_generator_annotations: ^4.10.0
   cupertino_icons: ^1.0.2
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
+#  flutter_test:
+#    sdk: flutter
   build_runner:
   openapi_generator_annotations: ^4.10.0
   openapi_generator: ^4.10.0
