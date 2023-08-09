@@ -149,9 +149,6 @@ bool isSpecDirty({
 /// Converts a [YamlMap] and it's children into a [Map]. This involes expanding
 /// [YamlList] & [YamlMap] nodes into their entries. [YamlScalar] values are
 /// directly set.
-///
-/// Currently this makes the assumption that [YamlList] node shouldn't be a valid
-/// child entry within another [YamlList] and ignores the contents.
 Map<String, dynamic> convertYamlMapToDartMap({required YamlMap yamlMap}) {
   final transformed = <String, dynamic>{};
 
@@ -159,19 +156,9 @@ Map<String, dynamic> convertYamlMapToDartMap({required YamlMap yamlMap}) {
     late dynamic content;
     if (value is YamlList) {
       // Parse list entries
-      content = [];
-      value.forEach((element) {
-        if (element is YamlList) {
-          // TODO: Is this a potential case.
-          log('Found a YamlList within a YamlList');
-        } else if (element is YamlMap) {
-          content.add(convertYamlMapToDartMap(yamlMap: element));
-        } else {
-          content.add(element);
-        }
-      });
+      content = convertYamlListToDartList(yamlList: value);
     } else if (value is YamlMap) {
-      // Parse the sub mapyamlParsedMap
+      // Parse the sub map
       content = convertYamlMapToDartMap(
           yamlMap: YamlMap.internal(value.nodes, value.span, value.style));
     } else if (value is YamlScalar) {
@@ -185,6 +172,26 @@ Map<String, dynamic> convertYamlMapToDartMap({required YamlMap yamlMap}) {
   });
 
   return transformed;
+}
+
+/// Converts the given [yamlList] into a Dart [List].
+///
+/// Recursively converts the given [yamlList] to a Dart [List]; converting all
+/// nested lists into their constituent values.
+List<dynamic> convertYamlListToDartList({required YamlList yamlList}) {
+  final converted = [];
+
+  yamlList.forEach((element) {
+    if (element is YamlList) {
+      converted.add(convertYamlListToDartList(yamlList: element));
+    } else if (element is YamlMap) {
+      converted.add(convertYamlMapToDartMap(yamlMap: element));
+    } else {
+      converted.add(element);
+    }
+  });
+
+  return converted;
 }
 
 Future<void> cacheSpec({

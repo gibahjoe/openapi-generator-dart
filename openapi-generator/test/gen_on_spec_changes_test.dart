@@ -49,6 +49,24 @@ void main() {
             fail('should have successfully loaded json spec');
           }
         });
+        test('yaml (requires transformation)', () async {
+          try {
+            final loaded =
+                await loadSpec(specPath: supportedExtensions['yaml']!);
+            expect(loaded, jsonSpecFile);
+          } catch (_, __) {
+            fail('Should successfully convert yaml to Map');
+          }
+        });
+        test('yml (requires transformation)', () async {
+          try {
+            final loaded =
+                await loadSpec(specPath: supportedExtensions['yml']!);
+            expect(loaded, jsonSpecFile);
+          } catch (_, __) {
+            fail('Should successfully convert yml to Map');
+          }
+        });
       });
     });
     group('verifies dirty status', () {
@@ -127,37 +145,64 @@ void main() {
       });
     });
     group('transforms yaml to dart map', () {
-      test('returns a map from yaml', () async {
-        expect(await loadSpec(specPath: supportedExtensions['yaml']!),
-            jsonSpecFile);
-      });
-      test('returns a map from yml', () async {
-        expect(await loadSpec(specPath: supportedExtensions['yml']!),
-            jsonSpecFile);
-      });
       test('converts scalars', () {
         expect(convertYamlMapToDartMap(yamlMap: YamlMap.wrap({'scalar': 5})),
             {'scalar': 5});
       });
-      test('converts list', () {
-        final listContent = [
-          1,
-          2,
-          3,
-          4,
-          YamlMap.wrap(<String, dynamic>{'entry': 'value'})
-        ];
-        final listContentExpected = [
-          1,
-          2,
-          3,
-          4,
-          <String, dynamic>{'entry': 'value'}
-        ];
+      group('converts lists', () {
+        test('with YamlMaps', () {
+          final listContent = [
+            1,
+            2,
+            3,
+            4,
+            YamlMap.wrap(<String, dynamic>{'entry': 'value'})
+          ];
+          final listContentExpected = [
+            1,
+            2,
+            3,
+            4,
+            <String, dynamic>{'entry': 'value'}
+          ];
+          expect(
+              convertYamlListToDartList(yamlList: YamlList.wrap(listContent)),
+              listContentExpected);
+        });
+        test('with nested lists', () {
+          final listContent = [
+            1,
+            2,
+            3,
+            4,
+            YamlList.wrap(
+              ["one", "two", "three"],
+            )
+          ];
+          final listContentExpected = [
+            1,
+            2,
+            3,
+            4,
+            ["one", "two", "three"],
+          ];
+          expect(
+              convertYamlListToDartList(yamlList: YamlList.wrap(listContent)),
+              listContentExpected);
+        });
+      });
+      test('converts submap to map', () {
+        final expectedMap = <String, dynamic>{
+          'mapWithSubMap': {
+            'subMap': {'scalar': 5, 'meh': 'value'},
+          }
+        };
         expect(
             convertYamlMapToDartMap(
-                yamlMap: YamlMap.wrap({'scalar': YamlList.wrap(listContent)})),
-            {'scalar': listContentExpected});
+                yamlMap: YamlMap.wrap({
+              'mapWithSubMap': YamlMap.wrap(expectedMap['mapWithSubMap'])
+            })),
+            expectedMap);
       });
     });
   });
