@@ -21,7 +21,8 @@ final _supportedRegexes = [jsonRegex, yamlRegex];
 /// - yml
 ///
 /// It also throws an error when the specification doesn't exist on disk.
-FutureOr<Map<String, dynamic>> loadSpec({required String specPath}) async {
+FutureOr<Map<String, dynamic>> loadSpec(
+    {required String specPath, bool isCached = false}) async {
   // If the spec file doesn't match any of the currently supported spec formats
   // reject the request.
   if (!_supportedRegexes.any((fileEnding) => fileEnding.hasMatch(specPath))) {
@@ -43,6 +44,13 @@ FutureOr<Map<String, dynamic>> loadSpec({required String specPath}) async {
     return spec;
   }
 
+  // In the event that the cached spec isn't found, provide an empty mapping
+  // to diff against. This will cause the isSpecDirty check to return true.
+  // This can occur on a fresh build / clone.
+  if (isCached) {
+    return {};
+  }
+
   return Future.error('Unable to find spec file $specPath');
 }
 
@@ -53,6 +61,12 @@ bool isSpecDirty({
   required Map<String, dynamic> cachedSpec,
   required Map<String, dynamic> loadedSpec,
 }) {
+  // The spec always needs to be updated if the cached spec is empty, unless
+  // the loaded spec is also empty.
+  if (cachedSpec.isEmpty) {
+    return true && loadedSpec.isNotEmpty;
+  }
+  // TODO: Should this be a future? This way the errors can be bubbled up?
   if (loadedSpec.keys.length == cachedSpec.keys.length) {
     for (final entry in cachedSpec.entries) {
       if (!loadedSpec.containsKey(entry.key)) {
@@ -194,6 +208,10 @@ List<dynamic> convertYamlListToDartList({required YamlList yamlList}) {
   return converted;
 }
 
+/// Caches the updated [spec] to disk for use in future comparisons.
+///
+/// Caches the [spec] to the given [outputDirectory]. By default this will be likely
+/// be the .dart_tool or build directory.
 Future<void> cacheSpec({
   required String outputDirectory,
   required Map<String, dynamic> spec,

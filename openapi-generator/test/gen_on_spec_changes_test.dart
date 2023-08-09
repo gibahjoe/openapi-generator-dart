@@ -38,6 +38,16 @@ void main() {
               'Unable to find spec file ./thisIsSomeInvalidPath.yaml');
         }
       });
+      test('returns empty map when cache isn\'t found', () async {
+        try {
+          final cached = await loadSpec(
+              specPath: './nonValidCacheSpecPath.yaml', isCached: true);
+          expect(cached, isEmpty);
+        } catch (e, st) {
+          fail(
+              'Should return empty map when spec path is cached spec but not found');
+        }
+      });
       group('returns a map', () {
         test('json', () async {
           try {
@@ -70,6 +80,14 @@ void main() {
       });
     });
     group('verifies dirty status', () {
+      test('is true when the cached spec is empty', () {
+        expect(isSpecDirty(cachedSpec: {}, loadedSpec: {'key1': '2'}), isTrue);
+      });
+      test(
+          'is false when the cached spec is empty and loaded spec is also empty',
+          () {
+        expect(isSpecDirty(cachedSpec: {}, loadedSpec: {}), isFalse);
+      });
       test('returns false when specs match', () async {
         final loaded = await loadSpec(specPath: supportedExtensions['json']!);
         expect(
@@ -87,7 +105,8 @@ void main() {
       test('returns true when root/sub keys differ in length', () {
         expect(
             isSpecDirty(
-                cachedSpec: {}, loadedSpec: {'someExtraKey': 'content'}),
+                cachedSpec: {'someKey': 1},
+                loadedSpec: {'someKey': 1, 'someExtraKey': 'content'}),
             isTrue);
 
         expect(
