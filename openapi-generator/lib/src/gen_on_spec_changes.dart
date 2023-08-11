@@ -6,9 +6,9 @@ import 'dart:io';
 import 'package:yaml/yaml.dart';
 
 // .json
-final jsonRegex = RegExp(r'.*.json$');
+final jsonRegex = RegExp(r'^.*.json$');
 // .yml & .yaml
-final yamlRegex = RegExp(r'.*(.ya?ml)$');
+final yamlRegex = RegExp(r'^.*(.ya?ml)$');
 
 final _supportedRegexes = [jsonRegex, yamlRegex];
 
@@ -21,12 +21,14 @@ final _supportedRegexes = [jsonRegex, yamlRegex];
 /// - yml
 ///
 /// It also throws an error when the specification doesn't exist on disk.
+///
+/// WARNING: THIS DOESN'T VALIDATE THE SPECIFICATION CONTENT
 FutureOr<Map<String, dynamic>> loadSpec(
     {required String specPath, bool isCached = false}) async {
   // If the spec file doesn't match any of the currently supported spec formats
   // reject the request.
   if (!_supportedRegexes.any((fileEnding) => fileEnding.hasMatch(specPath))) {
-    return Future.error('Invalid spec format');
+    return Future.error('Invalid spec file format');
   }
 
   final file = File(specPath);
@@ -210,9 +212,29 @@ List<dynamic> convertYamlListToDartList({required YamlList yamlList}) {
 
 /// Caches the updated [spec] to disk for use in future comparisons.
 ///
-/// Caches the [spec] to the given [outputDirectory]. By default this will be likely
-/// be the .dart_tool or build directory.
+/// Caches the [spec] to the given [outputLocation]. By default this will be likely
+/// be the .dart_tool/openapi-generator-cache.json
 Future<void> cacheSpec({
-  required String outputDirectory,
+  required String outputLocation,
   required Map<String, dynamic> spec,
-}) async {}
+}) async {
+  final outputPath = outputLocation;
+  final outputFile = File(outputPath);
+  if (outputFile.existsSync()) {
+    log('Found cached asset updating');
+  } else {
+    log('No previous openapi-generated cache found. Creating cache');
+  }
+
+  return await outputFile.writeAsString(jsonEncode(spec)).then(
+    (_) => log('Successfully wrote cache.'),
+    onError: (e, st) {
+      log(
+        'Failed to write cache',
+        error: e,
+        stackTrace: st,
+      );
+      return Future.error('Failed to write cache');
+    },
+  );
+}

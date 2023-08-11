@@ -5,15 +5,13 @@ import 'package:openapi_generator/src/gen_on_spec_changes.dart';
 import 'package:test/test.dart';
 import 'package:yaml/yaml.dart';
 
-final testDirPath = '${Directory.current.path}${Platform.pathSeparator}test';
+final testDirPath =
+    '${Directory.current.path}${Platform.pathSeparator}test${Platform.pathSeparator}specs';
 
 final supportedExtensions = <String, String>{
-  'json':
-      '$testDirPath${Platform.pathSeparator}specs${Platform.pathSeparator}openapi.test.json',
-  'yaml':
-      '$testDirPath${Platform.pathSeparator}specs${Platform.pathSeparator}openapi.test.yaml',
-  'yml':
-      '$testDirPath${Platform.pathSeparator}specs${Platform.pathSeparator}openapi.test.yml'
+  'json': '$testDirPath${Platform.pathSeparator}openapi.test.json',
+  'yaml': '$testDirPath${Platform.pathSeparator}openapi.test.yaml',
+  'yml': '$testDirPath${Platform.pathSeparator}openapi.test.yml'
 };
 
 void main() {
@@ -26,7 +24,7 @@ void main() {
           await loadSpec(specPath: './thisIsSomeInvalidPath.wrong');
           fail('Should\'ve thrown as not supported file type.');
         } catch (e, st) {
-          expect(e as String, 'Invalid spec format');
+          expect(e as String, 'Invalid spec file format');
         }
       });
       test('throws an error for missing config file', () async {
@@ -223,6 +221,18 @@ void main() {
             })),
             expectedMap);
       });
+    });
+    test('cache diff', () async {
+      try {
+        final path = '$testDirPath${Platform.pathSeparator}test-cached.json';
+        await cacheSpec(outputLocation: path, spec: jsonSpecFile);
+        expect(File(path).existsSync(), isTrue);
+        // Test the rerun succeeds too
+        await cacheSpec(outputLocation: path, spec: jsonSpecFile);
+        expect(File(path).existsSync(), isTrue);
+      } catch (e, st) {
+        fail('should\'ve successfully cached diff');
+      }
     });
   });
 }

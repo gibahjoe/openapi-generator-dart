@@ -1,5 +1,7 @@
 import 'dart:mirrors';
 
+import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:source_gen/source_gen.dart' show ConstantReader, TypeChecker;
 
@@ -69,5 +71,40 @@ extension TypeMethods on ConstantReader {
     final enumIndex = objectValue.getField('index')!.toIntValue();
 
     return values[enumIndex];
+  }
+}
+
+extension ReadProperty on ConstantReader {
+  T readPropertyOrDefault<T>(String name, T defaultValue) {
+    final v = peek(name);
+    if (v == null) {
+      return defaultValue;
+    }
+
+    // TODO: This may be way too naive
+    if (defaultValue is Map<String, DartObject>) {
+      return v.revive().namedArguments as T;
+    }
+
+    switch (T) {
+      case Map:
+        return v.mapValue as T;
+      case bool:
+        return v.boolValue as T;
+      case int:
+        return v.intValue as T;
+      case List:
+        return v.listValue as T;
+      case double:
+        return v.doubleValue as T;
+      case String:
+        return v.stringValue as T;
+      case Set:
+        return v.setValue as T;
+      case Literal:
+        return v.literalValue as T;
+      default:
+        return defaultValue;
+    }
   }
 }

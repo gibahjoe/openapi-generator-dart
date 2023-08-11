@@ -84,7 +84,7 @@ void main() {
               .trim()));
     });
 
-    test('to generate command with import and type mapprings for dioAlt',
+    test('to generate command with import and type mappings for dioAlt',
         () async {
       expect(
           await generate('''
@@ -99,5 +99,3 @@ void main() {
     });
   });
 }
-
-// Test setup.

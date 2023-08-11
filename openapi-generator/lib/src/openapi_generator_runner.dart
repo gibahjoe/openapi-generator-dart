@@ -2,15 +2,19 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
+import 'package:logging/logging.dart';
+import 'package:openapi_generator/src/determine_flutter_project_status.dart';
+import 'package:openapi_generator/src/gen_on_spec_changes.dart';
+import 'package:openapi_generator/src/models/output_message.dart';
+import 'package:openapi_generator/src/utils.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart'
     as annots;
-import 'package:path/path.dart' as path;
 import 'package:source_gen/source_gen.dart';
 
-import 'extensions/type_methods.dart';
+import 'models/command.dart';
+import 'models/generator_arguments.dart';
 
 class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   final bool testMode;
@@ -19,375 +23,255 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
 
   @override
   FutureOr<String> generateForAnnotatedElement(
-      Element element, ConstantReader annotation, BuildStep buildStep) async {
-    log.info(' - :::::::::::::::::::::::::::::::::::::::::::');
-    log.info(' - ::      Openapi generator for dart       ::');
-    log.info(' - :::::::::::::::::::::::::::::::::::::::::::');
+      Element element, ConstantReader annotations, BuildStep buildStep) async {
+    logOutputMessage(
+        log: log,
+        communication: OutputMessage(
+            message: [
+          ' - :::::::::::::::::::::::::::::::::::::::::::',
+          ' - ::      Openapi generator for dart       ::',
+          ' - :::::::::::::::::::::::::::::::::::::::::::',
+        ].join('\n')));
 
     try {
       if (element is! ClassElement) {
         final friendlyName = element.displayName;
+
         throw InvalidGenerationSourceError(
           'Generator cannot target `$friendlyName`.',
           todo: 'Remove the [Openapi] annotation from `$friendlyName`.',
         );
       }
-      var separator = '?*?';
-      var openApiCliCommand = 'generate';
 
-      openApiCliCommand =
-          appendInputFileCommandArgs(annotation, openApiCliCommand, separator);
+      // Transform the annotations.
+      final args = GeneratorArguments(annotations: annotations);
 
-      openApiCliCommand = appendTemplateDirCommandArgs(
-          annotation, openApiCliCommand, separator);
+      // Determine if the project has a dependency on the flutter sdk or not.
+      final baseCommand =
+          await checkPubspecAndWrapperForFlutterSupport(wrapper: args.wrapper)
+              ? 'flutter'
+              : 'dart';
 
-      var generatorName =
-          annotation.peek('generatorName')?.enumValue<annots.Generator>();
-      var generator = getGeneratorNameFromEnum(generatorName!);
-      openApiCliCommand = '$openApiCliCommand$separator-g$separator$generator';
-
-      var outputDirectory =
-          _readFieldValueAsString(annotation, 'outputDirectory', '');
-      if (outputDirectory.isNotEmpty) {
-        var alwaysRun = _readFieldValueAsBool(annotation, 'alwaysRun', false)!;
-        var filePath = path.join(outputDirectory, 'lib/api.dart');
-        if (!alwaysRun && await File(filePath).exists()) {
-          print(
-              'OpenapiGenerator :: Codegen skipped because alwaysRun is set to [$alwaysRun] and $filePath already exists');
-          return '';
+      if (!args.useNextGen) {
+        final path =
+            '${args.outputDirectory}${Platform.pathSeparator}lib${Platform.pathSeparator}api.dart';
+        if (await File(path).exists()) {
+          if (!args.alwaysRun) {
+            logOutputMessage(
+              log: log,
+              communication: OutputMessage(
+                message:
+                    'Library exists definition at [$path] exists and configuration is annotated with alwaysRun: [${args.alwaysRun}]. This option will be removed in a future version.',
+                level: Level.WARNING,
+              ),
+            );
+            return '';
+          }
         }
-        openApiCliCommand =
-            '$openApiCliCommand$separator-o$separator$outputDirectory';
+      } else {
+        // If the flag to use the next generation of the generator is applied
+        // use the new functionality.
+        return generatorV2(args: args);
       }
 
-      openApiCliCommand = appendTypeMappingCommandArgs(
-          annotation, openApiCliCommand, separator);
-
-      openApiCliCommand = appendImportMappingCommandArgs(
-          annotation, openApiCliCommand, separator);
-
-      openApiCliCommand = appendReservedWordsMappingCommandArgs(
-          annotation, openApiCliCommand, separator);
-
-      openApiCliCommand = appendInlineSchemaNameMappingCommandArgs(
-          annotation, openApiCliCommand, separator);
-
-      openApiCliCommand = appendAdditionalPropertiesCommandArgs(
-          annotation, openApiCliCommand, separator);
-
-      // openApiCliCommand = appendInlineSchemeOptionsCommandArgs(
-      //     annotation, openApiCliCommand, separator);
-
-      openApiCliCommand = appendSkipValidateSpecCommandArgs(
-          annotation, openApiCliCommand, separator);
-
-      log.info(
-          'OpenapiGenerator :: [${openApiCliCommand.replaceAll(separator, ' ')}]');
-
-      var binPath = (await Isolate.resolvePackageUri(Uri.parse(
-              'package:openapi_generator_cli/openapi-generator.jar')))!
-          .toFilePath(windows: Platform.isWindows);
-
-      // Include java environment variables in openApiCliCommand
-      var javaOpts = Platform.environment['JAVA_OPTS'] ?? '';
-
-      var arguments = [
-        '-jar',
-        "${"$binPath"}",
-        ...openApiCliCommand.split(separator).toList(),
-      ];
-      if (javaOpts.isNotEmpty) {
-        arguments.insert(0, javaOpts);
+      await runOpenApiJar(arguments: args.jarArgs);
+      await generateSources(baseCommand: baseCommand, args: args);
+      await fetchDependencies(baseCommand: baseCommand, args: args);
+    } catch (e, st) {
+      late OutputMessage communication;
+      if (e is! OutputMessage) {
+        communication = OutputMessage(
+            message: 'There was an error generating the spec',
+            level: Level.SEVERE,
+            error: e,
+            stackTrace: st);
+      } else {
+        communication = e;
       }
 
-      var exitCode = 0;
-      var pr = await Process.run('java', arguments);
-      if (pr.exitCode != 0) {
-        log.severe(pr.stderr);
-      }
+      logOutputMessage(log: log, communication: communication);
 
-      log.info(
-          ' - :: Codegen ${pr.exitCode != 0 ? 'Failed' : 'completed successfully'}');
-      exitCode = pr.exitCode;
-
-      if (!_readFieldValueAsBool(annotation, 'fetchDependencies')!) {
-        log.warning(' - :: Skipping install step because you said so...');
-        return '';
-      }
-
-      if (exitCode == 0) {
-        final command =
-            _getCommandWithWrapper('flutter', ['pub', 'get'], annotation);
-        var installOutput = await Process.run(
-            command.executable, command.arguments,
-            runInShell: Platform.isWindows,
-            workingDirectory: '$outputDirectory');
-
-        if (installOutput.exitCode != 0) {
-          log.severe(installOutput.stderr);
-        }
-        print(' :: Install exited with code ${installOutput.exitCode}');
-        exitCode = installOutput.exitCode;
-      }
-
-      if (!_readFieldValueAsBool(annotation, 'runSourceGenOnOutput')!) {
-        log.warning(' :: Skipping source gen step because you said so...');
-        return '';
-      }
-
-      if (exitCode == 0) {
-        //run buildrunner to generate files
-        switch (generatorName) {
-          case annots.Generator.dart:
-            log.info(
-                ' :: skipping source gen because generator does not need it ::');
-            break;
-          case annots.Generator.dio:
-          case annots.Generator.dioAlt:
-            try {
-              var runnerOutput =
-                  await runSourceGen(annotation, outputDirectory);
-              if (runnerOutput.exitCode != 0) {
-                log.severe(runnerOutput.stderr);
-              }
-              log.info(
-                  ' :: build runner exited with code ${runnerOutput.exitCode} ::');
-            } catch (e) {
-              log.severe(e);
-              log.severe(' :: could not complete source gen ::');
-            }
-            break;
-        }
-      }
-    } catch (e) {
-      log.severe('Error generating spec $e');
       rethrow;
     }
     return '';
   }
 
-  Future<ProcessResult> runSourceGen(
-      ConstantReader annotation, String outputDirectory) async {
-    log.info(':: running source code generation ::');
-    var c = 'pub run build_runner build --delete-conflicting-outputs';
-    final command =
-        _getCommandWithWrapper('flutter', c.split(' ').toList(), annotation);
-    ProcessResult runnerOutput;
-    runnerOutput = await Process.run(command.executable, command.arguments,
-        runInShell: Platform.isWindows, workingDirectory: '$outputDirectory');
-    log.severe(runnerOutput.stderr);
-    return runnerOutput;
+  /// Conditionally generates the new sources based on the [args.runSourceGen] &
+  /// [args.generator].
+  FutureOr<void> generateSources(
+      {required String baseCommand, required GeneratorArguments args}) async {
+    if (!args.runSourceGen) {
+      logOutputMessage(
+        log: log,
+        communication: OutputMessage(
+            message: ' :: Skipping source gen step because you said so...',
+            level: Level.WARNING),
+      );
+    } else if (!args.shouldGenerateSources) {
+      logOutputMessage(
+          log: log,
+          communication: OutputMessage(
+              message:
+                  ' :: Skipping source gen because generator does not need it ::'));
+    } else {
+      return runSourceGen(baseCommand: baseCommand, args: args).then(
+        (_) => logOutputMessage(
+          log: log,
+          communication:
+              OutputMessage(message: ' :: Source generated successfully. ::'),
+        ),
+        onError: (e, st) => Future.error(
+          OutputMessage(
+            message: ' :: could not complete source gen ::',
+            error: e,
+            stackTrace: st,
+            level: Level.SEVERE,
+          ),
+        ),
+      );
+    }
   }
 
-  String appendAdditionalPropertiesCommandArgs(
-      ConstantReader annotation, String command, String separator) {
-    var additionalProperties = '';
-    var reader = annotation.read('additionalProperties');
-    if (!reader.isNull) {
-      reader.revive().namedArguments.entries.forEach((entry) => {
-            additionalProperties =
-                '$additionalProperties${additionalProperties.isEmpty ? '' : ','}${convertToPropertyKey(entry.key)}=${convertToPropertyValue(entry.value)}'
-          });
+  /// Conditionally fetches the dependencies in the newly generate library.
+  FutureOr<void> fetchDependencies(
+      {required String baseCommand, required GeneratorArguments args}) async {
+    if (!args.shouldFetchDependencies) {
+      return Future.error(OutputMessage(
+          message: ' - :: Skipping install step because you said so...',
+          level: Level.WARNING));
     }
-
-    if (additionalProperties.isNotEmpty) {
-      command =
-          '$command$separator--additional-properties=$additionalProperties';
-    }
-    return command;
+    final command = Command(
+        executable: baseCommand,
+        arguments: ['pub', 'get'],
+        wrapper: args.wrapper);
+    return await Process.run(command.executable, command.arguments,
+            runInShell: Platform.isWindows,
+            workingDirectory: args.outputDirectory)
+        .then(
+      (v) => logOutputMessage(
+        log: log,
+        communication: OutputMessage(
+          message: [v.stdout + ' :: Install completed successfully'].join('\n'),
+        ),
+      ),
+      onError: (e, st) => Future.error(
+        OutputMessage(
+            message: ' :: Install of dependencies failed',
+            level: Level.SEVERE,
+            error: e,
+            stackTrace: st),
+      ),
+    );
   }
 
-  String appendInlineSchemeOptionsCommandArgs(
-      ConstantReader annotation, String command, String separator) {
-    var inlineSchemaOptions = '';
-    var reader = annotation.read('inlineSchemaOptions');
-    if (!reader.isNull) {
-      reader.revive().namedArguments.entries.forEach((entry) => {
-            inlineSchemaOptions =
-                '$inlineSchemaOptions${inlineSchemaOptions.isEmpty ? '' : ','}${convertToPropertyKey(entry.key)}=${convertToPropertyValue(entry.value)}'
-          });
-    }
+  /// Runs the OpenAPI compiler with the given [args].
+  Future<void> runOpenApiJar({required List<String> arguments}) async {
+    logOutputMessage(
+        log: log,
+        communication: OutputMessage(
+            message: 'OpenapiGenerator :: [${arguments.join(' ')}]'));
 
-    if (inlineSchemaOptions.isNotEmpty) {
-      command =
-          '$command$separator--inline-schema-options $inlineSchemaOptions';
-    }
-    return command;
+    var binPath = (await Isolate.resolvePackageUri(
+            Uri.parse('package:openapi_generator_cli/openapi-generator.jar')))!
+        .toFilePath(windows: Platform.isWindows);
+
+    // Include java environment variables in openApiCliCommand
+    var javaOpts = Platform.environment['JAVA_OPTS'] ?? '';
+
+    return await Process.run('java', [
+      if (javaOpts.isNotEmpty) javaOpts,
+      '-jar',
+      "${"$binPath"}",
+      ...arguments,
+    ]).then(
+      (value) => logOutputMessage(
+        log: log,
+        communication: OutputMessage(
+          message: [value.stdout + ' - :: Codegen completed successfully']
+              .join('\n'),
+        ),
+      ),
+      onError: (e, st) => Future.error(
+        Future.error(
+          OutputMessage(
+            message: ' - :: Codegen Failed',
+            level: Level.SEVERE,
+            error: e,
+            stackTrace: st,
+          ),
+        ),
+      ),
+    );
   }
 
-  String appendTypeMappingCommandArgs(
-      ConstantReader annotation, String command, String separator) {
-    var typeMappingsMap = _readFieldValueAsMap(annotation, 'typeMappings', {})!;
-    if (typeMappingsMap.isNotEmpty) {
-      command =
-          '$command$separator--type-mappings=${getMapAsString(typeMappingsMap)}';
-    }
-    return command;
+  /// Next-gen of the generation.
+  ///
+  /// Proposal for reworking how to generated the user's changes based on spec
+  /// changes vs flags. This will allow for incremental changes to be generated
+  /// in the specification instead of only running when the configuration file
+  /// changes as it should be relatively stable.
+  FutureOr<String> generatorV2({required GeneratorArguments args}) async {
+    if (await hasDiff(
+      loadPath: args.inputFile.startsWith(r'\.\/')
+          ? args.inputFile.replaceFirst(
+              r'\.\/', '${Directory.current.path}${Platform.pathSeparator}')
+          : args.inputFile,
+    )) {}
+    return '';
   }
 
-  String appendImportMappingCommandArgs(
-      ConstantReader annotation, String command, String separator) {
-    var importMappings =
-        _readFieldValueAsMap(annotation, 'importMappings', {})!;
-    if (importMappings.isNotEmpty) {
-      command =
-          '$command$separator--import-mappings=${getMapAsString(importMappings)}';
-    }
-    return command;
+  /// Load both specs into memory and verify if there is a diff between them.
+  FutureOr<bool> hasDiff(
+      {String? cachedPath,
+      required String loadPath,
+      String? providedPubspecPath}) async {
+    final cachedSpec = await loadSpec(
+        specPath: cachedPath ?? defaultCachedPath, isCached: true);
+    final loadedSpec = await loadSpec(specPath: loadPath);
+    return isSpecDirty(cachedSpec: cachedSpec, loadedSpec: loadedSpec);
   }
 
-  String appendReservedWordsMappingCommandArgs(
-      ConstantReader annotation, String command, String separator) {
-    var reservedWordsMappingsMap =
-        _readFieldValueAsMap(annotation, 'reservedWordsMappings', {})!;
-    if (reservedWordsMappingsMap.isNotEmpty) {
-      command =
-          '$command$separator--reserved-words-mappings=${getMapAsString(reservedWordsMappingsMap)}';
-    }
-    return command;
-  }
+  /// Update the currently cached spec with the [updatedSpec].
+  Future<void> updateCachedSpec({
+    required Map<String, dynamic> updatedSpec,
+    required String cachedPath,
+  }) async =>
+      cacheSpec(spec: updatedSpec, outputLocation: cachedPath);
 
-  String appendInlineSchemaNameMappingCommandArgs(
-      ConstantReader annotation, String command, String separator) {
-    var inlineSchemaNameMappings =
-        _readFieldValueAsMap(annotation, 'inlineSchemaNameMappings', {})!;
-    if (inlineSchemaNameMappings.isNotEmpty) {
-      command =
-          '$command$separator--inline-schema-name-mappings=${getMapAsString(inlineSchemaNameMappings)}';
-    }
-    return command;
-  }
+  /// Runs build_runner on the newly generated library in [args.outputDirectory].
+  Future<void> runSourceGen(
+      {required String baseCommand, required GeneratorArguments args}) async {
+    logOutputMessage(
+        log: log,
+        communication:
+            OutputMessage(message: ':: running source code generation ::'));
+    final command = Command(
+        executable: baseCommand,
+        arguments: 'pub run build_runner build --delete-conflicting-outputs'
+            .split(' ')
+            .toList(),
+        wrapper: args.wrapper);
 
-  String getGeneratorNameFromEnum(annots.Generator generator) {
-    var genName = 'dart';
-    switch (generator) {
-      case annots.Generator.dart:
-        break;
-      case annots.Generator.dio:
-        genName = 'dart-dio';
-        break;
-      case annots.Generator.dioAlt:
-        genName = 'dart2-api';
-        break;
-      default:
-        throw InvalidGenerationSourceError(
-          'Generator name must be any of ${annots.Generator.values}.',
+    return await Process.run(command.executable, command.arguments,
+            runInShell: Platform.isWindows,
+            workingDirectory: args.outputDirectory)
+        .then(
+      (v) => logOutputMessage(
+        log: log,
+        communication: OutputMessage(
+          message: ' - :: Codegen completed successfully',
+        ),
+      ),
+      onError: (e, st) {
+        return Future.error(
+          OutputMessage(
+            message: ':: Failed to generate source code ::',
+            level: Level.SEVERE,
+            error: e,
+            stackTrace: st,
+          ),
         );
-    }
-    return genName;
+      },
+    );
   }
-
-  String appendTemplateDirCommandArgs(
-      ConstantReader annotation, String command, String separator) {
-    var templateDir =
-        _readFieldValueAsString(annotation, 'templateDirectory', '');
-    if (templateDir.isNotEmpty) {
-      command = '$command$separator-t$separator$templateDir';
-    }
-    return command;
-  }
-
-  String appendInputFileCommandArgs(
-      ConstantReader annotation, String command, String separator) {
-    var inputFile = _readFieldValueAsString(annotation, 'inputSpecFile', '');
-    if (inputFile.isNotEmpty) {
-      command = '$command$separator-i$separator$inputFile';
-    }
-    return command;
-  }
-
-  String appendSkipValidateSpecCommandArgs(
-      ConstantReader annotation, String command, String separator) {
-    var skipSpecValidation =
-        _readFieldValueAsBool(annotation, 'skipSpecValidation', false)!;
-    if (skipSpecValidation) {
-      command = '$command$separator--skip-validate-spec';
-    }
-    return command;
-  }
-
-  String getMapAsString(Map<dynamic, dynamic> data) {
-    return data.entries
-        .map((entry) =>
-            '${entry.key.toStringValue()}=${entry.value.toStringValue()}')
-        .join(',');
-  }
-
-  Command _getCommandWithWrapper(
-      String command, List<String> arguments, ConstantReader annotation) {
-    final wrapper = annotation
-        .read('additionalProperties')
-        .read('wrapper')
-        .enumValue<annots.Wrapper>();
-    switch (wrapper) {
-      case annots.Wrapper.flutterw:
-        return Command('./flutterw', arguments);
-      case annots.Wrapper.fvm:
-        return Command('fvm', [command, ...arguments]);
-      case annots.Wrapper.none:
-      default:
-        return Command(command, arguments);
-    }
-  }
-
-  String _readFieldValueAsString(
-      ConstantReader annotation, String fieldName, String defaultValue) {
-    var reader = annotation.read(fieldName);
-
-    return reader.isNull ? defaultValue : reader.stringValue;
-  }
-
-  Map? _readFieldValueAsMap(ConstantReader annotation, String fieldName,
-      [Map? defaultValue]) {
-    var reader = annotation.read(fieldName);
-
-    return reader.isNull ? defaultValue : reader.mapValue;
-  }
-
-  bool? _readFieldValueAsBool(ConstantReader annotation, String fieldName,
-      [bool? defaultValue]) {
-    var reader = annotation.read(fieldName);
-
-    return reader.isNull ? defaultValue : reader.boolValue;
-  }
-
-  String convertToPropertyKey(String key) {
-    switch (key) {
-      case 'nullSafeArrayDefault':
-        return 'nullSafe-array-default';
-      case 'pubspecDependencies':
-        return 'pubspec-dependencies';
-      case 'pubspecDevDependencies':
-        return 'pubspec-dev-dependencies';
-      case 'arrayItemSuffix':
-        return 'ARRAY_ITEM_SUFFIX';
-      case 'mapItemSuffix':
-        return 'MAP_ITEM_SUFFIX';
-      case 'skipSchemaReuse':
-        return 'SKIP_SCHEMA_REUSE';
-      case 'refactorAllofInlineSchemas':
-        return 'REFACTOR_ALLOF_INLINE_SCHEMAS';
-      case 'resolveInlineEnums':
-        return 'RESOLVE_INLINE_ENUMS';
-    }
-    return key;
-  }
-
-  String convertToPropertyValue(DartObject value) {
-    if (value.isNull) {
-      return '';
-    }
-    return value.toStringValue() ??
-        value.toBoolValue()?.toString() ??
-        value.toIntValue()?.toString() ??
-        value.getField('_name')?.toStringValue() ??
-        '';
-  }
-}
-
-class Command {
-  final String executable;
-  final List<String> arguments;
-
-  Command(this.executable, this.arguments);
 }

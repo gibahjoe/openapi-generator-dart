@@ -54,6 +54,7 @@ class Openapi {
   /// --reserved-words-mappings
   final Map<String, String>? reservedWordsMappings;
 
+
   /// Tells openapi-generator to always run during the build process
   /// if set to false (the default), openapi-generator will skip processing if the [outputDirectory] already exists
   final bool? alwaysRun;
@@ -94,8 +95,19 @@ class Openapi {
   /// e.g {'inline_object_2': 'SomethingMapped'}
   final Map<String, String>? inlineSchemaNameMappings;
 
+  /// Use the next generation of the generator.
+  ///
+  /// Default: false
+  final bool useNextGen;
+
+  /// The path where to store the cached copy of the specification.
+  ///
+  /// For use with [useNextGen].
+  final String? cachePath;
+
   const Openapi(
       {this.additionalProperties,
+      @deprecated
       this.overwriteExistingFiles,
       this.skipSpecValidation = false,
       required this.inputSpecFile,
@@ -110,7 +122,10 @@ class Openapi {
       this.apiPackage,
       this.fetchDependencies = true,
       this.runSourceGenOnOutput = true,
-      this.alwaysRun = false});
+      @deprecated
+      this.alwaysRun = false,
+      this.cachePath,
+      this.useNextGen = false,}): assert(cachePath != null && !useNextGen, 'useNextGen should be set when providing cachePath');
 }
 
 class AdditionalProperties {
