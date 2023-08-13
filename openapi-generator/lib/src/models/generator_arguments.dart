@@ -44,6 +44,19 @@ class GeneratorArguments {
   /// The default location is: .dart_tool/openapi-generator-cache.json
   final String cachePath;
 
+  /// Use a custom pubspec file when generating.
+  ///
+  /// Defaults to the pubspec at the root of [Directory.current].
+  final String? _pubspecPath;
+
+  String? get pubspecPath => _pubspecPath != null
+      ? _pubspecPath!.startsWith('./')
+          ? _pubspecPath!.replaceFirst('.', Directory.current.path)
+          : _pubspecPath!.startsWith('../')
+              ? _pubspecPath!.replaceFirst('..', Directory.current.parent.path)
+              : _pubspecPath
+      : _pubspecPath;
+
   /// The directory where the generated sources will be placed.
   ///
   /// Default: Directory.current.path
@@ -78,7 +91,7 @@ class GeneratorArguments {
   final Generator generator;
 
   /// Informs the generator to use the specified [wrapper] for Flutter commands.
-  Wrapper get wrapper => additionalProperties.wrapper;
+  Wrapper get wrapper => additionalProperties?.wrapper ?? Wrapper.none;
 
   /// Defines mappings between a class and the import to be used.
   final Map<String, String> importMappings;
@@ -92,13 +105,13 @@ class GeneratorArguments {
   final Map<String, String> reservedWordsMappings;
 
   /// Additional properties to be passed into the OpenAPI compiler.
-  final AdditionalProperties additionalProperties;
+  final AdditionalProperties? additionalProperties;
 
   /// Defines a mapping for nested (inline) schema and the generated name.
   final Map<String, dynamic> inlineSchemaNameMappings;
 
   /// Customizes the way inline schema are handled.
-  final InlineSchemaOptions inlineSchemaOptions;
+  final InlineSchemaOptions? inlineSchemaOptions;
 
   GeneratorArguments({
     required src_gen.ConstantReader annotations,
@@ -110,14 +123,15 @@ class GeneratorArguments {
     Map<String, String> importMapping = const {},
     Map<String, String> reservedWordsMapping = const {},
     Map<String, String> inlineSchemaNameMapping = const {},
-    AdditionalProperties additionalProperties = const AdditionalProperties(),
-    InlineSchemaOptions inlineSchemaOptions = const InlineSchemaOptions(),
+    AdditionalProperties? additionalProperties,
+    InlineSchemaOptions? inlineSchemaOptions,
     bool skipValidation = false,
     bool runSourceGen = true,
     String? outputDirectory,
     bool fetchDependencies = true,
     bool useNextGen = false,
     String? cachePath,
+    String? pubspecPath,
   })  : alwaysRun = annotations.readPropertyOrDefault('alwaysRun', alwaysRun),
         _inputFile =
             annotations.readPropertyOrDefault('inputSpecFile', inputSpecFile),
@@ -148,7 +162,11 @@ class GeneratorArguments {
         useNextGen =
             annotations.readPropertyOrDefault('useNextGen', useNextGen),
         cachePath = annotations.readPropertyOrDefault(
-            'cachePath', cachePath ?? defaultCachedPath);
+            'cachePath', cachePath ?? defaultCachedPath),
+        _pubspecPath = annotations.readPropertyOrDefault<String>(
+            'projectPubspecPath',
+            pubspecPath ??
+                '${Directory.current.path}${Platform.pathSeparator}pubspec.yaml');
 
   /// The stringified name of the [Generator].
   String get generatorName => generator == Generator.dart
@@ -167,11 +185,13 @@ class GeneratorArguments {
   /// Identifies if the specification is a remote specification.
   ///
   /// Used when the specification is hosted on an external server. This will cause
-  /// the compiler to pulls from the remote source. When this is true the original
-  /// workflow will be used (no caching).
+  /// the compiler to pulls from the remote source. When this is true a cache will
+  /// still be created but a warning will be emitted to the user.
   bool get isRemote => _inputFile.isNotEmpty
       ? RegExp(r'^https?://').hasMatch(_inputFile)
       : false;
+
+  bool get hasLocalCache => File(cachePath).existsSync();
 
   /// Looks for a default spec file within [Directory.current] if [_inputFile]
   /// wasn't set.
@@ -184,12 +204,19 @@ class GeneratorArguments {
   /// Subsequent calls will be able to use the [_inputFile] when successful in
   /// the event that a default is found.
   Future<String> get inputFileOrFetch async {
+    final curr = Directory.current;
     if (_inputFile.isNotEmpty) {
-      return _inputFile;
+      if (_inputFile.startsWith(r'./')) {
+        return _inputFile.replaceFirst('.', curr.path);
+      } else if (_inputFile.startsWith('../')) {
+        return _inputFile.replaceFirst('..', curr.parent.path);
+      } else {
+        return _inputFile;
+      }
     }
 
     try {
-      final entry = Directory.current.listSync().firstWhere(
+      final entry = curr.listSync().firstWhere(
           (e) => RegExp(r'^.*/(openapi\.(ya?ml|json))$').hasMatch(e.path));
       _inputFile = entry.path;
       return _inputFile;
@@ -199,7 +226,7 @@ class GeneratorArguments {
           message:
               'No spec file found. One must be present in the project or hosted remotely.',
           level: Level.SEVERE,
-          error: e,
+          additionalContext: e,
           stackTrace: st,
         ),
       );
@@ -215,16 +242,16 @@ class GeneratorArguments {
         '-g $generatorName',
         if (skipValidation) '--skip-validate-spec',
         if (reservedWordsMappings.isNotEmpty)
-          '--reserved-words-mappings=${reservedWordsMappings.entries.fold('', foldStringMap)}',
+          '--reserved-words-mappings=${reservedWordsMappings.entries.fold('', foldStringMap())}',
         if (inlineSchemaNameMappings.isNotEmpty)
-          '--inline-schema-name-mappings=${inlineSchemaNameMappings.entries.fold('', foldStringMap)}',
+          '--inline-schema-name-mappings=${inlineSchemaNameMappings.entries.fold('', foldStringMap())}',
         if (importMappings.isNotEmpty)
-          '--import-mappings=${importMappings.entries.fold('', foldStringMap)}',
+          '--import-mappings=${importMappings.entries.fold('', foldStringMap())}',
         if (typeMappings.isNotEmpty)
-          '--type-mappings=${typeMappings.entries.fold('', foldStringMap)}',
-        // if (inlineSchemaOptionsMap.isNotEmpty)
-        //   '--inline-schema-options=${inlineSchemaOptionsMap.entries.fold('', foldNamedArgsMap)}',
-        // if (additionalPropertiesMap.isNotEmpty)
-        //   '--additional-properties=${additionalPropertiesMap.entries.fold('', foldNamedArgsMap)}'
+          '--type-mappings=${typeMappings.entries.fold('', foldStringMap())}',
+        if (inlineSchemaOptions != null)
+          '--inline-schema-options=${inlineSchemaOptions!.toMap().entries.fold('', foldStringMap(keyModifier: convertToPropertyKey))}',
+        if (additionalProperties != null)
+          '--additional-properties=${additionalProperties!.toMap().entries.fold('', foldStringMap(keyModifier: convertToPropertyKey))}'
       ];
 }

@@ -26,6 +26,6 @@ class Command {
               : wrapper == Wrapper.flutterw
                   ? './flutterw'
                   : 'fvm',
-          [if (wrapper != Wrapper.none) executable, ...arguments],
+          arguments,
         );
 }

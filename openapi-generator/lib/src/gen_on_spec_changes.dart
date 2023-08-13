@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:http/http.dart' as http;
+import 'package:logging/logging.dart';
+import 'package:openapi_generator/src/models/output_message.dart';
 import 'package:yaml/yaml.dart';
 
 // .json
@@ -28,22 +31,52 @@ FutureOr<Map<String, dynamic>> loadSpec(
   // If the spec file doesn't match any of the currently supported spec formats
   // reject the request.
   if (!_supportedRegexes.any((fileEnding) => fileEnding.hasMatch(specPath))) {
-    return Future.error('Invalid spec file format');
+    return Future.error(
+      OutputMessage(
+        message: 'Invalid spec file format.',
+        level: Level.SEVERE,
+        stackTrace: StackTrace.current,
+      ),
+    );
   }
 
-  final file = File(specPath);
-  if (file.existsSync()) {
-    final contents = await file.readAsString();
-    late Map<String, dynamic> spec;
-    if (yamlRegex.hasMatch(specPath)) {
-      // Load yaml and convert to file
-      spec = convertYamlMapToDartMap(yamlMap: loadYaml(contents));
-    } else {
-      // Convert to json map via json.decode
-      spec = jsonDecode(contents);
-    }
+  final isRemote = RegExp(r'^https?://').hasMatch(specPath);
+  if (!isRemote) {
+    final file = File(specPath);
+    if (file.existsSync()) {
+      final contents = await file.readAsString();
+      late Map<String, dynamic> spec;
+      if (yamlRegex.hasMatch(specPath)) {
+        // Load yaml and convert to file
+        spec = convertYamlMapToDartMap(yamlMap: loadYaml(contents));
+      } else {
+        // Convert to json map via json.decode
+        spec = jsonDecode(contents);
+      }
 
-    return spec;
+      return spec;
+    }
+  } else {
+    // TODO: Support custom headers?
+    final url = Uri.parse(specPath);
+    final resp = await http.get(url);
+    if (resp.statusCode == 200) {
+      if (yamlRegex.hasMatch(specPath)) {
+        return convertYamlMapToDartMap(yamlMap: loadYaml(resp.body));
+      } else {
+        return jsonDecode(resp.body);
+      }
+    } else {
+      return Future.error(
+        OutputMessage(
+          message:
+              'Unable to request remote spec. Ensure it is public or use a local copy instead.',
+          level: Level.SEVERE,
+          additionalContext: resp.statusCode,
+          stackTrace: StackTrace.current,
+        ),
+      );
+    }
   }
 
   // In the event that the cached spec isn't found, provide an empty mapping
@@ -53,7 +86,8 @@ FutureOr<Map<String, dynamic>> loadSpec(
     return {};
   }
 
-  return Future.error('Unable to find spec file $specPath');
+  return Future.error(
+      OutputMessage(message: 'Unable to find spec file $specPath'));
 }
 
 /// Verify if the [loadedSpec] has a diff compared to the [cachedSpec].

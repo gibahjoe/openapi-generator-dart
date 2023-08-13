@@ -81,16 +81,16 @@ extension ReadProperty on ConstantReader {
       return defaultValue;
     }
 
-    if (defaultValue is AdditionalProperties ||
-        defaultValue is InlineSchemaOptions) {
+    if (defaultValue is AdditionalProperties? ||
+        defaultValue is InlineSchemaOptions?) {
       final mapping = v
           .revive()
           .namedArguments
           .map((key, value) => MapEntry(key, convertToPropertyValue(value)));
-      if (defaultValue is AdditionalProperties) {
-        if (defaultValue is DioProperties) {
+      if (defaultValue is AdditionalProperties?) {
+        if (defaultValue is DioProperties?) {
           return DioProperties.fromMap(mapping) as T;
-        } else if (defaultValue is DioAltProperties) {
+        } else if (defaultValue is DioAltProperties?) {
           return DioAltProperties.fromMap(mapping) as T;
         } else {
           return AdditionalProperties.fromMap(mapping) as T;

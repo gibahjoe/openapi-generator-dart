@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:http/http.dart' as http;
+import 'package:logging/logging.dart';
 import 'package:openapi_generator/src/gen_on_spec_changes.dart';
+import 'package:openapi_generator/src/models/output_message.dart';
 import 'package:test/test.dart';
 import 'package:yaml/yaml.dart';
 
@@ -23,7 +26,7 @@ void main() {
         try {
           await loadSpec(specPath: './thisIsSomeInvalidPath.wrong');
           fail('Should\'ve thrown as not supported file type.');
-        } catch (e, st) {
+        } catch (e, _) {
           expect(e as String, 'Invalid spec file format');
         }
       });
@@ -31,8 +34,8 @@ void main() {
         try {
           await loadSpec(specPath: './thisIsSomeInvalidPath.yaml');
           fail('Should\'ve thrown as not supported file type.');
-        } catch (e, st) {
-          expect(e as String,
+        } catch (e, _) {
+          expect((e as OutputMessage).message,
               'Unable to find spec file ./thisIsSomeInvalidPath.yaml');
         }
       });
@@ -41,7 +44,7 @@ void main() {
           final cached = await loadSpec(
               specPath: './nonValidCacheSpecPath.yaml', isCached: true);
           expect(cached, isEmpty);
-        } catch (e, st) {
+        } catch (e, _) {
           fail(
               'Should return empty map when spec path is cached spec but not found');
         }
@@ -52,7 +55,7 @@ void main() {
             final mapped =
                 await loadSpec(specPath: supportedExtensions['json']!);
             expect(mapped, jsonSpecFile);
-          } catch (e, st) {
+          } catch (e, _) {
             print(e);
             fail('should have successfully loaded json spec');
           }
@@ -73,6 +76,37 @@ void main() {
             expect(loaded, jsonSpecFile);
           } catch (_, __) {
             fail('Should successfully convert yml to Map');
+          }
+        });
+      });
+      group('from remote', () {
+        test('successfully returns the spec', () async {
+          try {
+            final url = Uri.parse(
+                'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml');
+            final resp = await http.get(url);
+            final expected =
+                convertYamlMapToDartMap(yamlMap: loadYaml(resp.body));
+            final spec = await loadSpec(specPath: url.toString());
+            expect(spec, expected);
+          } catch (e, _) {
+            fail('Should load remote files successfully');
+          }
+        });
+        // TODO: Add other status codes when? This will mostly impact values
+        //  behind authenticated endpoints, which need a custom auth header.
+        test('fails when spec is inaccessible', () async {
+          try {
+            final url = Uri.parse(
+                'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yml');
+            await loadSpec(specPath: url.toString());
+            fail('Should fail when remote files can\'t be found');
+          } catch (e, _) {
+            final errorMessage = e as OutputMessage;
+            expect(errorMessage.level, Level.SEVERE);
+            expect(errorMessage.additionalContext, 404);
+            expect(errorMessage.message,
+                'Unable to request remote spec. Ensure it is public or use a local copy instead.');
           }
         });
       });
@@ -193,7 +227,7 @@ void main() {
             3,
             4,
             YamlList.wrap(
-              ["one", "two", "three"],
+              ['one', 'two', 'three'],
             )
           ];
           final listContentExpected = [
@@ -201,7 +235,7 @@ void main() {
             2,
             3,
             4,
-            ["one", "two", "three"],
+            ['one', 'two', 'three'],
           ];
           expect(
               convertYamlListToDartList(yamlList: YamlList.wrap(listContent)),
@@ -230,7 +264,7 @@ void main() {
         // Test the rerun succeeds too
         await cacheSpec(outputLocation: path, spec: jsonSpecFile);
         expect(File(path).existsSync(), isTrue);
-      } catch (e, st) {
+      } catch (e, _) {
         fail('should\'ve successfully cached diff');
       }
     });

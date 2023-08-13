@@ -45,7 +45,7 @@ void main() {
       });
       test('templateDirectory', () => expect(args.templateDirectory, isEmpty));
       test('generator', () => expect(args.generator, Generator.dart));
-      test('wrapper', () => expect(args.wrapper, Wrapper.none));
+
       test('importMappings', () => expect(args.importMappings, isEmpty));
       test('typeMappings', () => expect(args.typeMappings, isEmpty));
       test('reservedWordsMappings',
@@ -57,6 +57,12 @@ void main() {
       test('shouldGenerateSources',
           () => expect(args.shouldGenerateSources, isFalse));
       test('isRemote', () => expect(args.isRemote, isFalse));
+      test('additionalProperties',
+          () => expect(args.additionalProperties, isNull));
+      test(
+          'wrapper defaults to none', () => expect(args.wrapper, Wrapper.none));
+      test('inlineSchemaOptions',
+          () => expect(args.inlineSchemaOptions, isNull));
       test('jarArgs', () async {
         final f = File(
             Directory.current.path + '${Platform.pathSeparator}openapi.json');
@@ -66,7 +72,7 @@ void main() {
           'generate',
           '-o ${Directory.current.path}',
           '-i ${await args.inputFileOrFetch}',
-          '-g ${args.generatorName}'
+          '-g ${args.generatorName}',
         ]);
         f.deleteSync();
       });
@@ -117,19 +123,24 @@ void main() {
       test('shouldGenerateSources',
           () => expect(args.shouldGenerateSources, isTrue));
       test(
-          'jarArgs',
-          () async => expect(await args.jarArgs, [
-                'generate',
-                '-o ${args.outputDirectory}',
-                '-i ${await args.inputFileOrFetch}',
-                '-t ${args.templateDirectory}',
-                '-g ${args.generatorName}',
-                '--skip-validate-spec',
-                '--reserved-words-mappings=${args.reservedWordsMappings.entries.fold('', foldStringMap)}',
-                '--inline-schema-name-mappings=${args.inlineSchemaNameMappings.entries.fold('', foldStringMap)}',
-                '--import-mappings=${args.importMappings.entries.fold('', foldStringMap)}',
-                '--type-mappings=${args.typeMappings.entries.fold('', foldStringMap)}'
-              ]));
+        'jarArgs',
+        () async => expect(
+          await args.jarArgs,
+          [
+            'generate',
+            '-o ${args.outputDirectory}',
+            '-i ${await args.inputFileOrFetch}',
+            '-t ${args.templateDirectory}',
+            '-g ${args.generatorName}',
+            '--skip-validate-spec',
+            '--reserved-words-mappings=${args.reservedWordsMappings.entries.fold('', foldStringMap())}',
+            '--inline-schema-name-mappings=${args.inlineSchemaNameMappings.entries.fold('', foldStringMap())}',
+            '--import-mappings=${args.importMappings.entries.fold('', foldStringMap())}',
+            '--type-mappings=${args.typeMappings.entries.fold('', foldStringMap())}',
+            '--additional-properties=${args.additionalProperties?.toMap().entries.fold('', foldStringMap(keyModifier: convertToPropertyKey))}'
+          ],
+        ),
+      );
     });
     test('uses config', () async {
       final config = File(
@@ -169,10 +180,11 @@ void main() {
         '-i ${await args.inputFileOrFetch}',
         '-t ${args.templateDirectory}',
         '-g ${args.generatorName}',
-        '--reserved-words-mappings=${args.reservedWordsMappings.entries.fold('', foldStringMap)}',
-        '--inline-schema-name-mappings=${args.inlineSchemaNameMappings.entries.fold('', foldStringMap)}',
-        '--import-mappings=${args.importMappings.entries.fold('', foldStringMap)}',
-        '--type-mappings=${args.typeMappings.entries.fold('', foldStringMap)}'
+        '--reserved-words-mappings=${args.reservedWordsMappings.entries.fold('', foldStringMap())}',
+        '--inline-schema-name-mappings=${args.inlineSchemaNameMappings.entries.fold('', foldStringMap())}',
+        '--import-mappings=${args.importMappings.entries.fold('', foldStringMap())}',
+        '--type-mappings=${args.typeMappings.entries.fold('', foldStringMap())}',
+        '--additional-properties=${args.additionalProperties!.toMap().entries.fold('', foldStringMap(keyModifier: convertToPropertyKey))}'
       ]);
     });
   });

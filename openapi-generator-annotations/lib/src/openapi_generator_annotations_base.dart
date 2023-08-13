@@ -104,6 +104,9 @@ class Openapi {
   /// For use with [useNextGen].
   final String? cachePath;
 
+  /// Use a custom pubspec when running the generator.
+  final String? projectPubspecPath;
+
   const Openapi({
     this.additionalProperties,
     @deprecated this.overwriteExistingFiles,
@@ -123,10 +126,11 @@ class Openapi {
     @deprecated this.alwaysRun = false,
     this.cachePath,
     this.useNextGen = false,
+    this.projectPubspecPath,
   });
-  // TODO: Enable assertion error
-  // : assert(cachePath != null && !useNextGen,
-  //       'useNextGen should be set when providing cachePath');
+// TODO: Enable assertion error
+// : assert(cachePath != null && !useNextGen,
+//       'useNextGen should be set when providing cachePath');
 }
 
 class AdditionalProperties {
@@ -211,19 +215,40 @@ class AdditionalProperties {
           allowUnicodeIdentifiers: map['allowUnicodeIdentifiers'] ?? false,
           ensureUniqueParams: map['ensureUniqueParams'] ?? true,
           useEnumExtension: map['useEnumExtension'] ?? true,
-          prependFormOrBodyParameters: map['prependFormOrBodyParameters'] ?? false,
+          prependFormOrBodyParameters:
+              map['prependFormOrBodyParameters'] ?? false,
           pubAuthor: map['pubAuthor'],
           pubAuthorEmail: map['pubAuthorEmail'],
           pubDescription: map['pubDescription'],
           pubHomepage: map['pubHomepage'],
           pubName: map['pubName'],
           pubVersion: map['pubVersion'],
-          legacyDiscriminatorBehavior: map['legacyDiscriminatorBehavior'] ?? true,
-          sortModelPropertiesByRequiredFlag: map['sortModelPropertiesByRequiredFlag'] ?? true,
+          legacyDiscriminatorBehavior:
+              map['legacyDiscriminatorBehavior'] ?? true,
+          sortModelPropertiesByRequiredFlag:
+              map['sortModelPropertiesByRequiredFlag'] ?? true,
           sortParamsByRequiredFlag: map['sortParamsByRequiredFlag'] ?? true,
           sourceFolder: map['sourceFolder'],
-          wrapper:  EnumTransformer.wrapper(map['wrapper']),
+          wrapper: EnumTransformer.wrapper(map['wrapper']),
         );
+
+  Map<String, dynamic> toMap() => {
+        'allowUnicodeIdentifiers': allowUnicodeIdentifiers,
+        'ensureUniqueParams': ensureUniqueParams,
+        'useEnumExtension': useEnumExtension,
+        'prependFormOrBodyParameters': prependFormOrBodyParameters,
+        if (pubAuthor != null) 'pubAuthor': pubAuthor,
+        if (pubAuthorEmail != null) 'pubAuthorEmail': pubAuthorEmail,
+        if (pubDescription != null) 'pubDescription': pubDescription,
+        if (pubHomepage != null) 'pubHomepage': pubHomepage,
+        if (pubName != null) 'pubName': pubName,
+        if (pubVersion != null) 'pubVersion': pubVersion,
+        'legacyDiscriminatorBehavior': legacyDiscriminatorBehavior,
+        'sortModelPropertiesByRequiredFlag': sortModelPropertiesByRequiredFlag,
+        'sortParamsByRequiredFlag': sortParamsByRequiredFlag,
+        if (sourceFolder != null) 'sourceFolder': sourceFolder,
+        'wrapper': EnumTransformer.wrapperName(wrapper)
+      };
 }
 
 /// Allows you to customize how inline schemas are handled or named
@@ -260,6 +285,15 @@ class InlineSchemaOptions {
           refactorAllofInlineSchemas: map['refactorAllofInlineSchemas'] ?? true,
           resolveInlineEnums: map['resolveInlineEnums'] ?? true,
         );
+
+  /// A convenience function that simplifies the output to the compiler.
+  Map<String, dynamic> toMap() => {
+        if (arrayItemSuffix != null) 'arrayItemSuffix': arrayItemSuffix!,
+        if (mapItemSuffix != null) 'mapItemSuffix': mapItemSuffix!,
+        'skipSchemaReuse': skipSchemaReuse,
+        'refactorAllofInlineSchemas': refactorAllofInlineSchemas,
+        'resolveInlineEnums': resolveInlineEnums,
+      };
 }
 
 class DioProperties extends AdditionalProperties {
@@ -304,10 +338,21 @@ class DioProperties extends AdditionalProperties {
             useEnumExtension: useEnumExtension);
 
   DioProperties.fromMap(Map<String, dynamic> map)
-      : dateLibrary = map['dateLibrary'],
+      : dateLibrary = EnumTransformer.dioDateLibrary(map['dateLibrary']),
         nullableFields = map['nullableFields'] as bool?,
-        serializationLibrary = map['serializationLibrary'],
+        serializationLibrary = EnumTransformer.dioSerializationLibrary(
+            map['serializationLibrary']),
         super.fromMap(map);
+
+  Map<String, dynamic> toMap() => Map.from(super.toMap())
+    ..addAll({
+      if (dateLibrary != null)
+        'dateLibrary': EnumTransformer.dioDateLibraryName(dateLibrary!),
+      if (nullableFields != null) 'nullableFields': nullableFields,
+      if (serializationLibrary != null)
+        'serializationLibrary':
+            EnumTransformer.dioSerializationLibraryName(serializationLibrary!),
+    });
 }
 
 class DioAltProperties extends AdditionalProperties {
@@ -372,6 +417,18 @@ class DioAltProperties extends AdditionalProperties {
         pubspecDependencies = map['pubspecDependencies'],
         pubspecDevDependencies = map['pubspecDevDependencies'],
         super.fromMap(map);
+
+  Map<String, dynamic> toMap() => Map.from(super.toMap())
+    ..addAll({
+      if (nullSafe != null) 'nullSafe': nullSafe,
+      if (nullSafeArrayDefault != null)
+        'nullSafeArrayDefault': nullSafeArrayDefault,
+      if (listAnyOf != null) 'listAnyOf': listAnyOf,
+      if (pubspecDependencies != null)
+        'pubspecDependencies': pubspecDependencies,
+      if (pubspecDevDependencies != null)
+        'pubspecDevDependencies': pubspecDevDependencies,
+    });
 }
 
 enum DioDateLibrary {
@@ -386,7 +443,6 @@ enum DioDateLibrary {
 enum DioSerializationLibrary { built_value, json_serializable }
 
 enum SerializationFormat { JSON, PROTO }
-
 
 /// The name of the generator to use
 enum Generator {
@@ -412,12 +468,47 @@ enum Generator {
 //  remove this work around.
 /// Transforms the enums used with the [Openapi] annotation.
 class EnumTransformer {
+  static DioDateLibrary dioDateLibrary(String? name) {
+    switch (name) {
+      case 'timemachine':
+        return DioDateLibrary.timemachine;
+      default:
+        return DioDateLibrary.core;
+    }
+  }
+
+  static String dioDateLibraryName(DioDateLibrary lib) {
+    switch (lib) {
+      case DioDateLibrary.timemachine:
+        return 'timemachine';
+      default:
+        return 'core';
+    }
+  }
+
+  static DioSerializationLibrary dioSerializationLibrary(String? name) {
+    switch (name) {
+      case 'json_serializable':
+        return DioSerializationLibrary.json_serializable;
+      default:
+        return DioSerializationLibrary.built_value;
+    }
+  }
+
+  static String dioSerializationLibraryName(DioSerializationLibrary lib) {
+    switch (lib) {
+      case DioSerializationLibrary.json_serializable:
+        return 'json_serializable';
+      default:
+        return 'built_value';
+    }
+  }
+
   /// Converts the given [name] to the matching [Generator] name.
   ///
   /// Defaults to [Generator.dart];
   static Generator generator(String? name) {
-    print(name);
-    switch(name) {
+    switch (name) {
       case 'dio':
         return Generator.dio;
       case 'dioAlt':
@@ -427,17 +518,39 @@ class EnumTransformer {
     }
   }
 
+  static String generatorName(Generator generator) {
+    switch (generator) {
+      case Generator.dio:
+        return 'dart-dio';
+      case Generator.dioAlt:
+        return 'dart2-api';
+      default:
+        return 'dart';
+    }
+  }
+
   /// Converts the given [name] to the matching [Wrapper] name.
   ///
   /// Defaults to [Wrapper.none];
   static Wrapper wrapper(String? name) {
-    switch(name) {
+    switch (name) {
       case 'fvm':
         return Wrapper.fvm;
       case 'flutterw':
         return Wrapper.flutterw;
       default:
         return Wrapper.none;
+    }
+  }
+
+  static String wrapperName(Wrapper wrapper) {
+    switch (wrapper) {
+      case Wrapper.flutterw:
+        return 'flutterw';
+      case Wrapper.fvm:
+        return 'fvm';
+      default:
+        return 'none';
     }
   }
 }

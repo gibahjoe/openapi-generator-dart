@@ -7,13 +7,13 @@ import 'package:logging/logging.dart';
 class OutputMessage {
   final Level level;
   final String message;
-  final Object? error;
+  final Object? additionalContext;
   final StackTrace? stackTrace;
 
   const OutputMessage({
     required this.message,
     this.level = Level.INFO,
-    this.error,
+    this.additionalContext,
     this.stackTrace,
   });
 }

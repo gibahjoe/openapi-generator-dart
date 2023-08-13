@@ -11,13 +11,13 @@ void main() {
             executable: 'flutter',
             arguments: testArgs,
             wrapper: Wrapper.flutterw);
-        expect(command.arguments, ['flutter', ...testArgs]);
+        expect(command.arguments, testArgs);
         expect(command.executable, './flutterw');
       });
       test('Wrapper.fvw', () {
         final command = Command(
             executable: 'flutter', arguments: testArgs, wrapper: Wrapper.fvm);
-        expect(command.arguments, ['flutter', ...testArgs]);
+        expect(command.arguments, testArgs);
         expect(command.executable, 'fvm');
       });
       test('doesn\'t wrap Wrapper.none', () {

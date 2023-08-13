@@ -6,8 +6,8 @@ import 'models/output_message.dart';
 /// A utility function that prints out a log meant for the end user.
 void logOutputMessage(
         {required Logger log, required OutputMessage communication}) =>
-    log.log(communication.level, communication.message, communication.error,
-        communication.stackTrace);
+    log.log(communication.level, communication.message,
+        communication.additionalContext, communication.stackTrace);
 
 /// Transforms a [Map] into a string.
 String getMapAsString(Map<dynamic, dynamic> data) {
@@ -29,7 +29,7 @@ String convertToPropertyValue(DartObject value) {
       '';
 }
 
-/// Converts a [DartObject] key into an expected field name.
+/// Converts a key into an expected field name.
 String convertToPropertyKey(String key) {
   switch (key) {
     case 'nullSafeArrayDefault':
@@ -52,9 +52,8 @@ String convertToPropertyKey(String key) {
   return key;
 }
 
-/// A utility function to fold a [Map<String,DartObject>] into a compatible format for the OpenAPI compiler.
-String foldNamedArgsMap(String prev, MapEntry<String, DartObject?> entry) =>
-    '${prev.isEmpty ? '' : ','}${convertToPropertyKey(entry.key)}=${convertToPropertyValue(entry.value!)}';
-
-String foldStringMap(String prev, MapEntry<String, dynamic> curr) =>
-    '${prev.isEmpty ? '' : ','}${curr.key}=${curr.value}';
+String Function(String, MapEntry<String, dynamic>) foldStringMap({
+  String Function(String)? keyModifier,
+}) =>
+    (String prev, MapEntry<String, dynamic> curr) =>
+        '${prev.trim().isEmpty ? '' : '$prev,'}${keyModifier != null ? keyModifier(curr.key) : curr.key}=${curr.value}';
