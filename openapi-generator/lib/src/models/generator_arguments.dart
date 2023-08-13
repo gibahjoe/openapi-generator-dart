@@ -238,6 +238,17 @@ class GeneratorArguments {
         if (inlineSchemaOptions != null)
           '--inline-schema-options=${inlineSchemaOptions!.toMap().entries.fold('', foldStringMap(keyModifier: convertToPropertyKey))}',
         if (additionalProperties != null)
-          '--additional-properties=${additionalProperties!.toMap().entries.fold('', foldStringMap(keyModifier: convertToPropertyKey))}'
+          '--additional-properties=${convertAdditionalProperties(additionalProperties!).fold('', foldStringMap(keyModifier: convertToPropertyKey))}'
       ];
+
+  Iterable<MapEntry<String, dynamic>> convertAdditionalProperties(
+      AdditionalProperties props) {
+    if (props is DioProperties) {
+      return props.toMap().entries;
+    } else if (props is DioAltProperties) {
+      return props.toMap().entries;
+    } else {
+      return props.toMap().entries;
+    }
+  }
 }

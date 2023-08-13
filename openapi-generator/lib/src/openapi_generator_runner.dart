@@ -43,6 +43,16 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         );
       }
 
+      if (!(annotations.read('useNextGen').literalValue as bool)) {
+        if (annotations.read('cachePath').literalValue != null) {
+          throw InvalidGenerationSourceError(
+            'useNextGen must be set when using cachePath',
+            todo:
+                'Either set useNextGen: true on the annotation or remove the custom cachePath',
+          );
+        }
+      }
+
       // Transform the annotations.
       final args = GeneratorArguments(annotations: annotations);
 

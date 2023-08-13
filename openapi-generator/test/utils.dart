@@ -43,7 +43,7 @@ Future<String> generate(String source) async {
           '${error ?? ''}\n${logRecord.level} ${logRecord.message} \n ${logRecord.additionalContext} \n ${logRecord.stackTrace}';
     } else {
       error =
-          '${error ?? ''}\n${logRecord.message}\n${logRecord.error}\n${logRecord.stackTrace}';
+          '${error ?? ''}\n${logRecord.message ?? ''}\n${logRecord.error ?? ''}\n${logRecord.stackTrace ?? ''}';
     }
   }
 

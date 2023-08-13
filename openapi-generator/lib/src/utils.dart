@@ -54,6 +54,7 @@ String convertToPropertyKey(String key) {
 
 String Function(String, MapEntry<String, dynamic>) foldStringMap({
   String Function(String)? keyModifier,
+  String Function(dynamic)? valueModifier,
 }) =>
     (String prev, MapEntry<String, dynamic> curr) =>
-        '${prev.trim().isEmpty ? '' : '$prev,'}${keyModifier != null ? keyModifier(curr.key) : curr.key}=${curr.value}';
+        '${prev.trim().isEmpty ? '' : '$prev,'}${keyModifier != null ? keyModifier(curr.key) : curr.key}=${valueModifier != null ? valueModifier(curr.value) : curr.value}';

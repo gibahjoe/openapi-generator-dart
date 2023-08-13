@@ -16,4 +16,9 @@ class OutputMessage {
     this.additionalContext,
     this.stackTrace,
   });
+
+  @override
+  String toString() {
+    return '$message ${additionalContext ?? ''} ${stackTrace ?? ''}';
+  }
 }

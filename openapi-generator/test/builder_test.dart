@@ -29,7 +29,7 @@ void main() {
           outputDirectory: 'api/petstore_api')
       '''),
           contains(
-              'generate -o api/petstore_api -i ../openapi-spec.yaml -g dart-dio --type-mappings=Pet=ExamplePet --additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,prependFormOrBodyParameters=false,pubAuthor=Johnny dep...,pubName=petstore_api,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=none,dateLibrary=core,serializationLibrary=built_value'));
+              'generate -o api/petstore_api -i ../openapi-spec.yaml -g dart-dio --type-mappings=Pet=ExamplePet --additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,prependFormOrBodyParameters=false,pubAuthor=Johnny dep...,pubName=petstore_api,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=none'));
     });
 
     test('to generate command with import and type mappings', () async {
@@ -87,7 +87,7 @@ void main() {
           outputDirectory: 'api/petstore_api')
       '''),
           contains('''
-              generate -o api/petstore_api -i ../openapi-spec.yaml -g dart-dio --type-mappings=Pet=ExamplePet --additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,prependFormOrBodyParameters=false,pubAuthor=Johnny dep...,pubName=petstore_api,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=none,dateLibrary=core,serializationLibrary=built_value
+              generate -o api/petstore_api -i ../openapi-spec.yaml -g dart-dio --type-mappings=Pet=ExamplePet --additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,prependFormOrBodyParameters=false,pubAuthor=Johnny dep...,pubName=petstore_api,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=none
           '''
               .trim()));
     });
@@ -112,23 +112,7 @@ void main() {
     final specPath =
         'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml';
     final f = File('${testSpecPath}managed-cache.json');
-    setUpAll(() async {
-      generatedOutput = await generate('''
-        @Openapi(
-            inputSpecFile: '$specPath',
-            typeMappings: {'int-or-string':'IntOrString'},
-            importMappings: {'IntOrString':'./int_or_string.dart'},
-            generatorName: Generator.dioAlt,
-            useNextGen: true,
-            )
-      ''');
-    });
-    test('Logs warning when using remote spec', () async {
-      expect(
-          generatedOutput,
-          contains(
-              ':: Using a remote specification, a cache will still be create but may be outdated. ::'));
-    });
+
     group('runs', () {
       setUpAll(() {
         f.writeAsStringSync('{}');
@@ -137,6 +121,35 @@ void main() {
         if (f.existsSync()) {
           f.deleteSync();
         }
+      });
+      test('fails with invalid configuration', () async {
+        generatedOutput = await generate('''
+        @Openapi(
+            inputSpecFile: '$specPath',
+            typeMappings: {'int-or-string':'IntOrString'},
+            importMappings: {'IntOrString':'./int_or_string.dart'},
+            generatorName: Generator.dioAlt,
+            useNextGen: false,
+            cachePath: './'
+            )
+      ''');
+        expect(generatedOutput,
+            contains('useNextGen must be set when using cachePath'));
+      });
+      test('Logs warning when using remote spec', () async {
+        generatedOutput = await generate('''
+        @Openapi(
+            inputSpecFile: '$specPath',
+            typeMappings: {'int-or-string':'IntOrString'},
+            importMappings: {'IntOrString':'./int_or_string.dart'},
+            generatorName: Generator.dioAlt,
+            useNextGen: true,
+            )
+      ''');
+        expect(
+            generatedOutput,
+            contains(
+                ':: Using a remote specification, a cache will still be create but may be outdated. ::'));
       });
       test('when the spec is dirty', () async {
         final src = '''

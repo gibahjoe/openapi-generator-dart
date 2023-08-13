@@ -128,9 +128,6 @@ class Openapi {
     this.useNextGen = false,
     this.projectPubspecPath,
   });
-// TODO: Enable assertion error
-// : assert(cachePath != null && !useNextGen,
-//       'useNextGen should be set when providing cachePath');
 }
 
 class AdditionalProperties {
@@ -320,7 +317,8 @@ class DioProperties extends AdditionalProperties {
       bool sortModelPropertiesByRequiredFlag = true,
       bool sortParamsByRequiredFlag = true,
       bool useEnumExtension = true,
-      String? sourceFolder})
+      String? sourceFolder,
+      Wrapper wrapper = Wrapper.none})
       : super(
             allowUnicodeIdentifiers: allowUnicodeIdentifiers,
             ensureUniqueParams: ensureUniqueParams,
@@ -335,7 +333,8 @@ class DioProperties extends AdditionalProperties {
                 sortModelPropertiesByRequiredFlag,
             sortParamsByRequiredFlag: sortParamsByRequiredFlag,
             sourceFolder: sourceFolder,
-            useEnumExtension: useEnumExtension);
+            useEnumExtension: useEnumExtension,
+            wrapper: wrapper);
 
   DioProperties.fromMap(Map<String, dynamic> map)
       : dateLibrary = EnumTransformer.dioDateLibrary(map['dateLibrary']),
@@ -393,7 +392,8 @@ class DioAltProperties extends AdditionalProperties {
       bool sortModelPropertiesByRequiredFlag = true,
       bool sortParamsByRequiredFlag = true,
       bool useEnumExtension = true,
-      String? sourceFolder})
+      String? sourceFolder,
+      Wrapper wrapper = Wrapper.none})
       : super(
             allowUnicodeIdentifiers: allowUnicodeIdentifiers,
             ensureUniqueParams: ensureUniqueParams,
@@ -408,7 +408,8 @@ class DioAltProperties extends AdditionalProperties {
                 sortModelPropertiesByRequiredFlag,
             sortParamsByRequiredFlag: sortParamsByRequiredFlag,
             sourceFolder: sourceFolder,
-            useEnumExtension: useEnumExtension);
+            useEnumExtension: useEnumExtension,
+            wrapper: wrapper);
 
   DioAltProperties.fromMap(Map<String, dynamic> map)
       : nullSafe = map['nullSafe'] as bool?,
