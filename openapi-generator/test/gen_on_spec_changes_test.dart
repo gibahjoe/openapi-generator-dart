@@ -27,7 +27,7 @@ void main() {
           await loadSpec(specPath: './thisIsSomeInvalidPath.wrong');
           fail('Should\'ve thrown as not supported file type.');
         } catch (e, _) {
-          expect(e as String, 'Invalid spec file format');
+          expect((e as OutputMessage).message, 'Invalid spec file format.');
         }
       });
       test('throws an error for missing config file', () async {

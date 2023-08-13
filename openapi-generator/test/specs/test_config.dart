@@ -19,5 +19,6 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
   additionalProperties: AdditionalProperties(wrapper: Wrapper.fvm),
   inlineSchemaNameMappings: {'200resp': 'OkResp'},
   overwriteExistingFiles: true,
+  projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
 )
 class TestClassConfig extends OpenapiGeneratorConfig {}

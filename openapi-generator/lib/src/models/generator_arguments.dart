@@ -47,15 +47,7 @@ class GeneratorArguments {
   /// Use a custom pubspec file when generating.
   ///
   /// Defaults to the pubspec at the root of [Directory.current].
-  final String? _pubspecPath;
-
-  String? get pubspecPath => _pubspecPath != null
-      ? _pubspecPath!.startsWith('./')
-          ? _pubspecPath!.replaceFirst('.', Directory.current.path)
-          : _pubspecPath!.startsWith('../')
-              ? _pubspecPath!.replaceFirst('..', Directory.current.parent.path)
-              : _pubspecPath
-      : _pubspecPath;
+  final String? pubspecPath;
 
   /// The directory where the generated sources will be placed.
   ///
@@ -163,7 +155,7 @@ class GeneratorArguments {
             annotations.readPropertyOrDefault('useNextGen', useNextGen),
         cachePath = annotations.readPropertyOrDefault(
             'cachePath', cachePath ?? defaultCachedPath),
-        _pubspecPath = annotations.readPropertyOrDefault<String>(
+        pubspecPath = annotations.readPropertyOrDefault<String>(
             'projectPubspecPath',
             pubspecPath ??
                 '${Directory.current.path}${Platform.pathSeparator}pubspec.yaml');
@@ -206,13 +198,7 @@ class GeneratorArguments {
   Future<String> get inputFileOrFetch async {
     final curr = Directory.current;
     if (_inputFile.isNotEmpty) {
-      if (_inputFile.startsWith(r'./')) {
-        return _inputFile.replaceFirst('.', curr.path);
-      } else if (_inputFile.startsWith('../')) {
-        return _inputFile.replaceFirst('..', curr.parent.path);
-      } else {
-        return _inputFile;
-      }
+      return _inputFile;
     }
 
     try {

@@ -23,6 +23,10 @@ void main() {
       test('shouldFetchDependencies',
           () => expect(args.shouldFetchDependencies, isTrue));
       test('skipValidation', () => expect(args.skipValidation, isFalse));
+      test(
+          'pubspecPath',
+          () => expect(
+              args.pubspecPath, '${Directory.current.path}/pubspec.yaml'));
       group('inputFile', () {
         test('errors when no spec is found', () async {
           await args.inputFileOrFetch.onError((e, __) {
@@ -95,7 +99,8 @@ void main() {
           typeMapping: {'package': 'type'},
           reservedWordsMapping: {'const': 'final'},
           inlineSchemaNameMapping: {'L': 'R'},
-          additionalProperties: AdditionalProperties(wrapper: Wrapper.fvm));
+          additionalProperties: AdditionalProperties(wrapper: Wrapper.fvm),
+          pubspecPath: 'testing/pubspec.yaml');
       test('alwaysRun', () => expect(args.alwaysRun, isTrue));
       test('useNextGen', () => expect(args.useNextGen, isTrue));
       test('cachePath', () => expect(args.cachePath, 'test'));
@@ -122,6 +127,8 @@ void main() {
       test('generatorName', () => expect(args.generatorName, 'dart2-api'));
       test('shouldGenerateSources',
           () => expect(args.shouldGenerateSources, isTrue));
+      test('pubspecPath',
+          () => expect(args.pubspecPath, 'testing/pubspec.yaml'));
       test(
         'jarArgs',
         () async => expect(
@@ -170,7 +177,7 @@ void main() {
       expect(args.typeMappings, {'key': 'value'});
       expect(args.reservedWordsMappings, {'const': 'final'});
       expect(args.inlineSchemaNameMappings, {'200resp': 'OkResp'});
-
+      expect(args.pubspecPath, './test/specs/dart_pubspec.test.yaml');
       expect(args.isRemote, isFalse);
       expect(args.generatorName, 'dart-dio');
       expect(args.shouldGenerateSources, isTrue);
