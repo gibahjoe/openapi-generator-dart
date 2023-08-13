@@ -468,13 +468,14 @@ enum Generator {
 //  remove this work around.
 /// Transforms the enums used with the [Openapi] annotation.
 class EnumTransformer {
-  static DioDateLibrary dioDateLibrary(String? name) {
+  static DioDateLibrary? dioDateLibrary(String? name) {
     switch (name) {
       case 'timemachine':
         return DioDateLibrary.timemachine;
-      default:
+      case 'core':
         return DioDateLibrary.core;
     }
+    return null;
   }
 
   static String dioDateLibraryName(DioDateLibrary lib) {
@@ -486,13 +487,14 @@ class EnumTransformer {
     }
   }
 
-  static DioSerializationLibrary dioSerializationLibrary(String? name) {
+  static DioSerializationLibrary? dioSerializationLibrary(String? name) {
     switch (name) {
       case 'json_serializable':
         return DioSerializationLibrary.json_serializable;
-      default:
+      case 'built_value':
         return DioSerializationLibrary.built_value;
     }
+    return null;
   }
 
   static String dioSerializationLibraryName(DioSerializationLibrary lib) {
