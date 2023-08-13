@@ -165,11 +165,13 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   }
 
   /// Runs the OpenAPI compiler with the given [args].
-  Future<void> runOpenApiJar({required List<String> arguments}) async {
+  Future<void> runOpenApiJar(
+      {required FutureOr<List<String>> arguments}) async {
+    final args = await arguments;
     logOutputMessage(
         log: log,
-        communication: OutputMessage(
-            message: 'OpenapiGenerator :: [${arguments.join(' ')}]'));
+        communication:
+            OutputMessage(message: 'OpenapiGenerator :: [${args.join(' ')}]'));
 
     var binPath = (await Isolate.resolvePackageUri(
             Uri.parse('package:openapi_generator_cli/openapi-generator.jar')))!
@@ -182,7 +184,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       if (javaOpts.isNotEmpty) javaOpts,
       '-jar',
       "${"$binPath"}",
-      ...arguments,
+      ...args,
     ]).then(
       (value) => logOutputMessage(
         log: log,
@@ -211,12 +213,12 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   /// in the specification instead of only running when the configuration file
   /// changes as it should be relatively stable.
   FutureOr<String> generatorV2({required GeneratorArguments args}) async {
-    if (await hasDiff(
-      loadPath: args.inputFile.startsWith(r'\.\/')
-          ? args.inputFile.replaceFirst(
-              r'\.\/', '${Directory.current.path}${Platform.pathSeparator}')
-          : args.inputFile,
-    )) {}
+    // if (await hasDiff(
+    //   loadPath: .startsWith(r'\.\/')
+    //       ? args.inputFile.replaceFirst(
+    //           r'\.\/', '${Directory.current.path}${Platform.pathSeparator}')
+    //       : args.inputFile,
+    // )) {}
     return '';
   }
 

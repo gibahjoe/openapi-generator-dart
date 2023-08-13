@@ -1,8 +1,10 @@
+library test_lib;
+
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 
 @Openapi(
   inputSpecFile: './openapi.test.yaml',
-  generatorName: Generator.dart,
+  generatorName: Generator.dio,
   useNextGen: true,
   cachePath: './',
   typeMappings: {'key': 'value'},
@@ -18,4 +20,4 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
   inlineSchemaNameMappings: {'200resp': 'OkResp'},
   overwriteExistingFiles: true,
 )
-class TestConfig extends OpenapiGeneratorConfig {}
+class TestClassConfig extends OpenapiGeneratorConfig {}

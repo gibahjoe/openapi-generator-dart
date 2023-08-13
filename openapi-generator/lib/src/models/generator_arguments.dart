@@ -1,12 +1,16 @@
+import 'dart:async';
 import 'dart:io';
 
-import 'package:analyzer/dart/constant/value.dart';
+import 'package:logging/logging.dart';
 import 'package:openapi_generator/src/extensions/type_methods.dart';
+import 'package:openapi_generator/src/models/output_message.dart';
+import 'package:openapi_generator/src/utils.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 import 'package:source_gen/source_gen.dart' as src_gen;
 
-import '../utils.dart';
-
+/// The default storage location of the cached copy of the specification.
+///
+/// When the annotation has the [Openapi.cachePath] set this value isn't used.
 final defaultCachedPath =
     '${Directory.current.path}${Platform.pathSeparator}.dart_tool${Platform.pathSeparator}openapi-generator-cache.json';
 
@@ -62,8 +66,8 @@ class GeneratorArguments {
 
   /// Use the provided spec instead of one located in [Directory.current].
   ///
-  /// Default: openapi.yaml | openapi.json
-  final String inputFile;
+  /// Default: openapi.(ya?ml) | openapi.json
+  String _inputFile;
 
   /// The directory containing the template files.
   final String templateDirectory;
@@ -74,7 +78,7 @@ class GeneratorArguments {
   final Generator generator;
 
   /// Informs the generator to use the specified [wrapper] for Flutter commands.
-  final Wrapper wrapper;
+  Wrapper get wrapper => additionalProperties.wrapper;
 
   /// Defines mappings between a class and the import to be used.
   final Map<String, String> importMappings;
@@ -87,16 +91,14 @@ class GeneratorArguments {
   /// Supported by [Generator.dio] & [Generator.dioAlt] generators.
   final Map<String, String> reservedWordsMappings;
 
-  // TODO: Use class from annotations base
   /// Additional properties to be passed into the OpenAPI compiler.
-  final Map<String, DartObject> additionalProperties;
+  final AdditionalProperties additionalProperties;
 
   /// Defines a mapping for nested (inline) schema and the generated name.
   final Map<String, dynamic> inlineSchemaNameMappings;
 
-  // TODO: Use type from annotations base
   /// Customizes the way inline schema are handled.
-  final Map<String, DartObject> inlineSchemaOptions;
+  final InlineSchemaOptions inlineSchemaOptions;
 
   GeneratorArguments({
     required src_gen.ConstantReader annotations,
@@ -108,24 +110,23 @@ class GeneratorArguments {
     Map<String, String> importMapping = const {},
     Map<String, String> reservedWordsMapping = const {},
     Map<String, String> inlineSchemaNameMapping = const {},
-    Map<String, DartObject> additionalProperties = const {},
-    Map<String, DartObject> inlineSchemaOptions = const {},
+    AdditionalProperties additionalProperties = const AdditionalProperties(),
+    InlineSchemaOptions inlineSchemaOptions = const InlineSchemaOptions(),
     bool skipValidation = false,
     bool runSourceGen = true,
-    Wrapper wrapper = Wrapper.none,
     String? outputDirectory,
     bool fetchDependencies = true,
     bool useNextGen = false,
     String? cachePath,
   })  : alwaysRun = annotations.readPropertyOrDefault('alwaysRun', alwaysRun),
-        inputFile =
+        _inputFile =
             annotations.readPropertyOrDefault('inputSpecFile', inputSpecFile),
         templateDirectory = annotations.readPropertyOrDefault(
             'templateDirectory', templateDirectory),
         generator =
             annotations.readPropertyOrDefault('generatorName', generator),
         typeMappings =
-            annotations.readPropertyOrDefault('typeMapping', typeMapping),
+            annotations.readPropertyOrDefault('typeMappings', typeMapping),
         importMappings =
             annotations.readPropertyOrDefault('importMappings', importMapping),
         reservedWordsMappings = annotations.readPropertyOrDefault(
@@ -142,7 +143,6 @@ class GeneratorArguments {
             'runSourceGenOnOutput', runSourceGen),
         shouldFetchDependencies = annotations.readPropertyOrDefault(
             'fetchDependencies', fetchDependencies),
-        wrapper = annotations.readPropertyOrDefault('wrapper', wrapper),
         outputDirectory = annotations.readPropertyOrDefault(
             'outputDirectory', outputDirectory ?? Directory.current.path),
         useNextGen =
@@ -160,29 +160,71 @@ class GeneratorArguments {
   /// Informs the generator to generate source based on the [generator].
   ///
   /// This is only false in the case where [generator] is set to [Generator.dart]
-  /// as that verison of the [Generator] uses the 'dart:http' library as the
+  /// as that version of the [Generator] uses the 'dart:http' library as the
   /// networking layer.
   bool get shouldGenerateSources => generator != Generator.dart;
 
+  /// Identifies if the specification is a remote specification.
+  ///
+  /// Used when the specification is hosted on an external server. This will cause
+  /// the compiler to pulls from the remote source. When this is true the original
+  /// workflow will be used (no caching).
+  bool get isRemote => _inputFile.isNotEmpty
+      ? RegExp(r'^https?://').hasMatch(_inputFile)
+      : false;
+
+  /// Looks for a default spec file within [Directory.current] if [_inputFile]
+  /// wasn't set.
+  ///
+  /// Looks for
+  /// In the event that a specification file isn't provided look within the
+  /// project to see if one of the supported defaults, a file named
+  /// openapi.(ya?ml|json), is present.
+  ///
+  /// Subsequent calls will be able to use the [_inputFile] when successful in
+  /// the event that a default is found.
+  Future<String> get inputFileOrFetch async {
+    if (_inputFile.isNotEmpty) {
+      return _inputFile;
+    }
+
+    try {
+      final entry = Directory.current.listSync().firstWhere(
+          (e) => RegExp(r'^.*/(openapi\.(ya?ml|json))$').hasMatch(e.path));
+      _inputFile = entry.path;
+      return _inputFile;
+    } catch (e, st) {
+      return Future.error(
+        OutputMessage(
+          message:
+              'No spec file found. One must be present in the project or hosted remotely.',
+          level: Level.SEVERE,
+          error: e,
+          stackTrace: st,
+        ),
+      );
+    }
+  }
+
   /// The arguments to be passed to generator jar file.
-  List<String> get jarArgs => [
+  FutureOr<List<String>> get jarArgs async => [
         'generate',
         if (outputDirectory.isNotEmpty) '-o $outputDirectory',
-        if (inputFile.isNotEmpty) '-i $inputFile',
+        '-i ${await inputFileOrFetch}',
         if (templateDirectory.isNotEmpty) '-t $templateDirectory',
         '-g $generatorName',
         if (skipValidation) '--skip-validate-spec',
         if (reservedWordsMappings.isNotEmpty)
-          '--reserved-words-mappings=${reservedWordsMappings.entries.fold('', (String prev, MapEntry<String, String> curr) => '${prev.isEmpty ? '' : ','}${curr.key}=${curr.value}')}',
+          '--reserved-words-mappings=${reservedWordsMappings.entries.fold('', foldStringMap)}',
         if (inlineSchemaNameMappings.isNotEmpty)
-          '--inline-schema-name-mappings=${inlineSchemaNameMappings.entries.fold('', (String prev, MapEntry<String, dynamic> curr) => '${prev.isEmpty ? '' : ','}${curr.key}=${curr.value}')}',
+          '--inline-schema-name-mappings=${inlineSchemaNameMappings.entries.fold('', foldStringMap)}',
         if (importMappings.isNotEmpty)
-          '--import-mappings=${importMappings.entries.fold('', (String prev, MapEntry<String, String> curr) => '${prev.isEmpty ? '' : ','}${curr.key}=${curr.value}')}',
+          '--import-mappings=${importMappings.entries.fold('', foldStringMap)}',
         if (typeMappings.isNotEmpty)
-          '--type-mappings=${typeMappings.entries.fold('', (String prev, MapEntry<String, String> curr) => '${prev.isEmpty ? '' : ','}${curr.key}=${curr.value}')}',
-        if (inlineSchemaOptions.isNotEmpty)
-          '--inline-schema-options=${inlineSchemaOptions.entries.fold('', foldNamedArgsMap)}',
-        if (additionalProperties.isNotEmpty)
-          '--additional-properties=${additionalProperties.entries.fold('', foldNamedArgsMap)}'
+          '--type-mappings=${typeMappings.entries.fold('', foldStringMap)}',
+        // if (inlineSchemaOptionsMap.isNotEmpty)
+        //   '--inline-schema-options=${inlineSchemaOptionsMap.entries.fold('', foldNamedArgsMap)}',
+        // if (additionalPropertiesMap.isNotEmpty)
+        //   '--additional-properties=${additionalPropertiesMap.entries.fold('', foldNamedArgsMap)}'
       ];
 }

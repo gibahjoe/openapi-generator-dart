@@ -11,6 +11,29 @@ on:
   workflow_dispatch:
 
 jobs:
+  ci:
+    name: Dart CI Checks
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        work_dir: [openapi-generator, openapi-generator-annotations]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1.5.0
+        with:
+          sdk: stable
+      - name: Install Dependencies
+        run: dart pub get
+      - name: Validate formatting
+        run: dart format --set-exit-if-changed
+      - name: Run analyzer
+        run: dart analyze
+      - name: Run tests
+        run: dart test
+
   build:
     name: Build example project 🛠️
     runs-on: ubuntu-latest

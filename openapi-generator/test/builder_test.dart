@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
@@ -21,7 +23,7 @@ void main() {
           outputDirectory: 'api/petstore_api')
       '''),
           contains(
-              "generate -i ../openapi-spec.yaml -g dart-dio -o api/petstore_api --type-mappings=Pet=ExamplePet --additional-properties=pubName=petstore_api,pubAuthor=Johnny dep..."));
+              "generate -o ${Directory.current.path} -i ../openapi-spec.yaml -g dart-dio -o api/petstore_api --additional-properties=pubName=petstore_api,pubAuthor=Johnny dep... --type-mappings=Pet=ExamplePet"));
     });
 
     test('to generate command with import and type mappings', () async {
@@ -34,7 +36,7 @@ void main() {
           generatorName: Generator.dio)
       '''),
           contains(
-              'generate -i ../openapi-spec.yaml -g dart-dio --type-mappings=int-or-string=IntOrString --import-mappings=IntOrString=./int_or_string.dart'));
+              'generate -o ${Directory.current.path} -i ../openapi-spec.yaml -g dart-dio --import-mappings=IntOrString=./int_or_string.dart --type-mappings=int-or-string=IntOrString'));
     });
 
     test('to generate command with inline schema mappings', () async {
@@ -47,7 +49,7 @@ void main() {
           generatorName: Generator.dio)
       '''),
           contains('''
-              generate -i ../openapi-spec.yaml -g dart-dio --type-mappings=int-or-string=IntOrString --inline-schema-name-mappings=inline_object_2=SomethingMapped,inline_object_4=nothing_new
+              generate -o ${Directory.current.path} -i ../openapi-spec.yaml -g dart-dio --inline-schema-name-mappings=inline_object_2=SomethingMapped,inline_object_4=nothing_new --type-mappings=int-or-string=IntOrString
               '''
               .trim()));
     });
@@ -79,7 +81,7 @@ void main() {
           outputDirectory: 'api/petstore_api')
       '''),
           contains('''
-              generate -i ../openapi-spec.yaml -g dart-dio -o api/petstore_api --type-mappings=Pet=ExamplePet --additional-properties=pubName=petstore_api,pubAuthor=Johnny dep...
+              generate -o ${Directory.current.path} -i ../openapi-spec.yaml -g dart-dio -o api/petstore_api --type-mappings=Pet=ExamplePet --additional-properties=pubName=petstore_api,pubAuthor=Johnny dep... --type-mappings=int-or-string=IntOrString
           '''
               .trim()));
     });
@@ -95,7 +97,7 @@ void main() {
             generatorName: Generator.dioAlt)
       '''),
           contains(
-              'generate -i ../openapi-spec.yaml -g dart2-api --type-mappings=int-or-string=IntOrString --import-mappings=IntOrString=./int_or_string.dart'));
+              'generate -o ${Directory.current.path} -i ../openapi-spec.yaml -g dart2-api --import-mappings=IntOrString=./int_or_string.dart --type-mappings=int-or-string=IntOrString'));
     });
   });
 }

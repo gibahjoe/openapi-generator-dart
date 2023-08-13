@@ -1,22 +1,19 @@
 import 'dart:io';
 
-import 'package:analyzer/dart/constant/value.dart';
-import 'package:build/build.dart';
 import 'package:build_test/build_test.dart';
-import 'package:build_test/builder.dart';
 import 'package:openapi_generator/src/models/generator_arguments.dart';
-import 'package:openapi_generator/src/openapi_generator_runner.dart';
+import 'package:openapi_generator/src/models/output_message.dart';
+import 'package:openapi_generator/src/utils.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 import 'package:source_gen/source_gen.dart' as src_gen;
 import 'package:test/test.dart';
 
-import 'determine_flutter_projet_status_test.dart';
-
 void main() {
   group('GeneratorArguments', () {
     group('defaults', () {
-      final annos = src_gen.ConstantReader(null);
-      final args = GeneratorArguments(annotations: annos);
+      late GeneratorArguments args;
+      setUpAll(() =>
+          args = GeneratorArguments(annotations: src_gen.ConstantReader(null)));
       test('alwaysRun', () => expect(args.alwaysRun, isFalse));
       test('useNextGen', () => expect(args.useNextGen, isFalse));
       test('cachePath', () => expect(args.cachePath, defaultCachedPath));
@@ -26,7 +23,26 @@ void main() {
       test('shouldFetchDependencies',
           () => expect(args.shouldFetchDependencies, isTrue));
       test('skipValidation', () => expect(args.skipValidation, isFalse));
-      test('inputFile', () => expect(args.inputFile, isEmpty));
+      group('inputFile', () {
+        test('errors when no spec is found', () async {
+          await args.inputFileOrFetch.onError((e, __) {
+            expect((e as OutputMessage).message,
+                'No spec file found. One must be present in the project or hosted remotely.');
+            return '';
+          });
+        });
+
+        test('updates path when one is found', () async {
+          final f = File(
+              Directory.current.path + '${Platform.pathSeparator}openapi.json');
+          f.createSync();
+          f.writeAsStringSync('');
+          final p = await args.inputFileOrFetch;
+          expect(p, f.path);
+          expect(await args.inputFileOrFetch, f.path);
+          f.deleteSync();
+        });
+      });
       test('templateDirectory', () => expect(args.templateDirectory, isEmpty));
       test('generator', () => expect(args.generator, Generator.dart));
       test('wrapper', () => expect(args.wrapper, Wrapper.none));
@@ -34,47 +50,46 @@ void main() {
       test('typeMappings', () => expect(args.typeMappings, isEmpty));
       test('reservedWordsMappings',
           () => expect(args.reservedWordsMappings, isEmpty));
-      test('additionalProperties',
-          () => expect(args.additionalProperties, isEmpty));
       test('inlineSchemaNameMappings',
           () => expect(args.inlineSchemaNameMappings, isEmpty));
-      test('inlineSchemaOptions',
-          () => expect(args.inlineSchemaOptions, isEmpty));
 
       test('generatorName', () => expect(args.generatorName, 'dart'));
       test('shouldGenerateSources',
           () => expect(args.shouldGenerateSources, isFalse));
-      test(
-          'jarArgs',
-          () => expect(args.jarArgs, [
-                'generate',
-                '-o ${Directory.current.path}',
-                '-g ${args.generatorName}'
-              ]));
+      test('isRemote', () => expect(args.isRemote, isFalse));
+      test('jarArgs', () async {
+        final f = File(
+            Directory.current.path + '${Platform.pathSeparator}openapi.json');
+        f.createSync();
+        f.writeAsStringSync('');
+        expect(await args.jarArgs, [
+          'generate',
+          '-o ${Directory.current.path}',
+          '-i ${await args.inputFileOrFetch}',
+          '-g ${args.generatorName}'
+        ]);
+        f.deleteSync();
+      });
     });
     group('accepts overrides', () {
       final annos = src_gen.ConstantReader(null);
       final args = GeneratorArguments(
-        annotations: annos,
-        alwaysRun: true,
-        useNextGen: true,
-        cachePath: 'test',
-        outputDirectory: 'path',
-        templateDirectory: 'template',
-        runSourceGen: false,
-        wrapper: Wrapper.fvm,
-        generator: Generator.dioAlt,
-        skipValidation: true,
-        fetchDependencies: false,
-        inputSpecFile: 'test.yaml',
-        importMapping: {'key': 'value'},
-        typeMapping: {'package': 'type'},
-        reservedWordsMapping: {'const': 'final'},
-        inlineSchemaNameMapping: {'L': 'R'},
-        // TODO: How do I test this?
-        // additionalProperties: {'allowNull': false as DartObject},
-        // inlineSchemaOptions: {'allowNull': false as DartObject},
-      );
+          annotations: annos,
+          alwaysRun: true,
+          useNextGen: true,
+          cachePath: 'test',
+          outputDirectory: 'path',
+          templateDirectory: 'template',
+          runSourceGen: false,
+          generator: Generator.dioAlt,
+          skipValidation: true,
+          fetchDependencies: false,
+          inputSpecFile: 'test.yaml',
+          importMapping: {'key': 'value'},
+          typeMapping: {'package': 'type'},
+          reservedWordsMapping: {'const': 'final'},
+          inlineSchemaNameMapping: {'L': 'R'},
+          additionalProperties: AdditionalProperties(wrapper: Wrapper.fvm));
       test('alwaysRun', () => expect(args.alwaysRun, isTrue));
       test('useNextGen', () => expect(args.useNextGen, isTrue));
       test('cachePath', () => expect(args.cachePath, 'test'));
@@ -83,7 +98,8 @@ void main() {
       test('shouldFetchDependencies',
           () => expect(args.shouldFetchDependencies, isFalse));
       test('skipValidation', () => expect(args.skipValidation, isTrue));
-      test('inputFile', () => expect(args.inputFile, 'test.yaml'));
+      test('inputFile',
+          () async => expect(await args.inputFileOrFetch, 'test.yaml'));
       test('templateDirectory',
           () => expect(args.templateDirectory, 'template'));
       test('generator', () => expect(args.generator, Generator.dioAlt));
@@ -96,110 +112,68 @@ void main() {
           () => expect(args.reservedWordsMappings, {'const': 'final'}));
       test('inlineSchemaNameMappings',
           () => expect(args.inlineSchemaNameMappings, {'L': 'R'}));
-      test(
-          'additionalProperties',
-          () => expect(
-              args.additionalProperties, {'allowNull': false as DartObject}),
-          skip: true);
-      test(
-          'inlineSchemaOptions',
-          () => expect(
-              args.inlineSchemaOptions, {'allowNull': false as DartObject}),
-          skip: true);
-
+      test('isRemote', () => expect(args.isRemote, isFalse));
       test('generatorName', () => expect(args.generatorName, 'dart2-api'));
       test('shouldGenerateSources',
           () => expect(args.shouldGenerateSources, isTrue));
       test(
           'jarArgs',
-          () => expect(args.jarArgs, [
+          () async => expect(await args.jarArgs, [
                 'generate',
-                '-o path',
-                '-i test.yaml',
-                '-t template',
-                '-g dart2-api',
+                '-o ${args.outputDirectory}',
+                '-i ${await args.inputFileOrFetch}',
+                '-t ${args.templateDirectory}',
+                '-g ${args.generatorName}',
                 '--skip-validate-spec',
-                '--reserved-words-mappings=const=final',
-                '--inline-schema-name-mappings=L=R',
-                '--import-mappings=key=value',
-                '--type-mappings=package=type'
+                '--reserved-words-mappings=${args.reservedWordsMappings.entries.fold('', foldStringMap)}',
+                '--inline-schema-name-mappings=${args.inlineSchemaNameMappings.entries.fold('', foldStringMap)}',
+                '--import-mappings=${args.importMappings.entries.fold('', foldStringMap)}',
+                '--type-mappings=${args.typeMappings.entries.fold('', foldStringMap)}'
               ]));
     });
     test('uses config', () async {
-      final builder = await generateArgumentBuilder('''
-        @Openapi(
-  inputSpecFile: './openapi.test.yaml',
-  generatorName: Generator.dart,
-  useNextGen: true,
-  cachePath: './',
-  typeMappings: {'key': 'value'},
-  templateDirectory: 'template',
-  alwaysRun: true,
-  outputDirectory: 'output',
-  runSourceGenOnOutput: true,
-  apiPackage: 'test',
-  skipSpecValidation: false,
-  importMappings: {'package': 'test'},
-  reservedWordsMappings: {'const': 'final'},
-  additionalProperties: AdditionalProperties(wrapper: Wrapper.fvm),
-  inlineSchemaNameMappings: {'200resp': 'OkResp'},
-  overwriteExistingFiles: true,
-)
-        ''');
-      final args = GeneratorArguments(annotations: annos);
-      expect(args.alwaysRun, isFalse);
-      expect(args.useNextGen, isFalse);
-      expect(args.cachePath, defaultCachedPath);
-      expect(args.outputDirectory, Directory.current.path);
+      final config = File(
+              '${Directory.current.path}${Platform.pathSeparator}test${Platform.pathSeparator}specs${Platform.pathSeparator}test_config.dart')
+          .readAsStringSync();
+      final annotations = (await resolveSource(
+              config,
+              (resolver) async =>
+                  (await resolver.findLibraryByName('test_lib'))!))
+          .getClass('TestClassConfig')!
+          .metadata
+          .map((e) => src_gen.ConstantReader(e.computeConstantValue()!))
+          .first;
+      final args = GeneratorArguments(annotations: annotations);
+      expect(args.alwaysRun, isTrue);
+      expect(args.useNextGen, isTrue);
+      expect(args.cachePath, './');
+      expect(args.outputDirectory, 'output');
       expect(args.runSourceGen, isTrue);
       expect(args.shouldFetchDependencies, isTrue);
       expect(args.skipValidation, isFalse);
-      expect(args.inputFile, isEmpty);
-      expect(args.templateDirectory, isEmpty);
-      expect(args.generator, Generator.dart);
-      expect(args.wrapper, Wrapper.none);
-      expect(args.importMappings, isEmpty);
-      expect(args.typeMappings, isEmpty);
-      expect(args.reservedWordsMappings, isEmpty);
-      expect(args.additionalProperties, isEmpty);
-      expect(args.inlineSchemaNameMappings, isEmpty);
-      expect(args.inlineSchemaOptions, isEmpty);
+      expect(await args.inputFileOrFetch, './openapi.test.yaml');
+      expect(args.templateDirectory, 'template');
+      expect(args.generator, Generator.dio);
+      expect(args.wrapper, Wrapper.fvm);
+      expect(args.importMappings, {'package': 'test'});
+      expect(args.typeMappings, {'key': 'value'});
+      expect(args.reservedWordsMappings, {'const': 'final'});
+      expect(args.inlineSchemaNameMappings, {'200resp': 'OkResp'});
 
-      expect(args.generatorName, 'dart');
-      expect(args.shouldGenerateSources, isFalse);
-      expect(args.jarArgs, [
+      expect(args.isRemote, isFalse);
+      expect(args.generatorName, 'dart-dio');
+      expect(args.shouldGenerateSources, isTrue);
+      expect(await args.jarArgs, [
         'generate',
-        '-o ${Directory.current.path}',
-        '-g ${args.generatorName}'
+        '-o ${args.outputDirectory}',
+        '-i ${await args.inputFileOrFetch}',
+        '-t ${args.templateDirectory}',
+        '-g ${args.generatorName}',
+        '--reserved-words-mappings=${args.reservedWordsMappings.entries.fold('', foldStringMap)}',
+        '--inline-schema-name-mappings=${args.inlineSchemaNameMappings.entries.fold('', foldStringMap)}',
+        '--import-mappings=${args.importMappings.entries.fold('', foldStringMap)}',
+        '--type-mappings=${args.typeMappings.entries.fold('', foldStringMap)}'
       ]);
     });
   });
-}
-
-Future<src_gen.ConstantReader> generateConstantReader(String source) async {
-  final spec = File(
-          '${Directory.current.path}${Platform.pathSeparator}test${Platform.pathSeparator}specs${Platform.pathSeparator}openapi.test.yaml')
-      .readAsStringSync();
-  var srcs = <String, String>{
-    'openapi_generator_annotations|lib/src/openapi_generator_annotations_base.dart':
-        File('../openapi-generator-annotations/lib/src/openapi_generator_annotations_base.dart')
-            .readAsStringSync(),
-    'openapi_generator|lib/myapp.dart': '''
-    import 'package:openapi_generator_annotations/src/openapi_generator_annotations_base.dart';
-    $source
-    class MyApp {
-    }  
-    ''',
-    'openapi_generator|openapi-spec.yaml': spec
-  };
-
-  final inputAssetId = AssetId(
-      'openapi_generator|generator_arguments', basePath + 'test_config.dart');
-
-  var writer = InMemoryAssetWriter();
-
-  src_gen.ConstantReader
-
-
-  return constantReader;
 }

@@ -54,7 +54,6 @@ class Openapi {
   /// --reserved-words-mappings
   final Map<String, String>? reservedWordsMappings;
 
-
   /// Tells openapi-generator to always run during the build process
   /// if set to false (the default), openapi-generator will skip processing if the [outputDirectory] already exists
   final bool? alwaysRun;
@@ -105,27 +104,29 @@ class Openapi {
   /// For use with [useNextGen].
   final String? cachePath;
 
-  const Openapi(
-      {this.additionalProperties,
-      @deprecated
-      this.overwriteExistingFiles,
-      this.skipSpecValidation = false,
-      required this.inputSpecFile,
-      this.templateDirectory,
-      required this.generatorName,
-      this.outputDirectory,
-      this.typeMappings,
-      this.importMappings,
-      this.reservedWordsMappings,
-      this.inlineSchemaNameMappings,
-      // this.inlineSchemaOptions,
-      this.apiPackage,
-      this.fetchDependencies = true,
-      this.runSourceGenOnOutput = true,
-      @deprecated
-      this.alwaysRun = false,
-      this.cachePath,
-      this.useNextGen = false,}): assert(cachePath != null && !useNextGen, 'useNextGen should be set when providing cachePath');
+  const Openapi({
+    this.additionalProperties,
+    @deprecated this.overwriteExistingFiles,
+    this.skipSpecValidation = false,
+    required this.inputSpecFile,
+    this.templateDirectory,
+    required this.generatorName,
+    this.outputDirectory,
+    this.typeMappings,
+    this.importMappings,
+    this.reservedWordsMappings,
+    this.inlineSchemaNameMappings,
+    // this.inlineSchemaOptions,
+    this.apiPackage,
+    this.fetchDependencies = true,
+    this.runSourceGenOnOutput = true,
+    @deprecated this.alwaysRun = false,
+    this.cachePath,
+    this.useNextGen = false,
+  });
+  // TODO: Enable assertion error
+  // : assert(cachePath != null && !useNextGen,
+  //       'useNextGen should be set when providing cachePath');
 }
 
 class AdditionalProperties {
@@ -186,22 +187,43 @@ class AdditionalProperties {
   /// an error if the discriminator is missing.
   final bool legacyDiscriminatorBehavior;
 
-  const AdditionalProperties(
-      {this.allowUnicodeIdentifiers = false,
-      this.ensureUniqueParams = true,
-      this.useEnumExtension = false,
-      this.prependFormOrBodyParameters = false,
-      this.pubAuthor,
-      this.pubAuthorEmail,
-      this.pubDescription,
-      this.pubHomepage,
-      this.legacyDiscriminatorBehavior = true,
-      this.pubName,
-      this.pubVersion,
-      this.sortModelPropertiesByRequiredFlag = true,
-      this.sortParamsByRequiredFlag = true,
-      this.sourceFolder,
-      this.wrapper = Wrapper.none});
+  const AdditionalProperties({
+    this.allowUnicodeIdentifiers = false,
+    this.ensureUniqueParams = true,
+    this.useEnumExtension = false,
+    this.prependFormOrBodyParameters = false,
+    this.pubAuthor,
+    this.pubAuthorEmail,
+    this.pubDescription,
+    this.pubHomepage,
+    this.legacyDiscriminatorBehavior = true,
+    this.pubName,
+    this.pubVersion,
+    this.sortModelPropertiesByRequiredFlag = true,
+    this.sortParamsByRequiredFlag = true,
+    this.sourceFolder,
+    this.wrapper = Wrapper.none,
+  });
+
+  /// Produces an [AdditionalProperties] object from the [ConstantReader] [map].
+  AdditionalProperties.fromMap(Map<String, dynamic> map)
+      : this(
+          allowUnicodeIdentifiers: map['allowUnicodeIdentifiers'] ?? false,
+          ensureUniqueParams: map['ensureUniqueParams'] ?? true,
+          useEnumExtension: map['useEnumExtension'] ?? true,
+          prependFormOrBodyParameters: map['prependFormOrBodyParameters'] ?? false,
+          pubAuthor: map['pubAuthor'],
+          pubAuthorEmail: map['pubAuthorEmail'],
+          pubDescription: map['pubDescription'],
+          pubHomepage: map['pubHomepage'],
+          pubName: map['pubName'],
+          pubVersion: map['pubVersion'],
+          legacyDiscriminatorBehavior: map['legacyDiscriminatorBehavior'] ?? true,
+          sortModelPropertiesByRequiredFlag: map['sortModelPropertiesByRequiredFlag'] ?? true,
+          sortParamsByRequiredFlag: map['sortParamsByRequiredFlag'] ?? true,
+          sourceFolder: map['sourceFolder'],
+          wrapper:  EnumTransformer.wrapper(map['wrapper']),
+        );
 }
 
 /// Allows you to customize how inline schemas are handled or named
@@ -216,10 +238,10 @@ class InlineSchemaOptions {
   final bool skipSchemaReuse;
 
   ///	will restore the 6.x (or below) behaviour to refactor allOf inline schemas
-  ///into $ref. (v7.0.0 will skip the refactoring of these allOf inline schmeas by default)
+  ///into $ref. (v7.0.0 will skip the refactoring of these allOf inline schemas by default)
   final bool refactorAllofInlineSchemas;
 
-  /// 	Email address of the author in generated pubspec
+  /// Email address of the author in generated pubspec
   final bool resolveInlineEnums;
 
   const InlineSchemaOptions(
@@ -228,6 +250,16 @@ class InlineSchemaOptions {
       this.skipSchemaReuse = true,
       this.refactorAllofInlineSchemas = true,
       this.resolveInlineEnums = true});
+
+  /// Produces an [InlineSchemaOptions] that is easily consumable from the [ConstantReader].
+  InlineSchemaOptions.fromMap(Map<String, dynamic> map)
+      : this(
+          arrayItemSuffix: map['arrayItemSuffix'],
+          mapItemSuffix: map['mapItemSuffix'],
+          skipSchemaReuse: map['skipSchemaReuse'] ?? true,
+          refactorAllofInlineSchemas: map['refactorAllofInlineSchemas'] ?? true,
+          resolveInlineEnums: map['resolveInlineEnums'] ?? true,
+        );
 }
 
 class DioProperties extends AdditionalProperties {
@@ -270,6 +302,12 @@ class DioProperties extends AdditionalProperties {
             sortParamsByRequiredFlag: sortParamsByRequiredFlag,
             sourceFolder: sourceFolder,
             useEnumExtension: useEnumExtension);
+
+  DioProperties.fromMap(Map<String, dynamic> map)
+      : dateLibrary = map['dateLibrary'],
+        nullableFields = map['nullableFields'] as bool?,
+        serializationLibrary = map['serializationLibrary'],
+        super.fromMap(map);
 }
 
 class DioAltProperties extends AdditionalProperties {
@@ -326,6 +364,14 @@ class DioAltProperties extends AdditionalProperties {
             sortParamsByRequiredFlag: sortParamsByRequiredFlag,
             sourceFolder: sourceFolder,
             useEnumExtension: useEnumExtension);
+
+  DioAltProperties.fromMap(Map<String, dynamic> map)
+      : nullSafe = map['nullSafe'] as bool?,
+        nullSafeArrayDefault = map['nullSafeArrayDefault'] as bool?,
+        listAnyOf = map['listAnyOf'] as bool?,
+        pubspecDependencies = map['pubspecDependencies'],
+        pubspecDevDependencies = map['pubspecDevDependencies'],
+        super.fromMap(map);
 }
 
 enum DioDateLibrary {
@@ -340,6 +386,7 @@ enum DioDateLibrary {
 enum DioSerializationLibrary { built_value, json_serializable }
 
 enum SerializationFormat { JSON, PROTO }
+
 
 /// The name of the generator to use
 enum Generator {
@@ -359,6 +406,40 @@ enum Generator {
   ///
   /// You can read more about it here https://github.com/dart-ogurets/dart-openapi-maven
   dioAlt,
+}
+
+// TODO: Upon release of NextGen as default migrate to sdk 2.17 for enhanced enums
+//  remove this work around.
+/// Transforms the enums used with the [Openapi] annotation.
+class EnumTransformer {
+  /// Converts the given [name] to the matching [Generator] name.
+  ///
+  /// Defaults to [Generator.dart];
+  static Generator generator(String? name) {
+    print(name);
+    switch(name) {
+      case 'dio':
+        return Generator.dio;
+      case 'dioAlt':
+        return Generator.dioAlt;
+      default:
+        return Generator.dart;
+    }
+  }
+
+  /// Converts the given [name] to the matching [Wrapper] name.
+  ///
+  /// Defaults to [Wrapper.none];
+  static Wrapper wrapper(String? name) {
+    switch(name) {
+      case 'fvm':
+        return Wrapper.fvm;
+      case 'flutterw':
+        return Wrapper.flutterw;
+      default:
+        return Wrapper.none;
+    }
+  }
 }
 
 enum Wrapper { fvm, flutterw, none }

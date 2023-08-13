@@ -53,5 +53,8 @@ String convertToPropertyKey(String key) {
 }
 
 /// A utility function to fold a [Map<String,DartObject>] into a compatible format for the OpenAPI compiler.
-String foldNamedArgsMap(String prev, MapEntry<String, DartObject> entry) =>
-    '${prev.isEmpty ? '' : ','}${convertToPropertyKey(entry.key)}=${convertToPropertyValue(entry.value)}';
+String foldNamedArgsMap(String prev, MapEntry<String, DartObject?> entry) =>
+    '${prev.isEmpty ? '' : ','}${convertToPropertyKey(entry.key)}=${convertToPropertyValue(entry.value!)}';
+
+String foldStringMap(String prev, MapEntry<String, dynamic> curr) =>
+    '${prev.isEmpty ? '' : ','}${curr.key}=${curr.value}';

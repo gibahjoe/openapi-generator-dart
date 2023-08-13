@@ -7,7 +7,7 @@ import 'package:source_gen/source_gen.dart';
 
 final String pkgName = 'pkg';
 
-final Builder builder = LibraryBuilder(OpenapiGenerator(),
+final Builder builder = LibraryBuilder(OpenapiGenerator(testMode: true),
     generatedExtension: '.openapi_generator');
 
 Future<String> generate(String source) async {

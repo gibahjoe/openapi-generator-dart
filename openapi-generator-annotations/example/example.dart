@@ -7,6 +7,5 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
     generatorName: Generator.dio,
     outputDirectory: 'api/petstore_api',
     // useNextGen: true,
-    cachePath: 'something'
-)
+    cachePath: 'something')
 class Example extends OpenapiGeneratorConfig {}
