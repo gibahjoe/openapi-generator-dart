@@ -28,6 +28,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         log: log,
         communication: OutputMessage(
             message: [
+          '',
           ' - :::::::::::::::::::::::::::::::::::::::::::',
           ' - ::      Openapi generator for dart       ::',
           ' - :::::::::::::::::::::::::::::::::::::::::::',
@@ -114,9 +115,11 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       {required FutureOr<List<String>> arguments}) async {
     final args = await arguments;
     logOutputMessage(
-        log: log,
-        communication:
-            OutputMessage(message: 'OpenapiGenerator :: [${args.join(' ')}]'));
+      log: log,
+      communication: OutputMessage(
+        message: 'OpenapiGenerator :: [ ${args.join(' ')} ]',
+      ),
+    );
 
     var binPath = (await Isolate.resolvePackageUri(
             Uri.parse('package:openapi_generator_cli/openapi-generator.jar')))!
@@ -125,30 +128,31 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     // Include java environment variables in openApiCliCommand
     var javaOpts = Platform.environment['JAVA_OPTS'] ?? '';
 
-    return await Process.run('java', [
+    final result = await Process.run('java', [
       if (javaOpts.isNotEmpty) javaOpts,
       '-jar',
       "${"$binPath"}",
       ...args,
-    ]).then(
-      (value) => logOutputMessage(
+    ]);
+
+    if (result.exitCode != 0) {
+      return Future.error(
+        OutputMessage(
+          message: ' - :: Codegen Failed. Generator output: ::',
+          level: Level.SEVERE,
+          additionalContext: result.stderr,
+          stackTrace: StackTrace.current,
+        ),
+      );
+    } else {
+      logOutputMessage(
         log: log,
         communication: OutputMessage(
-          message: [value.stdout, ' - :: Codegen completed successfully. ::']
+          message: [result.stdout, ' - :: Codegen completed successfully. ::']
               .join('\n'),
         ),
-      ),
-      onError: (e, st) => Future.error(
-        Future.error(
-          OutputMessage(
-            message: ' - :: Codegen Failed. ::',
-            level: Level.SEVERE,
-            additionalContext: e,
-            stackTrace: st,
-          ),
-        ),
-      ),
-    );
+      );
+    }
   }
 
   /// Next-gen of the generation.
@@ -292,27 +296,31 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       ),
     );
 
-    return await Process.run(command.executable, command.arguments,
-            runInShell: Platform.isWindows,
-            workingDirectory: args.outputDirectory)
-        .then(
-      (v) => logOutputMessage(
+    final results = await Process.run(
+      command.executable,
+      command.arguments,
+      runInShell: Platform.isWindows,
+      workingDirectory: args.outputDirectory,
+    );
+
+    if (results.exitCode != 0) {
+      return Future.error(
+        OutputMessage(
+          message:
+              ' - :: Failed to generate source code. Build Command output: ::',
+          level: Level.SEVERE,
+          additionalContext: results.stderr,
+          stackTrace: StackTrace.current,
+        ),
+      );
+    } else {
+      logOutputMessage(
         log: log,
         communication: OutputMessage(
           message: ' - :: Codegen completed successfully. ::',
         ),
-      ),
-      onError: (e, st) {
-        return Future.error(
-          OutputMessage(
-            message: ' - :: Failed to generate source code. ::',
-            level: Level.SEVERE,
-            additionalContext: e,
-            stackTrace: st,
-          ),
-        );
-      },
-    );
+      );
+    }
   }
 
   /// Conditionally fetches the dependencies in the newly generate library.
@@ -339,25 +347,29 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         ),
       );
 
-      return await Process.run(command.executable, command.arguments,
-              runInShell: Platform.isWindows,
-              workingDirectory: args.outputDirectory)
-          .then(
-        (v) => logOutputMessage(
+      final result = await Process.run(command.executable, command.arguments,
+          runInShell: Platform.isWindows,
+          workingDirectory: args.outputDirectory);
+      if (result.exitCode != 0) {
+        return Future.error(
+          OutputMessage(
+            message: ' - :: Install within generated sources failed. ::',
+            level: Level.SEVERE,
+            additionalContext: result.stderr,
+            stackTrace: StackTrace.current,
+          ),
+        );
+      } else {
+        logOutputMessage(
           log: log,
           communication: OutputMessage(
-            message: [v.stdout, ' - :: Install completed successfully. ::']
-                .join('\n'),
+            message: [
+              result.stdout,
+              ' - :: Install completed successfully. ::',
+            ].join('\n'),
           ),
-        ),
-        onError: (e, st) => Future.error(
-          OutputMessage(
-              message: ' - :: Install within generated sources failed. ::',
-              level: Level.SEVERE,
-              additionalContext: e,
-              stackTrace: st),
-        ),
-      );
+        );
+      }
     }
   }
 
