@@ -44,5 +44,5 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-api
+api/petstore_api/**
 !api/petstore_api/pubspec.yaml

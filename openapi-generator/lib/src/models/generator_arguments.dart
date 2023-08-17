@@ -4,9 +4,10 @@ import 'dart:io';
 import 'package:logging/logging.dart';
 import 'package:openapi_generator/src/extensions/type_methods.dart';
 import 'package:openapi_generator/src/models/output_message.dart';
-import 'package:openapi_generator/src/utils.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 import 'package:source_gen/source_gen.dart' as src_gen;
+
+import '../utils.dart';
 
 /// The default storage location of the cached copy of the specification.
 ///
@@ -222,10 +223,10 @@ class GeneratorArguments {
   /// The arguments to be passed to generator jar file.
   FutureOr<List<String>> get jarArgs async => [
         'generate',
-        if (outputDirectory.isNotEmpty) '-o $outputDirectory',
-        '-i ${await inputFileOrFetch}',
-        if (templateDirectory.isNotEmpty) '-t $templateDirectory',
-        '-g $generatorName',
+        if (outputDirectory.isNotEmpty) '-o=$outputDirectory',
+        '-i=${await inputFileOrFetch}',
+        if (templateDirectory.isNotEmpty) '-t=$templateDirectory',
+        '-g=$generatorName',
         if (skipValidation) '--skip-validate-spec',
         if (reservedWordsMappings.isNotEmpty)
           '--reserved-words-mappings=${reservedWordsMappings.entries.fold('', foldStringMap())}',

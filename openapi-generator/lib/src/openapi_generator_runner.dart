@@ -128,12 +128,17 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     // Include java environment variables in openApiCliCommand
     var javaOpts = Platform.environment['JAVA_OPTS'] ?? '';
 
-    final result = await Process.run('java', [
-      if (javaOpts.isNotEmpty) javaOpts,
-      '-jar',
-      "${"$binPath"}",
-      ...args,
-    ]);
+    final result = await Process.run(
+      'java',
+      [
+        if (javaOpts.isNotEmpty) javaOpts,
+        '-jar',
+        binPath,
+        ...args,
+      ],
+      workingDirectory: Directory.current.path,
+      runInShell: Platform.isWindows,
+    );
 
     if (result.exitCode != 0) {
       return Future.error(
@@ -148,8 +153,10 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       logOutputMessage(
         log: log,
         communication: OutputMessage(
-          message: [result.stdout, ' - :: Codegen completed successfully. ::']
-              .join('\n'),
+          message: [
+            // result.stdout,
+            ' - :: Codegen completed successfully. ::',
+          ].join('\n'),
         ),
       );
     }
