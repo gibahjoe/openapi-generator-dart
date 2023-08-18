@@ -10,3 +10,4 @@ environment:
 dev_dependencies:
   test:
   source_gen_test: ^1.0.6
+  lint:

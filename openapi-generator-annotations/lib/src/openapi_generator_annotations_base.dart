@@ -342,7 +342,9 @@ class DioProperties extends AdditionalProperties {
 
   DioProperties.fromMap(Map<String, dynamic> map)
       : dateLibrary = EnumTransformer.dioDateLibrary(map['dateLibrary']),
-        nullableFields = bool.tryParse(map['nullableFields']),
+        nullableFields = map['nullableFields'] != null
+            ? map['nullableFields'] == 'true'
+            : null,
         serializationLibrary = EnumTransformer.dioSerializationLibrary(
             map['serializationLibrary']),
         super.fromMap(map);
@@ -416,9 +418,13 @@ class DioAltProperties extends AdditionalProperties {
             wrapper: wrapper);
 
   DioAltProperties.fromMap(Map<String, dynamic> map)
-      : nullSafe = bool.tryParse(map['nullSafe']) ,
-        nullSafeArrayDefault = bool.tryParse(map['nullSafeArrayDefault'] ),
-        listAnyOf = bool.tryParse(map['listAnyOf']),
+      : nullSafe =
+            map['nullSafe'] != null ? map['nullableFields'] == 'true' : null,
+        nullSafeArrayDefault = map['nullSafeArrayDefault'] != null
+            ? map['nullSafeArrayDefault'] == 'true'
+            : null,
+        listAnyOf =
+            map['listAnyOf'] != null ? map['listAnyOf'] == 'true' : null,
         pubspecDependencies = map['pubspecDependencies'],
         pubspecDevDependencies = map['pubspecDevDependencies'],
         super.fromMap(map);
