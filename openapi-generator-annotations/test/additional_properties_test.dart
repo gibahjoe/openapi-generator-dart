@@ -175,7 +175,7 @@ void main() {
         'sortParamsByRequiredFlag': props.sortParamsByRequiredFlag,
         'sourceFolder': props.sourceFolder,
         'wrapper': 'none',
-        'nullableFields': props.nullableFields,
+        'nullableFields': '${props.nullableFields}',
         'dateLibrary': 'core',
         'serializationLibrary': 'json_serializable',
       };
@@ -289,9 +289,9 @@ void main() {
         'sortParamsByRequiredFlag': props.sortParamsByRequiredFlag,
         'sourceFolder': props.sourceFolder,
         'wrapper': 'none',
-        'nullSafe': props.nullSafe,
-        'nullSafeArrayDefault': props.nullSafeArrayDefault,
-        'listAnyOf': props.listAnyOf,
+        'nullSafe': '${props.nullSafe}',
+        'nullSafeArrayDefault': '${props.nullSafeArrayDefault}',
+        'listAnyOf': '${props.listAnyOf}',
         'pubspecDevDependencies': props.pubspecDevDependencies,
         'pubspecDependencies': props.pubspecDependencies,
       };

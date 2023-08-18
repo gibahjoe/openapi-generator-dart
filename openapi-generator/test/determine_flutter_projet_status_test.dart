@@ -23,22 +23,20 @@ void main() {
         test('pubspec is empty', () async {
           // TODO: There is likely a better way to handle this.
           try {
-            final isFlutterProjecct =
-                await checkPubspecAndWrapperForFlutterSupport(
-                    providedPubspecPath: '${basePath}empty_pubspec.yaml');
+            await checkPubspecAndWrapperForFlutterSupport(
+                providedPubspecPath: '${basePath}empty_pubspec.yaml');
             fail('Should\'ve thrown invalid error');
-          } catch (e, st) {
+          } catch (e, _) {
             expect(e, 'Invalid pubspec.yaml');
           }
         });
         test('pubspec doesn\'t exist', () async {
           final path = '${basePath}doesnotexist.yaml';
           try {
-            final isFlutterProjecct =
-                await checkPubspecAndWrapperForFlutterSupport(
-                    providedPubspecPath: path);
+            await checkPubspecAndWrapperForFlutterSupport(
+                providedPubspecPath: path);
             fail('Should\'ve thrown missing pubspec error');
-          } catch (e, st) {
+          } catch (e, _) {
             expect(e, 'Pubspec doesn\'t exist at path: $path');
           }
         });

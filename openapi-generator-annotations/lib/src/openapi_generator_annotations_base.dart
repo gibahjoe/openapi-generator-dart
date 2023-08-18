@@ -418,8 +418,7 @@ class DioAltProperties extends AdditionalProperties {
             wrapper: wrapper);
 
   DioAltProperties.fromMap(Map<String, dynamic> map)
-      : nullSafe =
-            map['nullSafe'] != null ? map['nullableFields'] == 'true' : null,
+      : nullSafe = map['nullSafe'] != null ? map['nullSafe'] == 'true' : null,
         nullSafeArrayDefault = map['nullSafeArrayDefault'] != null
             ? map['nullSafeArrayDefault'] == 'true'
             : null,
