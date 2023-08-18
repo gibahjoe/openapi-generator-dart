@@ -23,6 +23,7 @@ void main() {
       expect(props.cachePath, isNull);
       expect(props.useNextGen, false);
       expect(props.projectPubspecPath, isNull);
+      expect(props.debugLogging, isFalse);
     });
     group('NextGen', () {
       test('Sets cachePath', () {
@@ -43,6 +44,13 @@ void main() {
             generatorName: Generator.dart,
             projectPubspecPath: 'test');
         expect(api.projectPubspecPath, 'test');
+      });
+      test('Set debug logging', () {
+        final api = Openapi(
+            inputSpecFile: '',
+            generatorName: Generator.dart,
+            debugLogging: true);
+        expect(api.debugLogging, isTrue);
       });
     });
   });

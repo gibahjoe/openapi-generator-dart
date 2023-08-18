@@ -74,9 +74,9 @@ void main() {
         f.writeAsStringSync('');
         expect(await args.jarArgs, [
           'generate',
-          '-o ${Directory.current.path}',
-          '-i ${await args.inputFileOrFetch}',
-          '-g ${args.generatorName}',
+          '-o=${Directory.current.path}',
+          '-i=${await args.inputFileOrFetch}',
+          '-g=${args.generatorName}',
         ]);
         f.deleteSync();
       });
@@ -135,10 +135,10 @@ void main() {
           await args.jarArgs,
           [
             'generate',
-            '-o ${args.outputDirectory}',
-            '-i ${await args.inputFileOrFetch}',
-            '-t ${args.templateDirectory}',
-            '-g ${args.generatorName}',
+            '-o=${args.outputDirectory}',
+            '-i=${await args.inputFileOrFetch}',
+            '-t=${args.templateDirectory}',
+            '-g=${args.generatorName}',
             '--skip-validate-spec',
             '--reserved-words-mappings=${args.reservedWordsMappings.entries.fold('', foldStringMap())}',
             '--inline-schema-name-mappings=${args.inlineSchemaNameMappings.entries.fold('', foldStringMap())}',
@@ -164,8 +164,8 @@ void main() {
       final args = GeneratorArguments(annotations: annotations);
       expect(args.alwaysRun, isTrue);
       expect(args.useNextGen, isTrue);
-      expect(args.cachePath, './');
-      expect(args.outputDirectory, 'output');
+      expect(args.cachePath, './test/specs/output/cache.json');
+      expect(args.outputDirectory, './test/specs/output');
       expect(args.runSourceGen, isTrue);
       expect(args.shouldFetchDependencies, isTrue);
       expect(args.skipValidation, isFalse);
@@ -183,10 +183,10 @@ void main() {
       expect(args.shouldGenerateSources, isTrue);
       expect(await args.jarArgs, [
         'generate',
-        '-o ${args.outputDirectory}',
-        '-i ${await args.inputFileOrFetch}',
-        '-t ${args.templateDirectory}',
-        '-g ${args.generatorName}',
+        '-o=${args.outputDirectory}',
+        '-i=${await args.inputFileOrFetch}',
+        '-t=${args.templateDirectory}',
+        '-g=${args.generatorName}',
         '--reserved-words-mappings=${args.reservedWordsMappings.entries.fold('', foldStringMap())}',
         '--inline-schema-name-mappings=${args.inlineSchemaNameMappings.entries.fold('', foldStringMap())}',
         '--import-mappings=${args.importMappings.entries.fold('', foldStringMap())}',

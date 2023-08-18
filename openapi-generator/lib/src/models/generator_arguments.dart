@@ -44,6 +44,7 @@ class GeneratorArguments {
   ///
   /// The default location is: .dart_tool/openapi-generator-cache.json
   final String cachePath;
+  final bool isDebug;
 
   /// Use a custom pubspec file when generating.
   ///
@@ -125,6 +126,7 @@ class GeneratorArguments {
     bool useNextGen = false,
     String? cachePath,
     String? pubspecPath,
+    bool isDebug = false,
   })  : alwaysRun = annotations.readPropertyOrDefault('alwaysRun', alwaysRun),
         _inputFile =
             annotations.readPropertyOrDefault('inputSpecFile', inputSpecFile),
@@ -159,7 +161,8 @@ class GeneratorArguments {
         pubspecPath = annotations.readPropertyOrDefault<String>(
             'projectPubspecPath',
             pubspecPath ??
-                '${Directory.current.path}${Platform.pathSeparator}pubspec.yaml');
+                '${Directory.current.path}${Platform.pathSeparator}pubspec.yaml'),
+        isDebug = annotations.readPropertyOrDefault('debugLogging', isDebug);
 
   /// The stringified name of the [Generator].
   String get generatorName => generator == Generator.dart

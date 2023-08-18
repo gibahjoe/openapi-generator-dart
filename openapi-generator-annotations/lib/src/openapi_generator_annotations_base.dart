@@ -107,6 +107,9 @@ class Openapi {
   /// Use a custom pubspec when running the generator.
   final String? projectPubspecPath;
 
+  /// Include in depth logging output from run commands.
+  final bool debugLogging;
+
   const Openapi({
     this.additionalProperties,
     @deprecated this.overwriteExistingFiles,
@@ -127,6 +130,7 @@ class Openapi {
     this.cachePath,
     this.useNextGen = false,
     this.projectPubspecPath,
+    this.debugLogging = false,
   });
 }
 

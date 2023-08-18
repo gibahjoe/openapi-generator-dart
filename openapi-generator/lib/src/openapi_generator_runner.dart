@@ -25,14 +25,16 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   FutureOr<String> generateForAnnotatedElement(
       Element element, ConstantReader annotations, BuildStep buildStep) async {
     logOutputMessage(
-        log: log,
-        communication: OutputMessage(
-            message: [
+      log: log,
+      communication: OutputMessage(
+        message: [
           '',
           ' - :::::::::::::::::::::::::::::::::::::::::::',
           ' - ::      Openapi generator for dart       ::',
           ' - :::::::::::::::::::::::::::::::::::::::::::',
-        ].join('\n')));
+        ].join('\n'),
+      ),
+    );
 
     try {
       if (element is! ClassElement) {
@@ -85,17 +87,18 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         return generatorV2(args: args, baseCommand: baseCommand);
       }
 
-      await runOpenApiJar(arguments: args.jarArgs);
-      await generateSources(baseCommand: baseCommand, args: args);
+      await runOpenApiJar(arguments: args);
       await fetchDependencies(baseCommand: baseCommand, args: args);
+      await generateSources(baseCommand: baseCommand, args: args);
     } catch (e, st) {
       late OutputMessage communication;
       if (e is! OutputMessage) {
         communication = OutputMessage(
-            message: '- :: There was an error generating the spec. ::',
-            level: Level.SEVERE,
-            additionalContext: e,
-            stackTrace: st);
+          message: '- :: There was an error generating the spec. ::',
+          level: Level.SEVERE,
+          additionalContext: e,
+          stackTrace: st,
+        );
       } else {
         communication = e;
       }
@@ -103,17 +106,18 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       logOutputMessage(log: log, communication: communication);
     } finally {
       logOutputMessage(
-          log: log,
-          communication: OutputMessage(
-              message: ' - :::::::::::::::::::::::::::::::::::::::::::'));
+        log: log,
+        communication: OutputMessage(
+          message: ' - :::::::::::::::::::::::::::::::::::::::::::',
+        ),
+      );
     }
     return '';
   }
 
   /// Runs the OpenAPI compiler with the given [args].
-  Future<void> runOpenApiJar(
-      {required FutureOr<List<String>> arguments}) async {
-    final args = await arguments;
+  Future<void> runOpenApiJar({required GeneratorArguments arguments}) async {
+    final args = await arguments.jarArgs;
     logOutputMessage(
       log: log,
       communication: OutputMessage(
@@ -128,17 +132,22 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     // Include java environment variables in openApiCliCommand
     var javaOpts = Platform.environment['JAVA_OPTS'] ?? '';
 
-    final result = await Process.run(
-      'java',
-      [
-        if (javaOpts.isNotEmpty) javaOpts,
-        '-jar',
-        binPath,
-        ...args,
-      ],
-      workingDirectory: Directory.current.path,
-      runInShell: Platform.isWindows,
-    );
+    ProcessResult result;
+    if (!testMode) {
+      result = await Process.run(
+        'java',
+        [
+          if (javaOpts.isNotEmpty) javaOpts,
+          '-jar',
+          binPath,
+          ...args,
+        ],
+        workingDirectory: Directory.current.path,
+        runInShell: Platform.isWindows,
+      );
+    } else {
+      result = ProcessResult(999999, 0, null, null);
+    }
 
     if (result.exitCode != 0) {
       return Future.error(
@@ -154,7 +163,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         log: log,
         communication: OutputMessage(
           message: [
-            // result.stdout,
+            if (arguments.isDebug) result.stdout,
             ' - :: Codegen completed successfully. ::',
           ].join('\n'),
         ),
@@ -172,11 +181,13 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       {required GeneratorArguments args, required String baseCommand}) async {
     if (args.isRemote) {
       logOutputMessage(
-          log: log,
-          communication: OutputMessage(
-              message:
-                  ' - :: Using a remote specification, a cache will still be create but may be outdated. ::',
-              level: Level.WARNING));
+        log: log,
+        communication: OutputMessage(
+          message:
+              ' - :: Using a remote specification, a cache will still be create but may be outdated. ::',
+          level: Level.WARNING,
+        ),
+      );
     }
     try {
       if (await hasDiff(
@@ -184,23 +195,28 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         loadPath: await args.inputFileOrFetch,
       )) {
         logOutputMessage(
-            log: log,
-            communication: OutputMessage(
-                message: ' - :: Dirty Spec found. Running generation. ::'));
-        await runOpenApiJar(arguments: args.jarArgs);
-        await generateSources(baseCommand: baseCommand, args: args);
+          log: log,
+          communication: OutputMessage(
+            message: ' - :: Dirty Spec found. Running generation. ::',
+          ),
+        );
+        await runOpenApiJar(arguments: args);
         await fetchDependencies(baseCommand: baseCommand, args: args);
+        await generateSources(baseCommand: baseCommand, args: args);
         if (!args.hasLocalCache) {
           logOutputMessage(
-              log: log,
-              communication: OutputMessage(
-                  message: ' - :: No local cache found. Creating one. ::'));
+            log: log,
+            communication: OutputMessage(
+              message: ' - :: No local cache found. Creating one. ::',
+            ),
+          );
         } else {
           logOutputMessage(
-              log: log,
-              communication: OutputMessage(
-                  message:
-                      ' - :: Local cache found. Overwriting existing one. ::'));
+            log: log,
+            communication: OutputMessage(
+              message: ' - :: Local cache found. Overwriting existing one. ::',
+            ),
+          );
         }
         await cacheSpec(
             outputLocation: args.cachePath,
@@ -253,21 +269,25 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       logOutputMessage(
         log: log,
         communication: OutputMessage(
-            message: ' - :: Skipping source gen step due to flag being set. ::',
-            level: Level.WARNING),
+          message: ' - :: Skipping source gen step due to flag being set. ::',
+          level: Level.WARNING,
+        ),
       );
     } else if (!args.shouldGenerateSources) {
       logOutputMessage(
-          log: log,
-          communication: OutputMessage(
-              message:
-                  ' - :: Skipping source gen because generator does not need it. ::'));
+        log: log,
+        communication: OutputMessage(
+          message:
+              ' - :: Skipping source gen because generator does not need it. ::',
+        ),
+      );
     } else {
-      return runSourceGen(baseCommand: baseCommand, args: args).then(
+      return await runSourceGen(baseCommand: baseCommand, args: args).then(
         (_) => logOutputMessage(
           log: log,
           communication: OutputMessage(
-              message: ' - :: Sources generated successfully. ::'),
+            message: ' - :: Sources generated successfully. ::',
+          ),
         ),
         onError: (e, st) => Future.error(
           OutputMessage(
@@ -285,9 +305,11 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   Future<void> runSourceGen(
       {required String baseCommand, required GeneratorArguments args}) async {
     logOutputMessage(
-        log: log,
-        communication:
-            OutputMessage(message: ' - :: Running source code generation. ::'));
+      log: log,
+      communication: OutputMessage(
+        message: ' - :: Running source code generation. ::',
+      ),
+    );
     final command = Command(
         executable: baseCommand,
         arguments: 'pub run build_runner build --delete-conflicting-outputs'
@@ -303,12 +325,17 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       ),
     );
 
-    final results = await Process.run(
-      command.executable,
-      command.arguments,
-      runInShell: Platform.isWindows,
-      workingDirectory: args.outputDirectory,
-    );
+    ProcessResult results;
+    if (!testMode) {
+      results = await Process.run(
+        command.executable,
+        command.arguments,
+        runInShell: Platform.isWindows,
+        workingDirectory: args.outputDirectory,
+      );
+    } else {
+      results = ProcessResult(99999, 0, null, null);
+    }
 
     if (results.exitCode != 0) {
       return Future.error(
@@ -335,10 +362,12 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       {required String baseCommand, required GeneratorArguments args}) async {
     if (!args.shouldFetchDependencies) {
       logOutputMessage(
-          log: log,
-          communication: OutputMessage(
-              message: ' - :: Skipping install step because flag was set. ::',
-              level: Level.WARNING));
+        log: log,
+        communication: OutputMessage(
+          message: ' - :: Skipping install step because flag was set. ::',
+          level: Level.WARNING,
+        ),
+      );
     } else {
       final command = Command(
           executable: baseCommand,
@@ -354,15 +383,24 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         ),
       );
 
-      final result = await Process.run(command.executable, command.arguments,
+      ProcessResult results;
+      if (!testMode) {
+        results = await Process.run(
+          command.executable,
+          command.arguments,
           runInShell: Platform.isWindows,
-          workingDirectory: args.outputDirectory);
-      if (result.exitCode != 0) {
+          workingDirectory: args.outputDirectory,
+        );
+      } else {
+        results = ProcessResult(999999, 0, null, null);
+      }
+
+      if (results.exitCode != 0) {
         return Future.error(
           OutputMessage(
             message: ' - :: Install within generated sources failed. ::',
             level: Level.SEVERE,
-            additionalContext: result.stderr,
+            additionalContext: results.stderr,
             stackTrace: StackTrace.current,
           ),
         );
@@ -371,7 +409,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           log: log,
           communication: OutputMessage(
             message: [
-              result.stdout,
+              if (args.isDebug) results.stdout,
               ' - :: Install completed successfully. ::',
             ].join('\n'),
           ),

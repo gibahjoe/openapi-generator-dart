@@ -29,7 +29,7 @@ void main() {
           outputDirectory: 'api/petstore_api')
       '''),
           contains(
-              'generate -o api/petstore_api -i ../openapi-spec.yaml -g dart-dio --type-mappings=Pet=ExamplePet --additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,prependFormOrBodyParameters=false,pubAuthor=Johnny dep...,pubName=petstore_api,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=none'));
+              'generate -o=api/petstore_api -i=../openapi-spec.yaml -g=dart-dio --type-mappings=Pet=ExamplePet --additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,prependFormOrBodyParameters=false,pubAuthor=Johnny dep...,pubName=petstore_api,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=none'));
     });
 
     test('to generate command with import and type mappings', () async {
@@ -39,10 +39,12 @@ void main() {
           inputSpecFile: '../openapi-spec.yaml',
           typeMappings: {'int-or-string':'IntOrString'},
           importMappings: {'IntOrString':'./int_or_string.dart'},
-          generatorName: Generator.dio)
+          generatorName: Generator.dio,
+          outputDirectory: '${testSpecPath}output',
+          )
       '''),
           contains(
-              'generate -o ${Directory.current.path} -i ../openapi-spec.yaml -g dart-dio --import-mappings=IntOrString=./int_or_string.dart --type-mappings=int-or-string=IntOrString'));
+              'generate -o=${testSpecPath}output -i=../openapi-spec.yaml -g=dart-dio --import-mappings=IntOrString=./int_or_string.dart --type-mappings=int-or-string=IntOrString'));
     });
 
     test('to generate command with inline schema mappings', () async {
@@ -52,10 +54,12 @@ void main() {
           inputSpecFile: '../openapi-spec.yaml',
           typeMappings: {'int-or-string':'IntOrString'},
           inlineSchemaNameMappings: {'inline_object_2':'SomethingMapped','inline_object_4':'nothing_new'},
-          generatorName: Generator.dio)
+          generatorName: Generator.dio,
+          outputDirectory: '${testSpecPath}output',
+          )
       '''),
           contains('''
-              generate -o ${Directory.current.path} -i ../openapi-spec.yaml -g dart-dio --inline-schema-name-mappings=inline_object_2=SomethingMapped,inline_object_4=nothing_new --type-mappings=int-or-string=IntOrString
+              generate -o=${testSpecPath}output -i=../openapi-spec.yaml -g=dart-dio --inline-schema-name-mappings=inline_object_2=SomethingMapped,inline_object_4=nothing_new --type-mappings=int-or-string=IntOrString
               '''
               .trim()));
     });
@@ -87,7 +91,7 @@ void main() {
           outputDirectory: 'api/petstore_api')
       '''),
           contains('''
-              generate -o api/petstore_api -i ../openapi-spec.yaml -g dart-dio --type-mappings=Pet=ExamplePet --additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,prependFormOrBodyParameters=false,pubAuthor=Johnny dep...,pubName=petstore_api,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=none
+              generate -o=api/petstore_api -i=../openapi-spec.yaml -g=dart-dio --type-mappings=Pet=ExamplePet --additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,prependFormOrBodyParameters=false,pubAuthor=Johnny dep...,pubName=petstore_api,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=none
           '''
               .trim()));
     });
@@ -100,10 +104,12 @@ void main() {
             inputSpecFile: '../openapi-spec.yaml',
             typeMappings: {'int-or-string':'IntOrString'},
             importMappings: {'IntOrString':'./int_or_string.dart'},
-            generatorName: Generator.dioAlt)
+            generatorName: Generator.dioAlt,
+            outputDirectory: '${testSpecPath}output',
+            )
       '''),
           contains(
-              'generate -o ${Directory.current.path} -i ../openapi-spec.yaml -g dart2-api --import-mappings=IntOrString=./int_or_string.dart --type-mappings=int-or-string=IntOrString'));
+              'generate -o=${testSpecPath}output -i=../openapi-spec.yaml -g=dart2-api --import-mappings=IntOrString=./int_or_string.dart --type-mappings=int-or-string=IntOrString'));
     });
   });
 
@@ -111,10 +117,18 @@ void main() {
     late String generatedOutput;
     final specPath =
         'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml';
-    final f = File('${testSpecPath}managed-cache.json');
+    final basePath = '${testSpecPath}output-nextgen/';
+    final f = File('${basePath}cache.json');
+    tearDown(() {
+      final b = File(basePath);
+      if (b.existsSync()) b.deleteSync(recursive: true);
+    });
 
     group('runs', () {
       setUpAll(() {
+        if (!f.existsSync()) {
+          f.createSync(recursive: true);
+        }
         f.writeAsStringSync('{}');
       });
       tearDown(() {
@@ -130,7 +144,8 @@ void main() {
             importMappings: {'IntOrString':'./int_or_string.dart'},
             generatorName: Generator.dioAlt,
             useNextGen: false,
-            cachePath: './'
+            cachePath: '${f.path}',
+            outputDirectory: '${f.parent.path}/invalid_config/'
             )
       ''');
         expect(generatedOutput,
@@ -144,6 +159,7 @@ void main() {
             importMappings: {'IntOrString':'./int_or_string.dart'},
             generatorName: Generator.dioAlt,
             useNextGen: true,
+            outputDirectory: '${f.parent.path}/logs-when-remote'
             )
       ''');
         expect(
@@ -156,7 +172,8 @@ void main() {
         @Openapi(
             inputSpecFile: '$specPath',
             useNextGen: true,
-            cachePath: '${f.path}'
+            cachePath: '${f.path}',
+            outputDirectory: '${f.parent.path}/when-spec-is-dirty'
             )
       ''';
         generatedOutput = await generate(src);
@@ -169,7 +186,8 @@ void main() {
         @Openapi(
             inputSpecFile: '$specPath',
             useNextGen: true,
-            cachePath: '${f.path}'
+            cachePath: '${f.path}',
+            outputDirectory: '${f.parent.path}/early-term'
             )
       ''';
         generatedOutput = await generate(src);
@@ -194,13 +212,14 @@ void main() {
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   generatorName: Generator.dio,
   useNextGen: true,
-  cachePath: './test/specs/managed-cache.json',
+  cachePath: '${f.path}',
+  outputDirectory: './test/specs/output-nextgen/expected-args'
 )
         ''');
         expect(
             generatedOutput,
             contains(
-                'OpenapiGenerator :: [${(await args.jarArgs).join(' ')}]'));
+                'OpenapiGenerator :: [ ${(await args.jarArgs).join(' ')} ]'));
       });
       group('source gen', () {
         group('uses Flutter', () {
@@ -212,7 +231,8 @@ void main() {
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   generatorName: Generator.dio,
   useNextGen: true,
-  cachePath: './test/specs/managed-cache.json',
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/fvm',
   additionalProperties: AdditionalProperties(
     wrapper: Wrapper.fvm,
   ),
@@ -232,7 +252,8 @@ void main() {
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   generatorName: Generator.dio,
   useNextGen: true,
-  cachePath: './test/specs/managed-cache.json',
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/flutterw',
   additionalProperties: AdditionalProperties(
     wrapper: Wrapper.flutterw,
   ),
@@ -263,7 +284,8 @@ void main() {
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   generatorName: Generator.dio,
   useNextGen: true,
-  cachePath: './test/specs/managed-cache.json',
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/flutter',
   projectPubspecPath: './test/specs/flutter_pubspec.test.yaml',
 )
           ''');
@@ -294,7 +316,8 @@ void main() {
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   generatorName: Generator.dio,
   useNextGen: true,
-  cachePath: './test/specs/managed-cache.json',
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/dart',
   projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
 )
           ''');
@@ -319,7 +342,8 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   generatorName: Generator.dio,
   useNextGen: true,
-  cachePath: './test/specs/managed-cache.json',
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/no-src',
   runSourceGenOnOutput: false,
 )
 class TestClassConfig extends OpenapiGeneratorConfig {}
@@ -339,7 +363,8 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   generatorName: Generator.dio,
   useNextGen: true,
-  cachePath: './test/specs/managed-cache.json',
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/no-src',
   runSourceGenOnOutput: false,
 )
             ''');
@@ -358,7 +383,8 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   generatorName: Generator.dart,
   useNextGen: true,
-  cachePath: './test/specs/managed-cache.json',
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/dart-gen'
 )
 class TestClassConfig extends OpenapiGeneratorConfig {}
                     ''',
@@ -376,7 +402,8 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   generatorName: Generator.dart,
   useNextGen: true,
-  cachePath: './test/specs/managed-cache.json',
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/dart-gen'
 )
             ''');
             expect(
@@ -392,7 +419,8 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   generatorName: Generator.dio,
   useNextGen: true,
-  cachePath: './test/specs/managed-cache.json',
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/success',
   projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
 )
           ''');
@@ -408,7 +436,8 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   generatorName: Generator.dio,
   useNextGen: true,
-  cachePath: './test/specs/managed-cache.json',
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/no-fetch',
   projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
   fetchDependencies: false,
 )
@@ -423,7 +452,8 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   generatorName: Generator.dio,
   useNextGen: true,
-  cachePath: './test/specs/managed-cache.json',
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/no-fetch',
   projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
 )
           ''');
@@ -437,7 +467,8 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
         @Openapi(
             inputSpecFile: '$specPath',
             useNextGen: true,
-            cachePath: '${f.path}'
+            cachePath: '${f.path}',
+            outputDirectory: '${f.parent.path}/update-cache',
             )
       ''';
 
