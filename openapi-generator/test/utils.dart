@@ -13,13 +13,17 @@ final Builder builder = LibraryBuilder(OpenapiGenerator(testMode: true),
 final testSpecPath =
     '${Directory.current.path}${Platform.pathSeparator}test${Platform.pathSeparator}specs${Platform.pathSeparator}';
 
-Future<String> generate(String source) async {
+/// Runs an in memory test variant of the generator with the given [source].
+///
+/// [path] available so an override for the adds generated comment test can
+/// compare the output.
+Future<String> generate(String source, {String path = 'lib/myapp.dart'}) async {
   final spec = File('${testSpecPath}openapi.test.yaml').readAsStringSync();
   var srcs = <String, String>{
     'openapi_generator_annotations|lib/src/openapi_generator_annotations_base.dart':
         File('../openapi-generator-annotations/lib/src/openapi_generator_annotations_base.dart')
             .readAsStringSync(),
-    'openapi_generator|lib/myapp.dart': '''
+    'openapi_generator|$path': '''
     import 'package:openapi_generator_annotations/src/openapi_generator_annotations_base.dart';
     $source
     class MyApp {

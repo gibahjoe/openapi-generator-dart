@@ -96,6 +96,16 @@ class Openapi {
 
   /// Use the next generation of the generator.
   ///
+  /// This annotation informs the generator to use the new generator pathway.
+  /// Enabling this option allows for incremental changes to the [inputSpecFile]
+  /// to be generated even though the annotation was unchanged.
+  ///
+  /// Due to some limitations with build_runner and it only running when the
+  /// asset graph has changed, a generated line get injected at the beginning of
+  /// the file at the end of each run.
+  ///
+  /// This will become the default behaviour in the next Major version (v5).
+  ///
   /// Default: false
   final bool useNextGen;
 

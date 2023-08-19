@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:build_test/build_test.dart';
 import 'package:openapi_generator/src/gen_on_spec_changes.dart';
 import 'package:openapi_generator/src/models/generator_arguments.dart';
+import 'package:openapi_generator/src/utils.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:test/expect.dart';
@@ -220,6 +221,45 @@ void main() {
             generatedOutput,
             contains(
                 'OpenapiGenerator :: [ ${(await args.jarArgs).join(' ')} ]'));
+      });
+      test('adds generated comment', () async {
+        f.writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
+        final contents = File('$testSpecPath/next_gen_builder_test_config.dart')
+            .readAsStringSync();
+        final copy =
+            File('./test/specs/next_gen_builder_test_config_copy.dart');
+        copy.writeAsStringSync(contents, flush: true);
+        generatedOutput = await generate('''
+        @Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dio,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: './test/specs/output-nextgen/add-generated-comment'
+)
+        ''', path: copy.path);
+
+        var hasOutput = copy.readAsStringSync().contains(lastRunPlaceHolder);
+        expect(generatedOutput, contains('Creating generated timestamp with '));
+
+        generatedOutput = await generate('''
+        @Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dio,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: './test/specs/output-nextgen/add-generated-comment'
+)
+        ''', path: copy.path);
+
+        hasOutput = copy.readAsStringSync().contains(lastRunPlaceHolder);
+        expect(generatedOutput,
+            contains('Found generated timestamp. Updating with'));
+
+        copy.deleteSync();
+        expect(hasOutput, isTrue);
       });
       group('source gen', () {
         group('uses Flutter', () {

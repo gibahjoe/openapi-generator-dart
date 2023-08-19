@@ -87,7 +87,11 @@ FutureOr<Map<String, dynamic>> loadSpec(
   }
 
   return Future.error(
-      OutputMessage(message: 'Unable to find spec file $specPath'));
+    OutputMessage(
+        message: 'Unable to find spec file $specPath',
+        level: Level.WARNING,
+        stackTrace: StackTrace.current),
+  );
 }
 
 /// Verify if the [loadedSpec] has a diff compared to the [cachedSpec].
@@ -97,101 +101,7 @@ bool isSpecDirty({
   required Map<String, dynamic> cachedSpec,
   required Map<String, dynamic> loadedSpec,
 }) {
-  // The spec always needs to be updated if the cached spec is empty, unless
-  // the loaded spec is also empty.
-  if (cachedSpec.isEmpty) {
-    return true && loadedSpec.isNotEmpty;
-  }
-  // TODO: Should this be a future? This way the errors can be bubbled up?
-  if (loadedSpec.keys.length == cachedSpec.keys.length) {
-    for (final entry in cachedSpec.entries) {
-      if (!loadedSpec.containsKey(entry.key)) {
-        // The original key was removed / renamed in the new map.
-        // This will likely occur within the paths map.
-        return true;
-      }
-      final lEntry = loadedSpec[entry.key];
-      // Naive assumption that each of the values are the same
-      // TODO: Stop assuming the values are of the same type.
-      if (entry.value is Map) {
-        final v = entry.value as Map<String, dynamic>;
-        final l = lEntry as Map<String, dynamic>;
-        return isSpecDirty(cachedSpec: v, loadedSpec: l);
-      } else if (entry.value is List) {
-        // Cast both entries to a list of entries
-        var v = entry.value as List;
-        var l = lEntry as List;
-
-        if (v.length != l.length) {
-          return true;
-        }
-
-        try {
-          // Cast the list into it's typed variants
-          if (v.every((element) => element is num)) {
-            if (v.every((element) => element is int)) {
-              v = v.cast<int>();
-              l = l.cast<int>();
-            } else if (v.every((element) => element is double)) {
-              v = v.cast<double>();
-              l = l.cast<double>();
-            }
-          } else if (v.every((element) => element is String)) {
-            v = v.cast<String>();
-            l = l.cast<String>();
-          } else if (v.every((element) => element is bool)) {
-            v = v.cast<bool>();
-            l = l.cast<bool>();
-          }
-        } on TypeError catch (e, st) {
-          log('Failed to cast entry, this may be due to an API change',
-              stackTrace: st, error: e);
-          // If there is an error casting this is likely due to the type of L not
-          // matching which could indicate that the type of the loaded spec may
-          // have changed.
-          return true;
-        }
-
-        // Loop through each of the entries, this now means ordering matters.
-        // TODO: Verify if this is desired behaviour.
-        for (var i = 0; i < v.length; i++) {
-          if (v[i] != l[i]) {
-            return true;
-          }
-        }
-
-        return false;
-      } else {
-        try {
-          // The value is a scalar value
-          var v = entry.value;
-          var l = lEntry;
-
-          if (v is num) {
-            if (v is int) {
-              return v != (l as int);
-            } else {
-              return v != (l as double);
-            }
-          } else if (v is bool) {
-            return v != (l as bool);
-          } else if (v is String) {
-            return v != (l as String);
-          } else {
-            // Enums are represented as lists
-            return false;
-          }
-        } catch (e, st) {
-          // TODO: This is likely a poor assumption to make
-          log('Failed to parse value, likely do to type change',
-              stackTrace: st, error: e);
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-  return true;
+  return jsonEncode(cachedSpec) != jsonEncode(loadedSpec);
 }
 
 /// Convert the [YamlMap] to a Dart [Map].
@@ -260,15 +170,14 @@ Future<void> cacheSpec({
     log('No previous openapi-generated cache found. Creating cache');
   }
 
-  return await outputFile.writeAsString(jsonEncode(spec)).then(
-    (_) => log('Successfully wrote cache.'),
-    onError: (e, st) {
-      log(
-        'Failed to write cache',
-        error: e,
-        stackTrace: st,
+  return await outputFile.writeAsString(jsonEncode(spec), flush: true).then(
+        (_) => log('Successfully wrote cache.'),
+        onError: (e, st) => Future.error(
+          OutputMessage(
+            message: 'Failed to write cache',
+            additionalContext: e,
+            stackTrace: st,
+          ),
+        ),
       );
-      return Future.error('Failed to write cache');
-    },
-  );
 }
