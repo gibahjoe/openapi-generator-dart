@@ -462,7 +462,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     // it exists within the project.
     final f = File(annotatedPath);
     var content = f.readAsLinesSync();
-    final now = DateTime.timestamp();
+    final now = DateTime.now().toIso8601String();
     final generated = '$lastRunPlaceHolder: $now';
     if (content.first.contains(lastRunPlaceHolder)) {
       content = content.sublist(1);
