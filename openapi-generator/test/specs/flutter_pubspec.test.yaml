@@ -1,12 +1,13 @@
-name: openapi_generator
-description: Generator for openapi client sdk inspired by the npm implementation of openapi-generator-cli.
+name: openapi_generator.test.specs.flutter_pubspec
+description: a test flutter pubspec
 version: 4.11.0
-homepage: https://github.com/gibahjoe/openapi-generator-dart
 
 environment:
-  sdk: '>=2.15.0 <3.0.0'
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
+  flutter:
+    sdk: flutter
   build: '>=0.12.6 <=3.0.0'
   source_gen: '>=1.0.0 <=2.0.0'
   path: '>=1.0.0 <=2.0.0'
@@ -14,16 +15,10 @@ dependencies:
   analyzer: '>=2.0.0 <=6.0.0'
   openapi_generator_cli: ^4.11.0
   yaml: ^3.1.2
-  http: ^1.1.0
 
 dev_dependencies:
   test: ^1.24.2
   build_runner: '>=1.0.0 <3.0.0'
   build_test: '>=1.2.0 <3.0.0'
-  source_gen_test: ^1.0.6
   pedantic:
   coverage: ^1.6.3
-
-dependency_overrides:
-  openapi_generator_annotations:
-    path: ../openapi-generator-annotations

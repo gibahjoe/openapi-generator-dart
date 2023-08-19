@@ -4,6 +4,15 @@
 
 This codebase houses the dart/flutter implementations of the openapi client sdk code generation libraries.
 
+## TOC
+
+- [Introduction](#introduction)
+- [Usage](#usage)
+- [NextGen](#next-generation)
+- [Features & Bugs](#features-and-bugs)
+
+## Introduction
+
 With this project, you can generate openapi client sdk libraries for your openapi specification right in your
 flutter/dart projects. (see example)
 
@@ -17,37 +26,42 @@ This repo contains the following dart libraries
 | openapi-generator-annotations | Annotations for annotating dart class with instructions for generating openapi sdk [see here for usage](https://pub.dev/packages/openapi_generator_annotations) | [![pub package](https://img.shields.io/pub/v/openapi_generator_annotations.svg)](https://pub.dev/packages/openapi_generator) |
 | openapi-generator-cli         | Cli code openapi sdk generator for dart [see here for usage](https://pub.dev/packages/openapi_generator_cli)                                                    | [![pub package](https://img.shields.io/pub/v/openapi_generator_cli.svg)](https://pub.dev/packages/openapi_generator_cli)     |
 
-
-
 ## Usage
 
-Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generator_annotations) as a dependency in the dependencies section of your pubspec.yaml file :
+Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generator_annotations) as a dependency in the
+dependencies section of your pubspec.yaml file :
 
 ```yaml
 dependencies:
   openapi_generator_annotations: ^[latest-version]
 ```
-For testing out the beta features in openapi generator, use the beta branch like below. This is not recommended for production builds
+
+For testing out the beta features in openapi generator, use the beta branch like below. This is not recommended for
+production builds
+
 ```yaml
 dependencies:
-  openapi_generator_annotations: 
+  openapi_generator_annotations:
     git:
       url: https://github.com/gibahjoe/openapi-generator-dart.git
       ref: beta
       path: openapi-generator-annotations
 ```
 
-
-Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev dependencies section of your pubspec.yaml file:
+Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev dependencies section of your pubspec.yaml
+file:
 
 ```yaml
 dev_dependencies:
   openapi_generator: ^[latest version]
 ```
-For testing out the beta features in openapi generator, use the beta branch like below. This is not recommended for production builds
+
+For testing out the beta features in openapi generator, use the beta branch like below. This is not recommended for
+production builds
+
 ```yaml
 dev_dependencies:
-  openapi_generator: 
+  openapi_generator:
     git:
       url: https://github.com/gibahjoe/openapi-generator-dart.git
       ref: beta
@@ -66,16 +80,61 @@ Annotate a dart class with @Openapi() annotation
 class Example extends OpenapiGeneratorConfig {}
 ```
 
-Run 
+Run
+
 ```shell
 dart run build_runner build --delete-conflicting-outputs
 ```
+
 or
+
 ```shell
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
+
 to generate open api client sdk from spec file specified in annotation.
 The api sdk will be generated in the folder specified in the annotation. See examples for more details
+
+## Next Generation
+
+There is some new functionality slated to be added to the generator. This version will have the ability to:
+
+- cache changes in the OAS spec
+- Rerun when there ares difference in the cached copy and current copy
+- Pull from a remote source and cache that.
+    - **Note**: This means that your cache could be potentially stale. But in that case this flow will still pull the
+      latest and run.
+    - While this is a possible usage, if you are actively developing your spec it is preferred you provide a local copy.
+- Skip generation based off:
+    - Flags
+    - No difference between the cache and local
+- And all the functionality provided previously.
+
+Your original workflow stay the same but there is a slight difference in the annotations.
+
+New:
+
+```dart
+@Openapi(
+    additionalProperties:
+    AdditionalProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep'),
+    inputSpecFile: 'example/openapi-spec.yaml',
+    generatorName: Generator.dart,
+    outputDirectory: 'api/petstore_api',
+    cachePath: 'some/preferred/directory/cache.json',
+    useNextGen: true
+)
+class Example extends OpenapiGeneratorConfig {}
+```
+
+**IMPORTANT** With the new changes comes 2 new annotation properties:
+
+- useNextGen (boolean)
+    - Default: `false`
+- cachePath (String)
+    - Default: `.dart_tool/openapi-generator-cache.json`
+    - Must be a path to a `json` file.
+    - Can only be set when `useNextGen` is `true`
 
 ## Features and bugs
 
