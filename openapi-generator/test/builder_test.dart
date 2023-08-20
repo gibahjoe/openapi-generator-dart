@@ -1,11 +1,16 @@
+import 'dart:convert';
 import 'dart:io';
 
-import 'package:build/build.dart';
 import 'package:build_test/build_test.dart';
-import 'package:openapi_generator/src/openapi_generator_runner.dart';
+import 'package:openapi_generator/src/gen_on_spec_changes.dart';
+import 'package:openapi_generator/src/models/generator_arguments.dart';
+import 'package:openapi_generator/src/utils.dart';
+import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
+
+import 'utils.dart';
 
 /// We test the build runner by mocking the specs and then checking the output
 /// content for the expected generate command.
@@ -25,7 +30,7 @@ void main() {
           outputDirectory: 'api/petstore_api')
       '''),
           contains(
-              'generate -i ../openapi-spec.yaml -g dart-dio -o api/petstore_api --type-mappings=Pet=ExamplePet --additional-properties=pubName=petstore_api,pubAuthor=Johnny dep...'));
+              'generate -o=api/petstore_api -i=../openapi-spec.yaml -g=dart-dio --type-mappings=Pet=ExamplePet --additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,prependFormOrBodyParameters=false,pubAuthor=Johnny dep...,pubName=petstore_api,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=none'));
     });
 
     test('to generate command with import and type mappings', () async {
@@ -35,10 +40,12 @@ void main() {
           inputSpecFile: '../openapi-spec.yaml',
           typeMappings: {'int-or-string':'IntOrString'},
           importMappings: {'IntOrString':'./int_or_string.dart'},
-          generatorName: Generator.dio)
+          generatorName: Generator.dio,
+          outputDirectory: '${testSpecPath}output',
+          )
       '''),
           contains(
-              'generate -i ../openapi-spec.yaml -g dart-dio --type-mappings=int-or-string=IntOrString --import-mappings=IntOrString=./int_or_string.dart'));
+              'generate -o=${testSpecPath}output -i=../openapi-spec.yaml -g=dart-dio --import-mappings=IntOrString=./int_or_string.dart --type-mappings=int-or-string=IntOrString'));
     });
 
     test('to generate command with inline schema mappings', () async {
@@ -48,10 +55,12 @@ void main() {
           inputSpecFile: '../openapi-spec.yaml',
           typeMappings: {'int-or-string':'IntOrString'},
           inlineSchemaNameMappings: {'inline_object_2':'SomethingMapped','inline_object_4':'nothing_new'},
-          generatorName: Generator.dio)
+          generatorName: Generator.dio,
+          outputDirectory: '${testSpecPath}output',
+          )
       '''),
           contains('''
-              generate -i ../openapi-spec.yaml -g dart-dio --type-mappings=int-or-string=IntOrString --inline-schema-name-mappings=inline_object_2=SomethingMapped,inline_object_4=nothing_new
+              generate -o=${testSpecPath}output -i=../openapi-spec.yaml -g=dart-dio --inline-schema-name-mappings=inline_object_2=SomethingMapped,inline_object_4=nothing_new --type-mappings=int-or-string=IntOrString
               '''
               .trim()));
     });
@@ -83,12 +92,12 @@ void main() {
           outputDirectory: 'api/petstore_api')
       '''),
           contains('''
-              generate -i ../openapi-spec.yaml -g dart-dio -o api/petstore_api --type-mappings=Pet=ExamplePet --additional-properties=pubName=petstore_api,pubAuthor=Johnny dep...
+              generate -o=api/petstore_api -i=../openapi-spec.yaml -g=dart-dio --type-mappings=Pet=ExamplePet --additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,prependFormOrBodyParameters=false,pubAuthor=Johnny dep...,pubName=petstore_api,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=none
           '''
               .trim()));
     });
 
-    test('to generate command with import and type mapprings for dioAlt',
+    test('to generate command with import and type mappings for dioAlt',
         () async {
       expect(
           await generate('''
@@ -96,342 +105,441 @@ void main() {
             inputSpecFile: '../openapi-spec.yaml',
             typeMappings: {'int-or-string':'IntOrString'},
             importMappings: {'IntOrString':'./int_or_string.dart'},
-            generatorName: Generator.dioAlt)
+            generatorName: Generator.dioAlt,
+            outputDirectory: '${testSpecPath}output',
+            )
       '''),
           contains(
-              'generate -i ../openapi-spec.yaml -g dart2-api --type-mappings=int-or-string=IntOrString --import-mappings=IntOrString=./int_or_string.dart'));
+              'generate -o=${testSpecPath}output -i=../openapi-spec.yaml -g=dart2-api --import-mappings=IntOrString=./int_or_string.dart --type-mappings=int-or-string=IntOrString'));
+    });
+  });
+
+  group('NextGen', () {
+    late String generatedOutput;
+    final specPath =
+        'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml';
+    final basePath = '${testSpecPath}output-nextgen/';
+    final f = File('${basePath}cache.json');
+    tearDown(() {
+      final b = File(basePath);
+      if (b.existsSync()) b.deleteSync(recursive: true);
+    });
+
+    group('runs', () {
+      setUpAll(() {
+        if (!f.existsSync()) {
+          f.createSync(recursive: true);
+        }
+        f.writeAsStringSync('{}');
+      });
+      tearDown(() {
+        if (f.existsSync()) {
+          f.deleteSync();
+        }
+      });
+      test('fails with invalid configuration', () async {
+        generatedOutput = await generate('''
+        @Openapi(
+            inputSpecFile: '$specPath',
+            typeMappings: {'int-or-string':'IntOrString'},
+            importMappings: {'IntOrString':'./int_or_string.dart'},
+            generatorName: Generator.dioAlt,
+            useNextGen: false,
+            cachePath: '${f.path}',
+            outputDirectory: '${f.parent.path}/invalid_config/'
+            )
+      ''');
+        expect(generatedOutput,
+            contains('useNextGen must be set when using cachePath'));
+      });
+      test('Logs warning when using remote spec', () async {
+        generatedOutput = await generate('''
+        @Openapi(
+            inputSpecFile: '$specPath',
+            typeMappings: {'int-or-string':'IntOrString'},
+            importMappings: {'IntOrString':'./int_or_string.dart'},
+            generatorName: Generator.dioAlt,
+            useNextGen: true,
+            outputDirectory: '${f.parent.path}/logs-when-remote'
+            )
+      ''');
+        expect(
+            generatedOutput,
+            contains(
+                ':: Using a remote specification, a cache will still be create but may be outdated. ::'));
+      });
+      test('when the spec is dirty', () async {
+        final src = '''
+        @Openapi(
+            inputSpecFile: '$specPath',
+            useNextGen: true,
+            cachePath: '${f.path}',
+            outputDirectory: '${f.parent.path}/when-spec-is-dirty'
+            )
+      ''';
+        generatedOutput = await generate(src);
+        expect(
+            generatedOutput, contains('Dirty Spec found. Running generation.'));
+      });
+      test('and terminates early when there is no diff', () async {
+        f.writeAsStringSync(jsonEncode(await loadSpec(specPath: specPath)));
+        final src = '''
+        @Openapi(
+            inputSpecFile: '$specPath',
+            useNextGen: true,
+            cachePath: '${f.path}',
+            outputDirectory: '${f.parent.path}/early-term'
+            )
+      ''';
+        generatedOutput = await generate(src);
+        expect(generatedOutput,
+            contains(':: No diff between versions, not running generator. ::'));
+      });
+      test('openApiJar with expected args', () async {
+        f.writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
+        final annotations = (await resolveSource(
+                File('$testSpecPath/next_gen_builder_test_config.dart')
+                    .readAsStringSync(),
+                (resolver) async =>
+                    (await resolver.findLibraryByName('test_lib'))!))
+            .getClass('TestClassConfig')!
+            .metadata
+            .map((e) => ConstantReader(e.computeConstantValue()!))
+            .first;
+        final args = GeneratorArguments(annotations: annotations);
+        generatedOutput = await generate('''
+        @Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dio,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: './test/specs/output-nextgen/expected-args'
+)
+        ''');
+        expect(
+            generatedOutput,
+            contains(
+                'OpenapiGenerator :: [ ${(await args.jarArgs).join(' ')} ]'));
+      });
+      test('adds generated comment', () async {
+        f.writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
+        final contents = File('$testSpecPath/next_gen_builder_test_config.dart')
+            .readAsStringSync();
+        final copy =
+            File('./test/specs/next_gen_builder_test_config_copy.dart');
+        copy.writeAsStringSync(contents, flush: true);
+        generatedOutput = await generate('''
+        @Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dio,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: './test/specs/output-nextgen/add-generated-comment'
+)
+        ''', path: copy.path);
+
+        var hasOutput = copy.readAsStringSync().contains(lastRunPlaceHolder);
+        expect(generatedOutput, contains('Creating generated timestamp with '));
+
+        generatedOutput = await generate('''
+        @Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dio,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: './test/specs/output-nextgen/add-generated-comment'
+)
+        ''', path: copy.path);
+
+        hasOutput = copy.readAsStringSync().contains(lastRunPlaceHolder);
+        expect(generatedOutput,
+            contains('Found generated timestamp. Updating with'));
+
+        copy.deleteSync();
+        expect(hasOutput, isTrue);
+      });
+      group('source gen', () {
+        group('uses Flutter', () {
+          group('with wrapper', () {
+            test('fvm', () async {
+              generatedOutput = await generate('''
+@Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dio,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/fvm',
+  additionalProperties: AdditionalProperties(
+    wrapper: Wrapper.fvm,
+  ),
+)
+          ''');
+              expect(
+                  generatedOutput, contains('Running source code generation.'));
+              expect(
+                  generatedOutput,
+                  contains(
+                      'fvm pub run build_runner build --delete-conflicting-outputs'));
+            });
+            test('flutterw', () async {
+              generatedOutput = await generate('''
+@Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dio,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/flutterw',
+  additionalProperties: AdditionalProperties(
+    wrapper: Wrapper.flutterw,
+  ),
+)
+          ''');
+              expect(
+                  generatedOutput, contains('Running source code generation.'));
+              expect(
+                  generatedOutput,
+                  contains(
+                      './flutterw pub run build_runner build --delete-conflicting-outputs'));
+            });
+          });
+          test('without wrapper', () async {
+            final annotations = (await resolveSource(
+                    File('$testSpecPath/next_gen_builder_flutter_test_config.dart')
+                        .readAsStringSync(),
+                    (resolver) async =>
+                        (await resolver.findLibraryByName('test_lib'))!))
+                .getClass('TestClassConfig')!
+                .metadata
+                .map((e) => ConstantReader(e.computeConstantValue()!))
+                .first;
+            final args = GeneratorArguments(annotations: annotations);
+            generatedOutput = await generate('''
+@Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dio,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/flutter',
+  projectPubspecPath: './test/specs/flutter_pubspec.test.yaml',
+)
+          ''');
+
+            expect(args.wrapper, Wrapper.none);
+            expect(
+                generatedOutput, contains('Running source code generation.'));
+            expect(
+                generatedOutput,
+                contains(
+                    'flutter pub run build_runner build --delete-conflicting-outputs'));
+          });
+        });
+        test('uses dart', () async {
+          final annotations = (await resolveSource(
+                  File('$testSpecPath/next_gen_builder_test_config.dart')
+                      .readAsStringSync(),
+                  (resolver) async =>
+                      (await resolver.findLibraryByName('test_lib'))!))
+              .getClass('TestClassConfig')!
+              .metadata
+              .map((e) => ConstantReader(e.computeConstantValue()!))
+              .first;
+          final args = GeneratorArguments(annotations: annotations);
+          generatedOutput = await generate('''
+@Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dio,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/dart',
+  projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
+)
+          ''');
+
+          expect(args.wrapper, Wrapper.none);
+          expect(generatedOutput, contains('Running source code generation.'));
+          expect(
+              generatedOutput,
+              contains(
+                  'dart pub run build_runner build --delete-conflicting-outputs'));
+        });
+        group('except when', () {
+          test('flag is set', () async {
+            final annotations = (await resolveSource(
+                    '''
+library test_lib;
+
+import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
+
+@Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dio,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/no-src',
+  runSourceGenOnOutput: false,
+)
+class TestClassConfig extends OpenapiGeneratorConfig {}
+                    ''',
+                    (resolver) async =>
+                        (await resolver.findLibraryByName('test_lib'))!))
+                .getClass('TestClassConfig')!
+                .metadata
+                .map((e) => ConstantReader(e.computeConstantValue()!))
+                .first;
+            final args = GeneratorArguments(annotations: annotations);
+
+            expect(args.runSourceGen, isFalse);
+            generatedOutput = await generate('''
+@Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dio,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/no-src',
+  runSourceGenOnOutput: false,
+)
+            ''');
+            expect(generatedOutput,
+                contains('Skipping source gen step due to flag being set.'));
+          });
+          test('generator is dart', () async {
+            final annotations = (await resolveSource(
+                    '''
+library test_lib;
+
+import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
+
+@Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dart,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/dart-gen'
+)
+class TestClassConfig extends OpenapiGeneratorConfig {}
+                    ''',
+                    (resolver) async =>
+                        (await resolver.findLibraryByName('test_lib'))!))
+                .getClass('TestClassConfig')!
+                .metadata
+                .map((e) => ConstantReader(e.computeConstantValue()!))
+                .first;
+            final args = GeneratorArguments(annotations: annotations);
+            expect(args.runSourceGen, isTrue);
+            generatedOutput = await generate('''
+@Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dart,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/dart-gen'
+)
+            ''');
+            expect(
+                generatedOutput,
+                contains(
+                    'Skipping source gen because generator does not need it.'));
+          });
+        });
+        test('logs when successful', () async {
+          generatedOutput = await generate('''
+@Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dio,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/success',
+  projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
+)
+          ''');
+          expect(generatedOutput, contains('Codegen completed successfully.'));
+          expect(generatedOutput, contains('Sources generated successfully.'));
+        });
+      });
+      group('fetch dependencies', () {
+        test('except when flag is present', () async {
+          generatedOutput = await generate('''
+@Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dio,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/no-fetch',
+  projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
+  fetchDependencies: false,
+)
+          ''');
+          expect(generatedOutput,
+              contains('Skipping install step because flag was set.'));
+        });
+        test('succeeds', () async {
+          generatedOutput = await generate('''
+@Openapi(
+  inputSpecFile:
+      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  generatorName: Generator.dio,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/no-fetch',
+  projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
+)
+          ''');
+          expect(generatedOutput,
+              contains('Installing dependencies with generated source.'));
+          expect(generatedOutput, contains('Install completed successfully.'));
+        });
+      });
+      group('update cache', () {
+        final src = '''
+        @Openapi(
+            inputSpecFile: '$specPath',
+            useNextGen: true,
+            cachePath: '${f.path}',
+            outputDirectory: '${f.parent.path}/update-cache',
+            )
+      ''';
+
+        test('creating a cache file when not found', () async {
+          // Ensure that other tests don't make this available;
+          if (f.existsSync()) {
+            f.deleteSync();
+          }
+          generatedOutput = await generate(src);
+          expect(
+              generatedOutput, contains('No local cache found. Creating one.'));
+          expect(f.existsSync(), isTrue);
+          expect(jsonDecode(f.readAsStringSync()),
+              await loadSpec(specPath: specPath));
+        });
+        test('updates the cache file when found', () async {
+          f.writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
+          generatedOutput = await generate(src);
+          final expectedSpec = await loadSpec(specPath: specPath);
+          final actualSpec = jsonDecode(f.readAsStringSync());
+          expect(actualSpec, expectedSpec);
+          expect(generatedOutput,
+              contains('Local cache found. Overwriting existing one.'));
+        });
+        test('logs when successful', () async {
+          f.writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
+          generatedOutput = await generate(src);
+          expect(
+              generatedOutput, contains('Successfully cached spec changes.'));
+        });
+      });
     });
   });
 }
-
-// Test setup.
-
-final String pkgName = 'pkg';
-
-final Builder builder = LibraryBuilder(OpenapiGenerator(),
-    generatedExtension: '.openapi_generator');
-
-Future<String> generate(String source) async {
-  var srcs = <String, String>{
-    'openapi_generator_annotations|lib/src/openapi_generator_annotations_base.dart':
-        File('../openapi-generator-annotations/lib/src/openapi_generator_annotations_base.dart')
-            .readAsStringSync(),
-    'openapi_generator|lib/myapp.dart': '''
-    import 'package:openapi_generator_annotations/src/openapi_generator_annotations_base.dart';
-    $source
-    class MyApp {
-    }  
-    ''',
-    'openapi_generator|openapi-spec.yaml': spec
-  };
-
-  // Capture any error from generation; if there is one, return that instead of
-  // the generated output.
-  String? error;
-  void captureError(dynamic logRecord) {
-    // print(logRecord.runtimeType);
-    // print(logRecord);
-    // if (logRecord.error is InvalidGenerationSourceError) {
-    //   if (error != null) throw StateError('Expected at most one error.');
-    //   error = logRecord.error.toString();
-    // }
-    error = '${error ?? ''}\n${logRecord.message}';
-  }
-
-  var writer = InMemoryAssetWriter();
-  await testBuilder(builder, srcs,
-      rootPackage: pkgName, writer: writer, onLog: captureError);
-  return error ??
-      String.fromCharCodes(
-          writer.assets[AssetId(pkgName, 'lib/value.g.dart')] ?? []);
-}
-
-var spec = '''
-openapi: 3.0.1
-info:
-  title: OpenAPI Petstore
-  description: This is a sample server Petstore server. For this sample, you can use
-    the api key `special-key` to test the authorization filters.
-  license:
-    name: Apache-2.0
-    url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 1.0.0
-servers:
-  - url: http://petstore.swagger.io/v2
-tags:
-  - name: pet
-    description: Everything about your Pets
-  - name: store
-    description: Access to Petstore orders
-  - name: user
-    description: Operations about user
-paths:
-  /pet:
-    put:
-      tags:
-        - pet
-      summary: Update an existing pet
-      operationId: updatePet
-      requestBody:
-        description: Pet object that needs to be added to the store
-        content:
-          application/json:
-            schema:
-              \$ref: '#/components/schemas/Pet'
-          application/xml:
-            schema:
-              \$ref: '#/components/schemas/Pet'
-        required: true
-      responses:
-        400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: Pet not found
-          content: {}
-        405:
-          description: Validation exception
-          content: {}
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-      x-codegen-request-body-name: body
-    post:
-      tags:
-        - pet
-      summary: Add a new pet to the store
-      operationId: addPet
-      requestBody:
-        description: Pet object that needs to be added to the store
-        content:
-          application/json:
-            schema:
-              \$ref: '#/components/schemas/Pet'
-          application/xml:
-            schema:
-              \$ref: '#/components/schemas/Pet'
-        required: true
-      responses:
-        405:
-          description: Invalid input
-          content: {}
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-      x-codegen-request-body-name: body
-components:
-  schemas:
-    Order:
-      title: Pet Order
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        petId:
-          type: integer
-          format: int64
-        quantity:
-          type: integer
-          format: int32
-        shipDate:
-          type: string
-          format: date-time
-        status:
-          type: string
-          description: Order Status
-          enum:
-            - placed
-            - approved
-            - delivered
-        complete:
-          type: boolean
-          default: false
-      description: An order for a pets from the pet store
-      xml:
-        name: Order
-    Category:
-      title: Pet category
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        name:
-          type: string
-      description: A category for a pet
-      xml:
-        name: Category
-    User:
-      title: a User
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        username:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
-        email:
-          type: string
-        password:
-          type: string
-        phone:
-          type: string
-        userStatus:
-          type: integer
-          description: User Status
-          format: int32
-      description: A User who is purchasing from the pet store
-      xml:
-        name: User
-    Tag:
-      title: Pet Tag
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        name:
-          type: string
-      description: A tag for a pet
-      xml:
-        name: Tag
-    Pet:
-      title: a Pet
-      required:
-        - name
-        - photoUrls
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        category:
-          \$ref: '#/components/schemas/Category'
-        name:
-          type: string
-          example: doggie
-        photoUrls:
-          type: array
-          xml:
-            name: photoUrl
-            wrapped: true
-          items:
-            type: string
-        tags:
-          type: array
-          xml:
-            name: tag
-            wrapped: true
-          items:
-            \$ref: '#/components/schemas/Tag'
-        status:
-          type: string
-          description: pet status in the store
-          enum:
-            - available
-            - pending
-            - sold
-        types:
-          type: "array"
-          items:
-            type: "string"
-            enum:
-              - "TRANSFER_FROM"
-              - "TRANSFER_TO"
-              - "MINT"
-              - "BURN"
-              - "MAKE_BID"
-              - "GET_BID"
-              - "LIST"
-              - "BUY"
-              - "SELL"
-      description: A pet for sale in the pet store
-      xml:
-        name: Pet
-    Patri:
-      title: Patri
-      required:
-        - name
-        - photoUrls
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        category:
-          \$ref: '#/components/schemas/Category'
-        name:
-          type: string
-          example: doggie
-        photoUrls:
-          type: array
-          xml:
-            name: photoUrl
-            wrapped: true
-          items:
-            type: string
-        tags:
-          type: array
-          xml:
-            name: tag
-            wrapped: true
-          items:
-            \$ref: '#/components/schemas/Tag'
-        status:
-          type: string
-          description: pet status in the store
-          enum:
-            - available
-            - pending
-            - sold
-        types:
-          type: "array"
-          items:
-            type: "string"
-            enum:
-              - "TRANSFER_FROM"
-              - "TRANSFER_TO"
-              - "MINT"
-              - "BURN"
-              - "MAKE_BID"
-              - "GET_BID"
-              - "LIST"
-              - "BUY"
-              - "SELL"
-      description: A pet for sale in the pet store
-      xml:
-        name: Pet
-    ApiResponse:
-      title: An uploaded response
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        type:
-          type: string
-        message:
-          type: string
-      description: Describes the result of uploading an image resource
-  securitySchemes:
-    petstore_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: http://petstore.swagger.io/api/oauth/dialog
-          scopes:
-            write:pets: modify pets in your account
-            read:pets: read your pets
-    api_key:
-      type: apiKey
-      name: api_key
-      in: header
-
-''';

@@ -1,6 +1,8 @@
 import 'dart:mirrors';
 
 import 'package:analyzer/dart/element/type.dart';
+import 'package:openapi_generator/src/utils.dart';
+import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 import 'package:source_gen/source_gen.dart' show ConstantReader, TypeChecker;
 
 /// Extension adding the type methods to `ConstantReader`.
@@ -71,3 +73,55 @@ extension TypeMethods on ConstantReader {
     return values[enumIndex];
   }
 }
+
+extension ReadProperty on ConstantReader {
+  T readPropertyOrDefault<T>(String name, T defaultValue) {
+    final v = peek(name);
+    if (v == null) {
+      return defaultValue;
+    }
+
+    if (defaultValue is AdditionalProperties? ||
+        defaultValue is InlineSchemaOptions?) {
+      final mapping = v
+          .revive()
+          .namedArguments
+          .map((key, value) => MapEntry(key, convertToPropertyValue(value)));
+      if (defaultValue is AdditionalProperties?) {
+        if (defaultValue is DioProperties?) {
+          return DioProperties.fromMap(mapping) as T;
+        } else if (defaultValue is DioAltProperties?) {
+          return DioAltProperties.fromMap(mapping) as T;
+        } else {
+          return AdditionalProperties.fromMap(mapping) as T;
+        }
+      } else {
+        return InlineSchemaOptions.fromMap(mapping) as T;
+      }
+    }
+
+    if (isA(v, Map)) {
+      return v.mapValue.map((key, value) => MapEntry(
+          convertToPropertyValue(key!), convertToPropertyValue(value!))) as T;
+    } else if (isA(v, bool)) {
+      return v.boolValue as T;
+    } else if (isA(v, double)) {
+      return v.doubleValue as T;
+    } else if (isA(v, int)) {
+      return v.intValue as T;
+    } else if (isA(v, String)) {
+      return v.stringValue as T;
+    } else if (isA(v, Set)) {
+      return v.setValue as T;
+    } else if (isA(v, List)) {
+      return v.listValue as T;
+    } else if (isA(v, Enum)) {
+      return v.enumValue();
+    } else {
+      return defaultValue;
+    }
+  }
+}
+
+bool isA(ConstantReader? v, Type t) =>
+    v?.instanceOf(TypeChecker.fromRuntime(t)) ?? false;

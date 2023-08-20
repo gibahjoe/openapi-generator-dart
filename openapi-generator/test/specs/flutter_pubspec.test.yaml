@@ -1,0 +1,24 @@
+name: openapi_generator.test.specs.flutter_pubspec
+description: a test flutter pubspec
+version: 4.11.0
+
+environment:
+  sdk: '>=2.12.0 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  build: '>=0.12.6 <=3.0.0'
+  source_gen: '>=1.0.0 <=2.0.0'
+  path: '>=1.0.0 <=2.0.0'
+  openapi_generator_annotations: ^4.11.0
+  analyzer: '>=2.0.0 <=6.0.0'
+  openapi_generator_cli: ^4.11.0
+  yaml: ^3.1.2
+
+dev_dependencies:
+  test: ^1.24.2
+  build_runner: '>=1.0.0 <3.0.0'
+  build_test: '>=1.2.0 <3.0.0'
+  pedantic:
+  coverage: ^1.6.3
