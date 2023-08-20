@@ -7,23 +7,20 @@ environment:
   sdk: '>=2.15.0 <3.0.0'
 
 dependencies:
-  build: '>=0.12.6 <=3.0.0'
+  build: '>=1.0.0 <=3.0.0'
   source_gen: '>=1.0.0 <=2.0.0'
   path: '>=1.0.0 <=2.0.0'
-  openapi_generator_annotations: ^4.12.0
+  openapi_generator_annotations: ^4.11.0
   analyzer: '>=2.0.0 <=6.0.0'
-  openapi_generator_cli: ^4.12.0
+  openapi_generator_cli: ^4.11.0
   yaml: ^3.1.2
-  http: ^1.1.0
+  http: '>=0.13.1 <=0.13.6'
+  build_runner: '>=1.0.0 <3.0.0'
+  logging: '>=1.0.0 <=2.0.0'
 
 dev_dependencies:
   test: ^1.24.2
-  build_runner: '>=1.0.0 <3.0.0'
   build_test: '>=1.2.0 <3.0.0'
   source_gen_test:
   pedantic:
   coverage: ^1.6.3
-
-dependency_overrides:
-  openapi_generator_annotations:
-    path: ../openapi-generator-annotations

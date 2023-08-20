@@ -10,6 +10,7 @@ jobs:
   publish-cli:
 
     runs-on: ubuntu-latest
+    needs: [Dart CI Checks, Build example project 🛠️]
 
     steps:
       - name: Checkout
@@ -26,6 +27,7 @@ jobs:
   publish-annotation:
 
     runs-on: ubuntu-latest
+    needs: [Dart CI Checks, Build example project 🛠️]
 
     steps:
       - name: Checkout

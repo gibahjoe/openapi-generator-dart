@@ -1,5 +1,7 @@
 /// Config base class
 /// Your annotated class must extend this config class
+@Deprecated(
+    'You do not need to extend this anymore (See example). This class would be removed in the next major release.')
 abstract class OpenapiGeneratorConfig {}
 
 class Openapi {
@@ -50,7 +52,7 @@ class Openapi {
   /// --skip-validate-spec
   final bool? skipSpecValidation;
 
-  /// Add reserver words mappings as reservedWord=replacement format.
+  /// Add reserved words mappings as reservedWord=replacement format.
   /// It is supported by the dart2-api and dart-dio generator.
   ///
   /// --reserved-words-mappings
