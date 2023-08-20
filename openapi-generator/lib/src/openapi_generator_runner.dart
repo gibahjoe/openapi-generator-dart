@@ -33,6 +33,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           ':::::::::::::::::::::::::::::::::::::::::::',
           '::      Openapi generator for dart       ::',
           ':::::::::::::::::::::::::::::::::::::::::::',
+          '',
         ].join('\n'),
       ),
     );
@@ -74,8 +75,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
                 log: log,
                 communication: OutputMessage(
                   message:
-                      '- :: Library exists definition at [$path] exists and configuration is annotated with alwaysRun: [${args.alwaysRun}]. This option will be removed in a future version. ::',
-                  level: Level.WARNING,
+                      'Generated client already exists at [$path] and configuration is annotated with alwaysRun: [${args.alwaysRun}]. Therefore, skipping this build. Note that the "alwaysRun" config will be removed in future versions.',
+                  level: Level.INFO,
                 ),
               );
               return '';
@@ -98,7 +99,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       late OutputMessage communication;
       if (e is! OutputMessage) {
         communication = OutputMessage(
-          message: '- :: There was an error generating the spec. ::',
+          message: ' - There was an error generating the spec.',
           level: Level.SEVERE,
           additionalContext: e,
           stackTrace: st,
@@ -109,12 +110,12 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
 
       logOutputMessage(log: log, communication: communication);
     } finally {
-      logOutputMessage(
-        log: log,
-        communication: OutputMessage(
-          message: ':::::::::::::::::::::::::::::::::::::::::::',
-        ),
-      );
+      // logOutputMessage(
+      //   log: log,
+      //   communication: OutputMessage(
+      //     message: ':::::::::::::::::::::::::::::::::::::::::::',
+      //   ),
+      // );
     }
     return '';
   }
@@ -125,7 +126,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     logOutputMessage(
       log: log,
       communication: OutputMessage(
-        message: 'OpenapiGenerator :: [ ${args.join(' ')} ]',
+        message:
+            'Running following command to generate openapi client - [ ${args.join(' ')} ]',
       ),
     );
 
@@ -152,19 +154,11 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     } else {
       result = ProcessResult(999999, 0, null, null);
     }
-    return genName;
-  }
 
-  String appendTemplateDirCommandArgs(
-      ConstantReader annotation, String command, String separator) {
-    var templateDir =
-        _readFieldValueAsString(annotation, 'templateDirectory', '');
-    if (templateDir.isNotEmpty) {
-      command = '$command$separator-t$separator$templateDir';
     if (result.exitCode != 0) {
       return Future.error(
         OutputMessage(
-          message: ':: Codegen Failed. Generator output: ::',
+          message: 'Codegen Failed. Generator output: ',
           level: Level.SEVERE,
           additionalContext: result.stderr,
           stackTrace: StackTrace.current,
@@ -176,19 +170,13 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         communication: OutputMessage(
           message: [
             if (arguments.isDebug) result.stdout,
-            ':: Codegen completed successfully. ::',
+            'Openapi generator completed successfully. ',
           ].join('\n'),
         ),
       );
     }
-    return command;
   }
 
-  String appendInputFileCommandArgs(
-      ConstantReader annotation, String command, String separator) {
-    var inputFile = _readFieldValueAsString(annotation, 'inputSpecFile', '');
-    if (inputFile.isNotEmpty) {
-      command = '$command$separator-i$separator$inputFile';
   /// Next-gen of the generation.
   ///
   /// Proposal for reworking how to generated the user's changes based on spec
@@ -204,33 +192,24 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         log: log,
         communication: OutputMessage(
           message:
-              ':: Using a remote specification, a cache will still be create but may be outdated. ::',
+              'Using a remote specification, a cache will still be create but may be outdated.',
           level: Level.WARNING,
         ),
       );
     }
-    return command;
-  }
-
-  String appendSkipValidateSpecCommandArgs(
-      ConstantReader annotation, String command, String separator) {
-    var skipSpecValidation =
-        _readFieldValueAsBool(annotation, 'skipSpecValidation', false)!;
-    if (skipSpecValidation) {
-      command = '$command$separator--skip-validate-spec';
     try {
       if (!await hasDiff(args: args)) {
         logOutputMessage(
           log: log,
           communication: OutputMessage(
-            message: ':: No diff between versions, not running generator. ::',
+            message: 'No diff between versions, not running generator.',
           ),
         );
       } else {
         logOutputMessage(
           log: log,
           communication: OutputMessage(
-            message: ':: Dirty Spec found. Running generation. ::',
+            message: 'Dirty Spec found. Running generation.',
           ),
         );
         await runOpenApiJar(arguments: args);
@@ -240,14 +219,16 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           logOutputMessage(
             log: log,
             communication: OutputMessage(
-              message: ':: No local cache found. Creating one. ::',
+              message: 'No local cache found. Creating one.',
+              level: Level.CONFIG,
             ),
           );
         } else {
           logOutputMessage(
             log: log,
             communication: OutputMessage(
-              message: ':: Local cache found. Overwriting existing one. ::',
+              message: 'Local cache found. Overwriting existing one.',
+              level: Level.CONFIG,
             ),
           );
         }
@@ -257,7 +238,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         logOutputMessage(
           log: log,
           communication: OutputMessage(
-            message: ':: Successfully cached spec changes. ::',
+            message: 'Successfully cached spec changes.',
           ),
         );
       }
@@ -265,7 +246,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       logOutputMessage(
         log: log,
         communication: OutputMessage(
-          message: ':: Failed to generate content. ::',
+          message: 'Failed to generate content.',
           additionalContext: e,
           stackTrace: st,
           level: Level.SEVERE,
@@ -276,23 +257,18 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         (_) => logOutputMessage(
           log: log,
           communication: OutputMessage(
-            message: ':: Successfully updated annotated file. ::',
+            message: 'Successfully updated annotated file.',
+            level: Level.CONFIG,
           ),
         ),
         onError: (e, st) => logOutputMessage(
           log: log,
           communication: OutputMessage(
-            message: 'Failed to update annotated class file.',
-            level: Level.SEVERE,
+            message: 'Failed to update annotated class file. Failing silently.',
+            level: Level.WARNING,
             additionalContext: e,
             stackTrace: st,
           ),
-        ),
-      );
-      logOutputMessage(
-        log: log,
-        communication: OutputMessage(
-          message: ':::::::::::::::::::::::::::::::::',
         ),
       );
     }
@@ -308,7 +284,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       log: log,
       communication: OutputMessage(
         message: [
-          ':: Loaded cached and current spec files. ::',
+          'Loaded cached and current spec files.',
           if (args.isDebug) ...[jsonEncode(cachedSpec), jsonEncode(loadedSpec)],
         ].join('\n'),
       ),

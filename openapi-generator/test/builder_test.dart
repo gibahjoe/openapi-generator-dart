@@ -166,7 +166,7 @@ void main() {
         expect(
             generatedOutput,
             contains(
-                ':: Using a remote specification, a cache will still be create but may be outdated. ::'));
+                'Using a remote specification, a cache will still be create but may be outdated.'));
       });
       test('when the spec is dirty', () async {
         final src = '''
@@ -193,7 +193,7 @@ void main() {
       ''';
         generatedOutput = await generate(src);
         expect(generatedOutput,
-            contains(':: No diff between versions, not running generator. ::'));
+            contains('No diff between versions, not running generator.'));
       });
       test('openApiJar with expected args', () async {
         f.writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
@@ -218,9 +218,7 @@ void main() {
 )
         ''');
         expect(
-            generatedOutput,
-            contains(
-                'OpenapiGenerator :: [ ${(await args.jarArgs).join(' ')} ]'));
+            generatedOutput, contains('[ ${(await args.jarArgs).join(' ')} ]'));
       });
       test('adds generated comment', () async {
         f.writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
@@ -517,21 +515,19 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
           if (f.existsSync()) {
             f.deleteSync();
           }
+          expect(f.existsSync(), isFalse);
           generatedOutput = await generate(src);
-          expect(
-              generatedOutput, contains('No local cache found. Creating one.'));
           expect(f.existsSync(), isTrue);
           expect(jsonDecode(f.readAsStringSync()),
               await loadSpec(specPath: specPath));
         });
         test('updates the cache file when found', () async {
           f.writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
+          expect(f.existsSync(), isTrue);
           generatedOutput = await generate(src);
           final expectedSpec = await loadSpec(specPath: specPath);
           final actualSpec = jsonDecode(f.readAsStringSync());
           expect(actualSpec, expectedSpec);
-          expect(generatedOutput,
-              contains('Local cache found. Overwriting existing one.'));
         });
         test('logs when successful', () async {
           f.writeAsStringSync(jsonEncode({'someKey': 'someValue'}));

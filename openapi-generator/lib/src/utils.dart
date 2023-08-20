@@ -59,5 +59,4 @@ String Function(String, MapEntry<String, dynamic>) foldStringMap({
     (String prev, MapEntry<String, dynamic> curr) =>
         '${prev.trim().isEmpty ? '' : '$prev,'}${keyModifier != null ? keyModifier(curr.key) : curr.key}=${valueModifier != null ? valueModifier(curr.value) : curr.value}';
 
-final lastRunPlaceHolder =
-    '// GENERATED DO NOT MODIFY BY HAND: openapi-generator-last-run';
+final lastRunPlaceHolder = '// Openapi Generator last run: ';

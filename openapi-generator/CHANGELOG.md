@@ -1,6 +1,14 @@
+## 4.12.0
+
+- Added spec diff tracking. This means you Openapi generator now tracks changes to your spec and only regenerates the
+  code if there are changes. This is useful if you have a large spec and you want to avoid regenerating the code every
+  time you run your build. This is enabled by default. You can read more about it [here](../README.md#next-generation).
+  Credits - [@Nexushunter](https://github.com/Nexushunter)
+- Improved test coverage
+
 ## 4.11.1
 
-- Removed ```log.severe``` that shows event though generation is successful
+- Removed ```log.severe``` that shows even though generation is successful
 - Updated documentation
 
 ## 4.11.0

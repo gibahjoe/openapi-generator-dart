@@ -32,29 +32,23 @@ Future<String> generate(String source, {String path = 'lib/myapp.dart'}) async {
     'openapi_generator|openapi-spec.yaml': spec
   };
 
-  // Capture any error from generation; if there is one, return that instead of
+  // Capture any message from generation; if there is one, return that instead of
   // the generated output.
-  String? error;
-  void captureError(dynamic logRecord) {
-    // print(logRecord.runtimeType);
-    // print(logRecord);
-    // if (logRecord.error is InvalidGenerationSourceError) {
-    //   if (error != null) throw StateError('Expected at most one error.');
-    //   error = logRecord.error.toString();
-    // }
+  String? logMessage;
+  void captureLog(dynamic logRecord) {
     if (logRecord is OutputMessage) {
-      error =
-          '${error ?? ''}\n${logRecord.level} ${logRecord.message} \n ${logRecord.additionalContext} \n ${logRecord.stackTrace}';
+      logMessage =
+          '${logMessage ?? ''}\n${logRecord.level} ${logRecord.message} \n ${logRecord.additionalContext} \n ${logRecord.stackTrace}';
     } else {
-      error =
-          '${error ?? ''}\n${logRecord.message ?? ''}\n${logRecord.error ?? ''}\n${logRecord.stackTrace ?? ''}';
+      logMessage =
+          '${logMessage ?? ''}\n${logRecord.message ?? ''}\n${logRecord.error ?? ''}\n${logRecord.stackTrace ?? ''}';
     }
   }
 
   var writer = InMemoryAssetWriter();
   await testBuilder(builder, srcs,
-      rootPackage: pkgName, writer: writer, onLog: captureError);
-  return error ??
+      rootPackage: pkgName, writer: writer, onLog: captureLog);
+  return logMessage ??
       String.fromCharCodes(
           writer.assets[AssetId(pkgName, 'lib/value.g.dart')] ?? []);
 }
