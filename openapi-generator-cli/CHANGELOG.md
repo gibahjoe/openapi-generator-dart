@@ -1,4 +1,4 @@
-## 4.11.0
+## 4.12.0
 
 - Bumped version to match annotations and core.
 
