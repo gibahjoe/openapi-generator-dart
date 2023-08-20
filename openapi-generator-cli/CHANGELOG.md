@@ -1,5 +1,9 @@
 ## 4.11.0
 
+- Bumped version to match annotations and core.
+
+## 4.11.0
+
 - Bumped dart-ogurets (_dioAlt_) generator to 7.2
   with [changes](https://github.com/dart-ogurets/dart-openapi-maven#changelog)
 - Bumped official openapi generator to 6.6.0.
