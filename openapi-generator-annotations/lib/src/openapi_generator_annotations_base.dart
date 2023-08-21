@@ -1,3 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:crypto/crypto.dart';
+import 'package:meta/meta.dart';
+
 /// Config base class
 /// Your annotated class must extend this config class
 @Deprecated(
@@ -24,6 +30,19 @@ class Openapi {
   ///
   /// -i
   final String inputSpecFile;
+
+  /// Provides the access information to the input spec file.
+  ///
+  /// For use with useNextGen.
+  ///
+  /// The next generation of the OAS spec file information. Allows for local and
+  /// remote spec files.
+  ///
+  /// This version of the spec file configuration allows for custom authorization
+  /// to be applied to the fetch request when the spec file is in a remote
+  /// location. There is also special handling for when the spec file lives within
+  /// AWS.
+  final InputSpec? inputSpec;
 
   /// folder containing the template files
   ///
@@ -129,6 +148,7 @@ class Openapi {
     @deprecated this.overwriteExistingFiles,
     this.skipSpecValidation = false,
     required this.inputSpecFile,
+    this.inputSpec,
     this.templateDirectory,
     required this.generatorName,
     this.outputDirectory,
@@ -146,6 +166,234 @@ class Openapi {
     this.projectPubspecPath,
     this.debugLogging = false,
   });
+}
+
+/// Provides the input spec file to be used.
+///
+/// Provides the location of the input spec file to be used by the generator.
+/// Includes the option to use the default json or yaml paths.
+class InputSpec {
+  final String path;
+  final bool defaultYaml;
+
+  const InputSpec({String? path, this.defaultYaml = true})
+      : path = path ?? 'openapi.${defaultYaml ? 'yaml' : 'json'}';
+
+  const InputSpec.empty() : this();
+
+  const InputSpec.emptyJson() : this(defaultYaml: false);
+
+  Map<String, dynamic> toJsonMap() =>
+      {'path': path, 'defaultYaml': defaultYaml};
+
+  InputSpec.fromMap(Map<String, dynamic> map)
+      : this(
+          path: map['path'],
+          defaultYaml: map['defaultYaml'] == 'true' ? true : false,
+        );
+}
+
+/// Provides the location for the remote specification.
+///
+/// Provides basic support for fetching remote specification files hidden behind
+/// an authenticated endpoint.
+///
+/// By default when no [url] is provided a default [Uri.http] to
+/// localhost:8080/PWD is used.
+///
+/// This contains authentication information for fetching the OAS spec ONLY. This
+/// does not apply security to the entry points defined in the OAS spec.
+class RemoteSpec extends InputSpec {
+  final String? authHeaderContent;
+
+  const RemoteSpec({
+    required super.path,
+    this.authHeaderContent,
+  });
+
+  const RemoteSpec.empty() : this(path: 'http://localhost:8080/');
+
+  Uri get url => Uri.parse(path);
+
+  Map<String, String> toHeaderMap() {
+    return {
+      if (authHeaderContent != null)
+        'Authorization': 'Bearer ${authHeaderContent}',
+    };
+  }
+
+  Map<String, dynamic> toJsonMap() {
+    return {
+      if (authHeaderContent != null) 'authHeaderContent': authHeaderContent!,
+      ...super.toJsonMap(),
+    };
+  }
+
+  RemoteSpec.fromMap(Map<String, dynamic> map)
+      : authHeaderContent = map['authHeaderContent'],
+        super.fromMap(map);
+}
+
+/// Indicates whether or not the spec file live within AWS.
+///
+/// Since AWS handles the authentication header differently, we need to inform
+/// the builder to include the alternate auth header.
+///
+/// This currently only support AWS S3.
+///
+/// This contains authentication information for fetching the OAS spec ONLY. This
+/// does not apply security to the entry points defined in the OAS spec.
+class AwsRemoteSpec extends RemoteSpec {
+  /// The accessKeyId use to interact with AWS.
+  ///
+  /// When this is null authentication will fail.
+  final String? _accessKeyId;
+
+  @visibleForTesting
+  String? get accessKeyId => _accessKeyId;
+
+  /// The secretAccessKey for the user.
+  ///
+  /// When this is null the requests wil not be authenticated.
+  final String? _secretAccessKey;
+
+  @visibleForTesting
+  String? get secretAccessKey => _secretAccessKey;
+
+  /// The region where the AWS resource resides.
+  final String region;
+
+  /// The S3 bucket name.
+  final String bucket;
+
+  /// The current timestamp.
+  ///
+  /// This shouldn't be manually provided.
+  final DateTime? now;
+
+  /// Creates a reference to an OAS spec hosted within AWS S3.
+  ///
+  /// [accessKeyId] User AWS accessKeyId
+  /// [secretAccessKeyId] User AWS secretAccessKeyId
+  /// [region] The region to target within AWS.
+  /// [bucket] The S3 bucket to target.
+  /// [path] The path of the OAS spec from the root of the [bucket] without the
+  ///   leading /.
+  const AwsRemoteSpec({
+    String? accessKeyId,
+    String? secretAccessKey,
+    required this.region,
+    required this.bucket,
+    required super.path,
+    this.now,
+  })  : _secretAccessKey = secretAccessKey,
+        _accessKeyId = accessKeyId;
+
+  /// The url of the OAS spec within S3.
+  @override
+  Uri get url => Uri.https('$bucket.s3.$region.amazonaws.com', '/$path');
+
+  /// The [Authentication] header content.
+  ///
+  /// This builds the Authorization header content format used by AWS.
+  ///
+  /// Multiple calls will result in the same content unless [toHeaderMap] has been
+  /// called in between.
+  String get authHeaderContent {
+    if (_secretAccessKey == null || _accessKeyId == null) {
+      return '';
+    }
+    // https://docs.aws.amazon.com/AmazonS3/latest/userguide/RESTAuthentication.html#RESTAuthenticationExamples
+    String toSign = [
+      'GET',
+      '',
+      '',
+      now,
+      '/$bucket/$path',
+    ].join('\n');
+
+    final utf8AKey = utf8.encode(_secretAccessKey!);
+    final utf8ToSign = utf8.encode(toSign);
+
+    final signature =
+        base64Encode(Hmac(sha1, utf8AKey).convert(utf8ToSign).bytes);
+    return 'AWS $_accessKeyId:$signature';
+  }
+
+  /// Load the user credentials from the environment.
+  AwsRemoteSpec loadCredentials() => AwsRemoteSpec(
+        region: region,
+        bucket: bucket,
+        path: path,
+        accessKeyId: Platform.environment['AWS_ACCESS_KEY_ID'],
+        secretAccessKey: Platform.environment['AWS_SECRET_ACCESS_KEY'],
+        now: DateTime.now(),
+      );
+
+  /// Builds the headers map for the authenticated request.
+  ///
+  /// This will return an empty map when when the [_accessKeyId] or [_secretAccessKey]
+  /// are empty after attempting to fetch them from the environment.
+  Map<String, String> toHeaderMap() {
+    AwsRemoteSpec specAuth = this;
+    if (_accessKeyId == null || _secretAccessKey == null || now == null) {
+      specAuth = loadCredentials();
+      if (specAuth.accessKeyId == null ||
+          specAuth.secretAccessKey == null ||
+          now == null) {
+        // TODO: This should probably throw or assert
+        return {};
+      }
+    }
+
+    return {
+      'Authorization': authHeaderContent,
+      'x-amz-date': now!.toIso8601String(),
+    };
+  }
+
+  Map<String, String> toJsonMap() {
+    return {
+      if (_accessKeyId != null) 'accessKeyId': _accessKeyId!,
+      if (_secretAccessKey != null) 'secretAccessKey': _secretAccessKey!,
+      'path': path,
+      'bucket': bucket,
+      'region': region,
+      ...super.toJsonMap(),
+    };
+  }
+
+  AwsRemoteSpec.fromMap(Map<String, dynamic> map)
+      : bucket = map['bucket'],
+        region = map['region'],
+        _accessKeyId = map['accessKeyId'],
+        _secretAccessKey = map['secretAccessKey'],
+        now = DateTime.now(),
+        super.fromMap(map);
+}
+
+/// A localstack remote spec for testing AWS like requests.
+@visibleForTesting
+class LocalStackRemoteSpec extends AwsRemoteSpec {
+  final int localStackPort;
+
+  const LocalStackRemoteSpec({
+    super.path,
+    this.localStackPort = 4566,
+  }) : super(
+          region: 'us-east-1',
+          accessKeyId: 'test',
+          secretAccessKey: 'test',
+          bucket: 'bucket',
+        );
+
+  Uri get url => Uri.http(
+      '$bucket.s3.$region.localhost.localstack.cloud:$localStackPort',
+      '/$path');
+
+  LocalStackRemoteSpec.fromMap(Map<String, dynamic> map)
+      : localStackPort = map['localStackPort'] ?? 4566,
+        super.fromMap(map);
 }
 
 class AdditionalProperties {

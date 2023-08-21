@@ -109,13 +109,6 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       }
 
       logOutputMessage(log: log, communication: communication);
-    } finally {
-      // logOutputMessage(
-      //   log: log,
-      //   communication: OutputMessage(
-      //     message: ':::::::::::::::::::::::::::::::::::::::::::',
-      //   ),
-      // );
     }
     return '';
   }
@@ -234,7 +227,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         }
         await cacheSpec(
             outputLocation: args.cachePath,
-            spec: await loadSpec(specPath: await args.inputFileOrFetch));
+            spec: await loadSpec(specConfig: args.inputSpec));
         logOutputMessage(
           log: log,
           communication: OutputMessage(
@@ -277,20 +270,35 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
 
   /// Load both specs into memory and verify if there is a diff between them.
   FutureOr<bool> hasDiff({required GeneratorArguments args}) async {
-    final cachedSpec = await loadSpec(specPath: args.cachePath, isCached: true);
-    final loadedSpec = await loadSpec(specPath: await args.inputFileOrFetch);
+    try {
+      final cachedSpec = await loadSpec(
+          specConfig: annots.InputSpec(path: args.cachePath), isCached: true);
+      final loadedSpec = await loadSpec(specConfig: args.inputSpec);
 
-    logOutputMessage(
-      log: log,
-      communication: OutputMessage(
-        message: [
-          'Loaded cached and current spec files.',
-          if (args.isDebug) ...[jsonEncode(cachedSpec), jsonEncode(loadedSpec)],
-        ].join('\n'),
-      ),
-    );
+      logOutputMessage(
+        log: log,
+        communication: OutputMessage(
+          message: [
+            'Loaded cached and current spec files.',
+            if (args.isDebug) ...[
+              jsonEncode(cachedSpec),
+              jsonEncode(loadedSpec)
+            ],
+          ].join('\n'),
+        ),
+      );
 
-    return isSpecDirty(cachedSpec: cachedSpec, loadedSpec: loadedSpec);
+      return isSpecDirty(cachedSpec: cachedSpec, loadedSpec: loadedSpec);
+    } catch (e, st) {
+      return Future.error(
+        OutputMessage(
+          message: 'Failed to check diff status.',
+          level: Level.SEVERE,
+          additionalContext: e,
+          stackTrace: st,
+        ),
+      );
+    }
   }
 
   /// Conditionally generates the new sources based on the [args.runSourceGen] &

@@ -24,6 +24,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Start Docker compose containers
+        if: ${{ matrix_workdir }} == 'openapi-generator'
+        run: docker-compose -f "docker-compose.yaml" up -d --build
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1.5.0
         with:
@@ -36,6 +39,9 @@ jobs:
         run: dart analyze --fatal-warnings
       - name: Run tests
         run: dart test
+      - name: Stop Docker Container
+        if: ${{ matrix.work_dir }} == 'openapi-generator' && always()
+        run: docker-compose -f "docker-compose.yaml" down
 
   build:
     name: Build example project 🛠️

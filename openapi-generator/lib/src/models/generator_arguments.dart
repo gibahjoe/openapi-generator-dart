@@ -76,6 +76,12 @@ class GeneratorArguments {
   /// Default: openapi.(ya?ml) | openapi.json
   String _inputFile;
 
+  /// Provides an OAS spec file.
+  ///
+  /// When the [useNextGen] flag is set this should be the spec file configuration
+  /// used instead.
+  InputSpec inputSpec;
+
   /// The directory containing the template files.
   final String templateDirectory;
 
@@ -111,6 +117,7 @@ class GeneratorArguments {
     required src_gen.ConstantReader annotations,
     bool alwaysRun = false,
     String inputSpecFile = '',
+    InputSpec inputSpec = const InputSpec.empty(),
     String templateDirectory = '',
     Generator generator = Generator.dart,
     Map<String, String> typeMapping = const {},
@@ -162,7 +169,8 @@ class GeneratorArguments {
             'projectPubspecPath',
             pubspecPath ??
                 '${Directory.current.path}${Platform.pathSeparator}pubspec.yaml'),
-        isDebug = annotations.readPropertyOrDefault('debugLogging', isDebug);
+        isDebug = annotations.readPropertyOrDefault('debugLogging', isDebug),
+        inputSpec = annotations.readPropertyOrDefault('inputSpec', inputSpec);
 
   /// The stringified name of the [Generator].
   String get generatorName => generator == Generator.dart
@@ -183,9 +191,11 @@ class GeneratorArguments {
   /// Used when the specification is hosted on an external server. This will cause
   /// the compiler to pulls from the remote source. When this is true a cache will
   /// still be created but a warning will be emitted to the user.
-  bool get isRemote => _inputFile.isNotEmpty
-      ? RegExp(r'^https?://').hasMatch(_inputFile)
-      : false;
+  bool get isRemote => useNextGen
+      ? inputSpec is RemoteSpec
+      : _inputFile.isNotEmpty
+          ? RegExp(r'^https?://').hasMatch(_inputFile)
+          : false;
 
   bool get hasLocalCache => File(cachePath).existsSync();
 
@@ -200,6 +210,23 @@ class GeneratorArguments {
   /// Subsequent calls will be able to use the [_inputFile] when successful in
   /// the event that a default is found.
   Future<String> get inputFileOrFetch async {
+    if (useNextGen) {
+      if (isRemote) {
+        return (inputSpec as RemoteSpec).url.toString();
+      }
+      if (!File(inputSpec.path).existsSync()) {
+        return Future.error(
+          OutputMessage(
+            message:
+                'No spec file found. One must be present in the project or hosted remotely.',
+            level: Level.SEVERE,
+            stackTrace: StackTrace.current,
+          ),
+        );
+      }
+      return inputSpec.path;
+    }
+
     final curr = Directory.current;
     if (_inputFile.isNotEmpty) {
       return _inputFile;

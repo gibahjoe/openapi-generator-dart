@@ -5,9 +5,8 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
 @Openapi(
     inputSpecFile:
         'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
-    inputSpec: RemoteSpec(
-      path:
-          'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+    inputSpec: LocalStackRemoteSpec(
+      path: 'openapi.yaml',
     ),
     generatorName: Generator.dio,
     useNextGen: true,

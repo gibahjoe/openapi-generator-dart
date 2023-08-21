@@ -1,0 +1,13 @@
+version: '3'
+services:
+  local-s3:
+    container_name: localstack
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=S3
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - './test/specs/localstack:/var/lib/localstack'
+      - './test/specs/buckets.sh:/etc/localstack/init/ready.d/buckets.sh'
