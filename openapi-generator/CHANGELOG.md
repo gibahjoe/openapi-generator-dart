@@ -1,3 +1,7 @@
+## 4.12.1
+
+- fixed outdated pubs
+
 ## 4.12.0
 
 - Added spec diff tracking. This means you Openapi generator now tracks changes to your spec and only regenerates the
