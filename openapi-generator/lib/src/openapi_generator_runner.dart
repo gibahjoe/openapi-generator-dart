@@ -30,9 +30,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       communication: OutputMessage(
         message: [
           '',
-          ':::::::::::::::::::::::::::::::::::::::::::',
-          '::      Openapi generator for dart       ::',
-          ':::::::::::::::::::::::::::::::::::::::::::',
+          '     Openapi generator for dart      ',
           '',
         ].join('\n'),
       ),
@@ -99,7 +97,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       late OutputMessage communication;
       if (e is! OutputMessage) {
         communication = OutputMessage(
-          message: ' - There was an error generating the spec.',
+          message: '- There was an error generating the spec.',
           level: Level.SEVERE,
           additionalContext: e,
           stackTrace: st,
@@ -109,13 +107,6 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       }
 
       logOutputMessage(log: log, communication: communication);
-    } finally {
-      // logOutputMessage(
-      //   log: log,
-      //   communication: OutputMessage(
-      //     message: ':::::::::::::::::::::::::::::::::::::::::::',
-      //   ),
-      // );
     }
     return '';
   }
@@ -127,7 +118,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       log: log,
       communication: OutputMessage(
         message:
-            'Running following command to generate openapi client - [ ${args.join(' ')} ]',
+            'Running following command to generate openapi client - [ ${args.join('')} ]',
       ),
     );
 
@@ -158,7 +149,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     if (result.exitCode != 0) {
       return Future.error(
         OutputMessage(
-          message: 'Codegen Failed. Generator output: ',
+          message: 'Codegen Failed. Generator output:',
           level: Level.SEVERE,
           additionalContext: result.stderr,
           stackTrace: StackTrace.current,
@@ -170,7 +161,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         communication: OutputMessage(
           message: [
             if (arguments.isDebug) result.stdout,
-            'Openapi generator completed successfully. ',
+            'Openapi generator completed successfully.',
           ].join('\n'),
         ),
       );
@@ -253,6 +244,18 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         ),
       );
     } finally {
+      await formatCode(args: args).then(
+        (_) {},
+        onError: (e, st) => logOutputMessage(
+          log: log,
+          communication: OutputMessage(
+            message: 'Failed to format generated code.',
+            additionalContext: e,
+            stackTrace: st,
+            level: Level.SEVERE,
+          ),
+        ),
+      );
       await updateAnnotatedFile(annotatedPath: annotatedPath).then(
         (_) => logOutputMessage(
           log: log,
@@ -264,7 +267,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         onError: (e, st) => logOutputMessage(
           log: log,
           communication: OutputMessage(
-            message: 'Failed to update annotated class file. Failing silently.',
+            message:
+                ' Failed to update annotated class file.',
             level: Level.WARNING,
             additionalContext: e,
             stackTrace: st,
@@ -301,7 +305,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       logOutputMessage(
         log: log,
         communication: OutputMessage(
-          message: ':: Skipping source gen step due to flag being set. ::',
+          message: 'Skipping source gen step due to flag being set.',
           level: Level.WARNING,
         ),
       );
@@ -309,8 +313,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       logOutputMessage(
         log: log,
         communication: OutputMessage(
-          message:
-              ':: Skipping source gen because generator does not need it. ::',
+          message: 'Skipping source gen because generator does not need it.',
         ),
       );
     } else {
@@ -318,12 +321,12 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         (_) => logOutputMessage(
           log: log,
           communication: OutputMessage(
-            message: ':: Sources generated successfully. ::',
+            message: 'Sources generated successfully.',
           ),
         ),
         onError: (e, st) => Future.error(
           OutputMessage(
-            message: ':: Could not complete source generation ::',
+            message: 'Could not complete source generation',
             additionalContext: e,
             stackTrace: st,
             level: Level.SEVERE,
@@ -339,20 +342,20 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     logOutputMessage(
       log: log,
       communication: OutputMessage(
-        message: ':: Running source code generation. ::',
+        message: 'Running source code generation.',
       ),
     );
     final command = Command(
         executable: baseCommand,
         arguments: 'pub run build_runner build --delete-conflicting-outputs'
-            .split(' ')
+            .split('')
             .toList(),
         wrapper: args.wrapper);
 
     logOutputMessage(
       log: log,
       communication: OutputMessage(
-        message: ':: ${command.executable} ${command.arguments.join(' ')} ::',
+        message: '${command.executable} ${command.arguments.join('')}',
       ),
     );
 
@@ -371,8 +374,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     if (results.exitCode != 0) {
       return Future.error(
         OutputMessage(
-          message:
-              ':: Failed to generate source code. Build Command output: ::',
+          message: 'Failed to generate source code. Build Command output:',
           level: Level.SEVERE,
           additionalContext: results.stderr,
           stackTrace: StackTrace.current,
@@ -382,7 +384,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       logOutputMessage(
         log: log,
         communication: OutputMessage(
-          message: ':: Codegen completed successfully. ::',
+          message: 'Codegen completed successfully.',
         ),
       );
     }
@@ -395,7 +397,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       logOutputMessage(
         log: log,
         communication: OutputMessage(
-          message: ':: Skipping install step because flag was set. ::',
+          message: 'Skipping install step because flag was set.',
           level: Level.WARNING,
         ),
       );
@@ -409,7 +411,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         log: log,
         communication: OutputMessage(
           message:
-              ':: Installing dependencies with generated source. ${command.executable} ${command.arguments.join(' ')} ::',
+              'Installing dependencies with generated source. ${command.executable} ${command.arguments.join('')}',
         ),
       );
 
@@ -428,7 +430,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       if (results.exitCode != 0) {
         return Future.error(
           OutputMessage(
-            message: ':: Install within generated sources failed. ::',
+            message: 'Install within generated sources failed.',
             level: Level.SEVERE,
             additionalContext: results.stderr,
             stackTrace: StackTrace.current,
@@ -440,7 +442,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           communication: OutputMessage(
             message: [
               if (args.isDebug) results.stdout,
-              ':: Install completed successfully. ::',
+              'Install completed successfully.',
             ].join('\n'),
           ),
         );
@@ -468,14 +470,14 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       logOutputMessage(
         log: log,
         communication: OutputMessage(
-          message: ':: Found generated timestamp. Updating with $now ::',
+          message: 'Found generated timestamp. Updating with $now',
         ),
       );
     } else {
       logOutputMessage(
         log: log,
         communication: OutputMessage(
-          message: ':: Creating generated timestamp with $now ::',
+          message: 'Creating generated timestamp with $now',
         ),
       );
     }
@@ -491,6 +493,38 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           level: Level.SEVERE,
         ),
       );
+    }
+  }
+
+  /// Format the generated code in the output directory.
+  Future<void> formatCode({required GeneratorArguments args}) async {
+    final command = Command(executable: 'dart', arguments: ['format', './']);
+    ProcessResult result;
+    if (!testMode) {
+      result = await Process.run(
+        command.executable,
+        command.arguments,
+        workingDirectory: args.outputDirectory,
+        runInShell: Platform.isWindows,
+      );
+    } else {
+      result = ProcessResult(99999, 0, null, null);
+    }
+
+    if (result.exitCode != 0) {
+      return Future.error(
+        OutputMessage(
+          message: 'Failed to format generated code.',
+          additionalContext: result.stderr,
+          stackTrace: StackTrace.current,
+          level: Level.SEVERE,
+        ),
+      );
+    } else {
+      logOutputMessage(
+          log: log,
+          communication:
+              OutputMessage(message: 'Successfully formatted code.'));
     }
   }
 }
