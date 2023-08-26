@@ -118,7 +118,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       log: log,
       communication: OutputMessage(
         message:
-            'Running following command to generate openapi client - [ ${args.join('')} ]',
+            'Running following command to generate openapi client - [ ${args.join(' ')} ]',
       ),
     );
 
@@ -267,8 +267,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         onError: (e, st) => logOutputMessage(
           log: log,
           communication: OutputMessage(
-            message:
-                ' Failed to update annotated class file.',
+            message: 'Failed to update annotated class file.',
             level: Level.WARNING,
             additionalContext: e,
             stackTrace: st,
@@ -348,14 +347,14 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     final command = Command(
         executable: baseCommand,
         arguments: 'pub run build_runner build --delete-conflicting-outputs'
-            .split('')
+            .split(' ')
             .toList(),
         wrapper: args.wrapper);
 
     logOutputMessage(
       log: log,
       communication: OutputMessage(
-        message: '${command.executable} ${command.arguments.join('')}',
+        message: '${command.executable} ${command.arguments.join(' ')}',
       ),
     );
 
@@ -411,7 +410,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         log: log,
         communication: OutputMessage(
           message:
-              'Installing dependencies with generated source. ${command.executable} ${command.arguments.join('')}',
+              'Installing dependencies with generated source. ${command.executable} ${command.arguments.join(' ')}',
         ),
       );
 
