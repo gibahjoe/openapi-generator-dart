@@ -18,6 +18,7 @@ import 'models/command.dart';
 import 'models/generator_arguments.dart';
 
 class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
+  @Deprecated('To be removed in next major version')
   final bool testMode;
 
   OpenapiGenerator({this.testMode = false});
@@ -29,9 +30,9 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       log: log,
       communication: OutputMessage(
         message: [
-          '',
-          '     Openapi generator for dart      ',
-          '',
+          ':::::::::::::::::::::::::::::::::::::::::::',
+          '::      Openapi generator for dart       ::',
+          ':::::::::::::::::::::::::::::::::::::::::::',
         ].join('\n'),
       ),
     );
