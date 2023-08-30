@@ -35,7 +35,18 @@ jobs:
       - name: Run analyzer
         run: dart analyze --fatal-warnings
       - name: Run tests
-        run: dart test
+        run: dart run test --coverage="coverage"
+      - name: Install coverage tools
+        run: dart pub global activate coverage
+      - name: format coverage
+        run: $HOME/.pub-cache/bin/format_coverage --lcov --in=coverage --out=./coverage.lcov --package=. --report-on=lib
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          files: ./coverage.lcov
+          verbose: true
+          flags: ${{ matrix.work_dir }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   build:
     name: Build example project 🛠️
