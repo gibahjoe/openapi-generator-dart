@@ -1,4 +1,5 @@
 ![pub package](https://img.shields.io/pub/v/openapi_generator.svg) ![Pub Likes](https://img.shields.io/pub/likes/openapi_generator?) ![Pub Points](https://img.shields.io/pub/points/openapi_generator) ![Pub Popularity](https://img.shields.io/pub/popularity/openapi_generator) ![GitHub Repo stars](https://img.shields.io/github/stars/gibahjoe/openapi-generator-dart)
+[![codecov](https://codecov.io/gh/gibahjoe/openapi-generator-dart/graph/badge.svg?token=MF8SDQJMGP)](https://codecov.io/gh/gibahjoe/openapi-generator-dart)
 
 ### Do not forget to give a star or like if you like this library.
 
