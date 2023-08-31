@@ -1,14 +1,17 @@
 {
   "bootstrap-sha": "db9c8f6180d683045fa047658946ae2fce32b43e",
   "packages": {
-    "openapi-generator": {
-      "release-type": "dart"
+    "./openapi-generator": {
+      "release-type": "dart",
+      "package-name": "openapi-generator"
     },
-    "openapi-generator-annotations": {
-      "release-type": "dart"
+    "./openapi-generator-annotations": {
+      "release-type": "dart",
+      "package-name": "openapi-generator-annotations"
     },
-    "openapi-generator-cli": {
-      "release-type": "dart"
+    "./openapi-generator-cli": {
+      "release-type": "dart",
+      "package-name": "openapi-generator-cli"
     }
   }
 }
