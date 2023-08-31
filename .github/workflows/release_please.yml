@@ -14,6 +14,6 @@ jobs:
     steps:
       - uses: google-github-actions/release-please-action@v3
         with:
-          release-type: dart
-          package-name: openapi-generator-dart
+          token: ${{ secrets.OG_BOT_TOKEN }}
+          release-type: simple
           monorepo-tags: true
