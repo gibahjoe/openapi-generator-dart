@@ -29,6 +29,7 @@ class Openapi {
   /// relative path or url to spec file
   ///
   /// -i
+  @Deprecated('To be removed in the next major')
   final String inputSpecFile;
 
   /// Provides the access information to the input spec file.
@@ -179,23 +180,28 @@ class Openapi {
 class InputSpec {
   final String path;
   final bool defaultYaml;
+  final bool useYml;
 
-  const InputSpec({String? path, this.defaultYaml = true})
-      : path = path ?? 'openapi.${defaultYaml ? 'yaml' : 'json'}';
+  const InputSpec({String? path, this.defaultYaml = true, this.useYml = false})
+      : path = path ??
+            'openapi.${defaultYaml ? 'y${useYml ? '' : 'a'}ml' : 'json'}';
 
   const InputSpec.empty() : this();
 
   const InputSpec.emptyJson() : this(defaultYaml: false);
+  const InputSpec.emptyYml() : this(useYml: true);
 
   Map<String, dynamic> toJsonMap() => {
         'path': path,
         'defaultYaml': defaultYaml,
+        'useYml': useYml,
       };
 
   InputSpec.fromMap(Map<String, dynamic> map)
       : this(
           path: map['path'],
           defaultYaml: map['defaultYaml'] == 'true' ? true : false,
+          useYml: map['useYml'] == 'true' ? true : false,
         );
 }
 
@@ -205,7 +211,7 @@ class InputSpec {
 /// an authenticated endpoint.
 ///
 /// By default when no [url] is provided a default [Uri.http] to
-/// localhost:8080/PWD is used.
+/// localhost:8080/ is used.
 ///
 /// This contains authentication information for fetching the OAS spec ONLY. This
 /// does not apply security to the entry points defined in the OAS spec.

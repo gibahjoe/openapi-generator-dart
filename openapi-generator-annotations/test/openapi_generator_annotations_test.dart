@@ -69,10 +69,17 @@ void main() {
           test('provides default yaml path', () {
             expect(InputSpec.empty().path, 'openapi.yaml');
             expect(InputSpec.empty().defaultYaml, isTrue);
+            expect(InputSpec.empty().defaultYaml, isFalse);
+          });
+          test('provides default yml path', () {
+            expect(InputSpec.emptyYml().path, 'openapi.yml');
+            expect(InputSpec.emptyYml().defaultYaml, isTrue);
+            expect(InputSpec.emptyYml().useYml, isTrue);
           });
           test('provides default json path', () {
             expect(InputSpec.emptyJson().path, 'openapi.json');
             expect(InputSpec.emptyJson().defaultYaml, isFalse);
+            expect(InputSpec.emptyJson().useYml, isFalse);
           });
           test('uses path', () {
             expect(InputSpec(path: 'path').path, 'path');
