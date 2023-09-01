@@ -16,4 +16,3 @@ jobs:
         with:
           command: manifest
           token: ${{ secrets.OG_BOT_TOKEN }}
-          monorepo-tags: true

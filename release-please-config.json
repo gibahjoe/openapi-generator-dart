@@ -22,7 +22,7 @@
     },
     {
       "type": "linked-versions",
-      "groupName": "openapi-generator",
+      "groupName": "openapi generator",
       "components": [
         "openapi-generator",
         "openapi-generator-annotations",
