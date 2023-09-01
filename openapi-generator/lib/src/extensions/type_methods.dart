@@ -90,15 +90,7 @@ extension ReadProperty on ConstantReader {
           );
 
       if (v.instanceOf(TypeChecker.fromRuntime(RemoteSpec))) {
-        if (v.instanceOf(TypeChecker.fromRuntime(AwsRemoteSpec))) {
-          // ONLY USED DURING TESTING
-          if (v.instanceOf(TypeChecker.fromRuntime(LocalStackRemoteSpec))) {
-            return LocalStackRemoteSpec(path: map['path']) as T;
-          }
-          return AwsRemoteSpec.fromMap(map) as T;
-        } else {
-          return RemoteSpec.fromMap(map) as T;
-        }
+        return RemoteSpec.fromMap(map) as T;
       } else {
         return InputSpec.fromMap(map) as T;
       }

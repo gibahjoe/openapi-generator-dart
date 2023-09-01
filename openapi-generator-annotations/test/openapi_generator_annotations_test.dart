@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:crypto/crypto.dart';
 import 'package:openapi_generator_annotations/src/openapi_generator_annotations_base.dart';
 import 'package:test/test.dart';
+
+import 'utils.dart';
 
 void main() {
   group('OpenApi', () {
@@ -79,121 +79,128 @@ void main() {
           });
         });
         group('Remote Spec', () {
-          group('AWS', () {
-            group('defaults', () {
-              final remoteSpec = AwsRemoteSpec(
-                region: 'region',
-                bucket: 'bucket',
-                path: 'path',
-              );
-              test('has set values', () {
-                expect(remoteSpec.bucket, 'bucket');
-                expect(remoteSpec.region, 'region');
-                expect(remoteSpec.path, 'path');
-                expect(remoteSpec.accessKeyId, isNull);
-                expect(remoteSpec.secretAccessKey, isNull);
-              });
-              test('returns empty auth headers when access keys are null', () {
-                expect(remoteSpec.authHeaderContent, isEmpty);
-              });
-              test(
-                  'toHeaderMap returns empty when unable to use or find access keys',
-                  () {
-                expect(remoteSpec.toHeaderMap(), isEmpty);
-              });
-              // TODO: Find a way to cleanly update environment variables.
-              //  Isolate.spawnUri looks like a possible solution but I'm not sure
-              //  how to use it.
-              test('loadsCredentials', () {
-                final remoteSpec = AwsRemoteSpec(
-                  region: 'region',
-                  bucket: 'bucket',
-                  path: 'path',
-                );
-                expect(remoteSpec.accessKeyId, isNull);
-                expect(remoteSpec.secretAccessKey, isNull);
-                final map = <String, String>{};
-                map['AWS_ACCESS_KEY_ID'] = 'test';
-                map['AWS_SECRET_ACCESS_KEY'] = 'test';
-                Platform.environment.addAll(map);
-
-                Platform.environment.remove(map);
-                expect(remoteSpec.accessKeyId, 'test');
-                expect(remoteSpec.secretAccessKey, 'test');
-              }, skip: true);
-              test('toHeaderMapLoadsCredentials', () {
-                final remoteSpec = AwsRemoteSpec(
-                  region: 'region',
-                  bucket: 'bucket',
-                  path: 'path',
-                );
-                expect(remoteSpec.accessKeyId, isNull);
-                expect(remoteSpec.secretAccessKey, isNull);
-                Platform.environment['AWS_ACCESS_KEY_ID'] = 'test';
-                Platform.environment['AWS_SECRET_ACCESS_KEY'] = 'test';
-                final originalNow = remoteSpec.now;
-                final map = remoteSpec.toHeaderMap();
-                final newNow = remoteSpec.now;
-                Platform.environment.remove('AWS_ACCESS_KEY_ID');
-                Platform.environment.remove('AWS_SECRET_ACCESS_KEY');
-                expect(map['Authorization'], isNotNull);
-                expect(map['x-amz-date'], isNotNull);
-                expect(originalNow != newNow, isTrue);
-              }, skip: true);
-            });
-            group('with set access keys', () {
-              final remoteSpec = AwsRemoteSpec(
-                accessKeyId: 'test',
-                secretAccessKey: 'test',
-                region: 'region',
-                bucket: 'bucket',
-                path: 'path',
-                now: DateTime.now(),
-              );
-              test('builds auth header', () {
-                String toSign = [
-                  'GET',
-                  '',
-                  '',
-                  remoteSpec.now,
-                  '/bucket/path',
-                ].join('\n');
-
-                final utf8AKey = utf8.encode('test');
-                final utf8ToSign = utf8.encode(toSign);
-
-                final signature = base64Encode(
-                    Hmac(sha1, utf8AKey).convert(utf8ToSign).bytes);
-
-                expect(remoteSpec.authHeaderContent, 'AWS test:$signature');
-              });
-              test('builds header map', () {
-                final map = remoteSpec.toHeaderMap();
-                expect(map['Authorization'], remoteSpec.authHeaderContent);
-                expect(map['x-amz-date'], remoteSpec.now!.toIso8601String());
-              });
+          test('defaults', () {
+            final remote = RemoteSpec.empty();
+            expect(remote.path, 'http://localhost:8080/');
+            expect(remote.headerDelegate, isA<RemoteSpecHeaderDelegate>());
+          });
+          test('uses path', () {
+            final remote = RemoteSpec(path: 'https://example.com/path');
+            expect(remote.path, 'https://example.com/path');
+          });
+          test('accepts a delegate', () {
+            final remote = RemoteSpec(
+                path: 'https://example.com/path',
+                headerDelegate: AWSRemoteSpecHeaderDelegate(bucket: 'bucket'));
+            expect(remote.headerDelegate, isA<AWSRemoteSpecHeaderDelegate>());
+          });
+          group('RemoteSpecHeaderDelegates', () {
+            test('has empty headers', () {
+              expect(RemoteSpecHeaderDelegate().header(), isNull);
             });
           });
-          group('Other', () {
-            test('uses path', () {
-              final remote = RemoteSpec(path: 'https://example.com/path');
-              expect(remote.path, 'https://example.com/path');
-              expect(remote.authHeaderContent, isNull);
-              expect(remote.toHeaderMap(), isEmpty);
+          group('AWSRemoteSpecHeaderDelegate', () {
+            final delegate = AWSRemoteSpecHeaderDelegate(
+              bucket: 'bucket',
+              accessKeyId: 'test',
+              secretAccessKey: 'test',
+            );
+
+            test('signs the url correctly', () {
+              final now = DateTime.now();
+              final actual = delegate.authHeaderContent(
+                  now: now,
+                  bucket: 'bucket',
+                  path: 'openapi.yaml',
+                  accessKeyId: 'test',
+                  secretAccessKey: 'test');
+              expect(actual,
+                  awsSign('test', 'test', 'bucket', 'openapi.yaml', now));
             });
-            test('provides non-empty head map when authHeaderContent is set',
-                () {
-              final remote = RemoteSpec(
-                  path: 'https://example.com/path',
-                  authHeaderContent: 'superSecretValue');
-              expect(remote.path, 'https://example.com/path');
-              expect(remote.authHeaderContent, 'superSecretValue');
-              expect(remote.toHeaderMap(),
-                  {'Authorization': 'Bearer superSecretValue'});
+            group('header throws when', () {
+              final missingPathAssertion =
+                  AssertionError('The path to the OAS spec should be provided');
+              test('path is null', () {
+                try {
+                  delegate.header();
+                } catch (e, _) {
+                  expect(e, isA<AssertionError>());
+                  expect(e.toString(), missingPathAssertion.toString());
+                }
+              });
+              test('path is empty', () {
+                try {
+                  delegate.header(path: '');
+                } catch (e, _) {
+                  expect(e, isA<AssertionError>());
+                  expect(e.toString(), missingPathAssertion.toString());
+                }
+              });
+              test('creds are empty', () {
+                final thrown = AssertionError(
+                    'AWS_SECRET_KEY_ID & AWS_SECRET_ACCESS_KEY should be defined and not empty or they should be provided in the delegate constructor.');
+                try {
+                  final delegate = AWSRemoteSpecHeaderDelegate(
+                      bucket: 'bucket', accessKeyId: '', secretAccessKey: '');
+                  delegate.header(path: 'openapi.yaml');
+                } catch (e, _) {
+                  expect(e, isA<AssertionError>());
+                  expect(e.toString(), thrown.toString());
+                }
+              });
             });
-            test('empty uses localhost', () {
-              final remote = RemoteSpec.empty();
-              expect(remote.path, 'http://localhost:8080');
+            test('generates headers when path is provided', () {
+              try {
+                final actualHeaders = delegate.header(path: 'openapi.yaml');
+                expect(actualHeaders, isNotNull);
+
+                expect(actualHeaders!['x-amz-date'], isNotNull);
+                final dateTimeUsed =
+                    DateTime.parse(actualHeaders['x-amz-date']!);
+                final expectedAuthHeader = awsSign(
+                    delegate.accessKeyId!,
+                    delegate.secretAccessKey!,
+                    delegate.bucket,
+                    'openapi.yaml',
+                    dateTimeUsed);
+                expect(actualHeaders['Authorization'], expectedAuthHeader);
+              } catch (e, _) {
+                fail('should not fail when provided the required values');
+              }
+            });
+            test('uses the provided environment', () async {
+              final result = Process.runSync(
+                'dart',
+                [
+                  'test',
+                  'test/remote_spec_header_delegates/aws_delegate_with_env_test.dart'
+                ],
+                environment: {
+                  'AWS_ACCESS_KEY_ID': 'test',
+                  'AWS_SECRET_ACCESS_KEY': 'test'
+                },
+                workingDirectory: Directory.current.path,
+              );
+              if (result.exitCode != 0) {
+                print(result.stderr);
+                fail('Tests returned a non 0 exit code.');
+              }
+            });
+            test('env vars not provided', () async {
+              final result = Process.runSync(
+                'dart',
+                [
+                  'test',
+                  'test/remote_spec_header_delegates/aws_delegate_with_env_test.dart'
+                ],
+                environment: {},
+                workingDirectory: Directory.current.path,
+              );
+
+              if (result.exitCode != 0) {
+                print(result.stderr);
+                fail('Tests returned a non 0 exit code.');
+              }
             });
           });
         });

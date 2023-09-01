@@ -58,8 +58,26 @@ FutureOr<Map<String, dynamic>> loadSpec(
       return spec;
     }
   } else {
-    final resp =
-        await http.get(specConfig.url, headers: specConfig.toHeaderMap());
+    Map<String, String>? headers;
+    if (specConfig.headerDelegate is AWSRemoteSpecHeaderDelegate) {
+      try {
+        headers = (specConfig.headerDelegate as AWSRemoteSpecHeaderDelegate)
+            .header(path: specConfig.url.path);
+      } catch (e, st) {
+        return Future.error(
+          OutputMessage(
+            message: 'failed to generate AWS headers',
+            additionalContext: e,
+            stackTrace: st,
+            level: Level.SEVERE,
+          ),
+        );
+      }
+    } else {
+      headers = specConfig.headerDelegate.header();
+    }
+
+    final resp = await http.get(specConfig.url, headers: headers);
     if (resp.statusCode == 200) {
       if (yamlRegex.hasMatch(specConfig.path)) {
         return convertYamlMapToDartMap(yamlMap: loadYaml(resp.body));
