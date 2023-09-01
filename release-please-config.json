@@ -1,5 +1,5 @@
 {
-  "bootstrap-sha": "db9c8f6180d683045fa047658946ae2fce32b43e",
+  "bootstrap-sha": "75862468a07b6facad86da30425826d7f5cb45dc",
   "packages": {
     "./openapi-generator": {
       "release-type": "dart",
