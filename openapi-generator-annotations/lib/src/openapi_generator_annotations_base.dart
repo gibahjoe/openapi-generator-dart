@@ -46,7 +46,7 @@ class Openapi {
   ///
   ///  -s, --skip-overwrite
   @Deprecated(
-      'Use .openapi-generator ignore file to determine files that should not be overwritten')
+      'Use .openapi-generator-ignore file to determine files that should not be overwritten')
   final bool? overwriteExistingFiles;
 
   /// Skips the default behavior of validating an input specification.
@@ -468,7 +468,14 @@ enum DioDateLibrary {
   timemachine
 }
 
-enum DioSerializationLibrary { built_value, json_serializable }
+enum DioSerializationLibrary {
+  @Deprecated('Use [builtValue] instead.')
+  built_value,
+  builtValue,
+  jsonSerializable,
+  @Deprecated('Use [jsonSerializable] instead.')
+  json_serializable
+}
 
 enum SerializationFormat { JSON, PROTO }
 
@@ -518,15 +525,16 @@ class EnumTransformer {
   static DioSerializationLibrary? dioSerializationLibrary(String? name) {
     switch (name) {
       case 'json_serializable':
-        return DioSerializationLibrary.json_serializable;
+        return DioSerializationLibrary.jsonSerializable;
       case 'built_value':
-        return DioSerializationLibrary.built_value;
+        return DioSerializationLibrary.builtValue;
     }
     return null;
   }
 
   static String dioSerializationLibraryName(DioSerializationLibrary lib) {
     switch (lib) {
+      case DioSerializationLibrary.jsonSerializable:
       case DioSerializationLibrary.json_serializable:
         return 'json_serializable';
       default:
