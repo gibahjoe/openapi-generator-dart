@@ -156,7 +156,7 @@ void main() {
         pubAuthor: 'test',
         nullableFields: true,
         dateLibrary: DioDateLibrary.core,
-        serializationLibrary: DioSerializationLibrary.json_serializable,
+        serializationLibrary: DioSerializationLibrary.jsonSerializable,
       );
       final map = {
         'allowUnicodeIdentifiers': props.allowUnicodeIdentifiers,

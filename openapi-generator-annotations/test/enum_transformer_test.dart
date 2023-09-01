@@ -43,12 +43,12 @@ void main() {
         test(
             'built_value',
             () => expect(EnumTransformer.dioSerializationLibrary('built_value'),
-                DioSerializationLibrary.built_value));
+                DioSerializationLibrary.builtValue));
         test(
             'json_serializable',
             () => expect(
                 EnumTransformer.dioSerializationLibrary('json_serializable'),
-                DioSerializationLibrary.json_serializable));
+                DioSerializationLibrary.jsonSerializable));
         test('defaults to null',
             () => expect(EnumTransformer.dioSerializationLibrary(null), null));
       });
@@ -97,13 +97,13 @@ void main() {
             'built_value',
             () => expect(
                 EnumTransformer.dioSerializationLibraryName(
-                    DioSerializationLibrary.built_value),
+                    DioSerializationLibrary.builtValue),
                 'built_value'));
         test(
             'json_serializable',
             () => expect(
                 EnumTransformer.dioSerializationLibraryName(
-                    DioSerializationLibrary.json_serializable),
+                    DioSerializationLibrary.jsonSerializable),
                 'json_serializable'));
       });
     });

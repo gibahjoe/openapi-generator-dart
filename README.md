@@ -1,6 +1,7 @@
 ![pub package](https://img.shields.io/pub/v/openapi_generator.svg) ![Pub Likes](https://img.shields.io/pub/likes/openapi_generator?) ![Pub Points](https://img.shields.io/pub/points/openapi_generator) ![Pub Popularity](https://img.shields.io/pub/popularity/openapi_generator) ![GitHub Repo stars](https://img.shields.io/github/stars/gibahjoe/openapi-generator-dart)
+[![codecov](https://codecov.io/gh/gibahjoe/openapi-generator-dart/graph/badge.svg?token=MF8SDQJMGP)](https://codecov.io/gh/gibahjoe/openapi-generator-dart)
 
-### Do not forget to give a star or like if you like this library.
+### Like this library? Give us a star or a like.
 
 This codebase houses the dart/flutter implementations of the openapi client sdk code generation libraries.
 
@@ -13,8 +14,9 @@ This codebase houses the dart/flutter implementations of the openapi client sdk 
 
 ## Introduction
 
-With this project, you can generate openapi client sdk libraries for your openapi specification right in your
-flutter/dart projects. (see example)
+With this project, you can generate client libraries from your openapi specification right in your
+flutter/dart projects (see example). This library was inspired by the npm
+counterpart [Openapi Generator Cli](https://www.npmjs.com/package/@openapitools/openapi-generator-cli)
 
 [license](https://github.com/gibahjoe/openapi-generator-dart/blob/master/openapi-generator-annotations/LICENSE).
 

@@ -64,6 +64,8 @@ class Openapi {
   ///  Specifies if the existing files should be overwritten during the generation
   ///
   ///  -s, --skip-overwrite
+  @Deprecated(
+      'Use .openapi-generator-ignore file to determine files that should not be overwritten')
   final bool? overwriteExistingFiles;
 
   /// Skips the default behavior of validating an input specification.
@@ -79,6 +81,8 @@ class Openapi {
 
   /// Tells openapi-generator to always run during the build process
   /// if set to false (the default), openapi-generator will skip processing if the [outputDirectory] already exists
+  @Deprecated(
+      'The generator will always run to determine if there are changes made on the input spec file')
   final bool? alwaysRun;
 
   /// if set to true, flutter pub get will be run on the [outputDirectory] after the code has been generated.
@@ -145,7 +149,7 @@ class Openapi {
 
   const Openapi({
     this.additionalProperties,
-    @deprecated this.overwriteExistingFiles,
+    this.overwriteExistingFiles,
     this.skipSpecValidation = false,
     required this.inputSpecFile,
     this.inputSpec,
@@ -160,7 +164,7 @@ class Openapi {
     this.apiPackage,
     this.fetchDependencies = true,
     this.runSourceGenOnOutput = true,
-    @deprecated this.alwaysRun = false,
+    this.alwaysRun = false,
     this.cachePath,
     this.useNextGen = false,
     this.projectPubspecPath,
@@ -642,7 +646,14 @@ enum DioDateLibrary {
   timemachine
 }
 
-enum DioSerializationLibrary { built_value, json_serializable }
+enum DioSerializationLibrary {
+  @Deprecated('Use [builtValue] instead.')
+  built_value,
+  builtValue,
+  jsonSerializable,
+  @Deprecated('Use [jsonSerializable] instead.')
+  json_serializable
+}
 
 enum SerializationFormat { JSON, PROTO }
 
@@ -692,15 +703,16 @@ class EnumTransformer {
   static DioSerializationLibrary? dioSerializationLibrary(String? name) {
     switch (name) {
       case 'json_serializable':
-        return DioSerializationLibrary.json_serializable;
+        return DioSerializationLibrary.jsonSerializable;
       case 'built_value':
-        return DioSerializationLibrary.built_value;
+        return DioSerializationLibrary.builtValue;
     }
     return null;
   }
 
   static String dioSerializationLibraryName(DioSerializationLibrary lib) {
     switch (lib) {
+      case DioSerializationLibrary.jsonSerializable:
       case DioSerializationLibrary.json_serializable:
         return 'json_serializable';
       default:
