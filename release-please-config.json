@@ -1,20 +1,33 @@
 {
-  "bootstrap-sha": "68cf9669e9e5589c87320fb03cf9f2e85f67c45e",
+  "bootstrap-sha": "db9c8f6180d683045fa047658946ae2fce32b43e",
+  "include-component-in-tag": false,
   "packages": {
     "openapi-generator": {
       "release-type": "dart",
-      "package-name": "openapi-generator",
-      "changelog-path": "openapi-generator/CHANGELOG.md"
+      "component": "openapi-generator"
     },
     "openapi-generator-annotations": {
       "release-type": "dart",
-      "package-name": "openapi-generator-annotations",
-      "changelog-path": "openapi-generator-annotations/CHANGELOG.md"
+      "component": "openapi-generator-cli"
     },
     "openapi-generator-cli": {
       "release-type": "dart",
-      "package-name": "openapi-generator-cli",
-      "changelog-path": "openapi-generator-cli/CHANGELOG.md"
+      "component": "openapi-generator-cli"
     }
-  }
+  },
+  "plugins": [
+    {
+      "type": "cargo-workspace",
+      "merge": false
+    },
+    {
+      "type": "linked-versions",
+      "groupName": "openapi-generator",
+      "components": [
+        "openapi-generator",
+        "openapi-generator-annotations",
+        "openapi-generator-cli"
+      ]
+    }
+  ]
 }
