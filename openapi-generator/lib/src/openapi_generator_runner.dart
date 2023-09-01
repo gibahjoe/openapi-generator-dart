@@ -37,51 +37,28 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       ),
     );
 
-    try {
-      if (element is! ClassElement) {
-        final friendlyName = element.displayName;
+    if (element is! ClassElement) {
+      final friendlyName = element.displayName;
 
-        throw InvalidGenerationSourceError(
-          'Generator cannot target `$friendlyName`.',
-          todo: 'Remove the [Openapi] annotation from `$friendlyName`.',
-        );
-      } else {
-        if (!(annotations.read('useNextGen').literalValue as bool)) {
-          if (annotations.read('cachePath').literalValue != null) {
-            throw InvalidGenerationSourceError(
-              'useNextGen must be set when using cachePath',
-              todo:
-                  'Either set useNextGen: true on the annotation or remove the custom cachePath',
-            );
-          }
-        }
-
+      throw InvalidGenerationSourceError(
+        'Generator cannot target `$friendlyName`.',
+        todo: 'Remove the [Openapi] annotation from `$friendlyName`.',
+      );
+    } else {
+      if (!(annotations.read('useNextGen').literalValue as bool) &&
+          annotations.read('cachePath').literalValue != null) {
+        throw AssertionError('useNextGen must be set when using cachePath');
+      }
+      try {
         // Transform the annotations.
         final args = GeneratorArguments(annotations: annotations);
-
         // Determine if the project has a dependency on the flutter sdk or not.
         final baseCommand = await checkPubspecAndWrapperForFlutterSupport(
                 wrapper: args.wrapper, providedPubspecPath: args.pubspecPath)
             ? 'flutter'
             : 'dart';
 
-        if (!args.useNextGen) {
-          final path =
-              '${args.outputDirectory}${Platform.pathSeparator}lib${Platform.pathSeparator}api.dart';
-          if (await File(path).exists()) {
-            if (!args.alwaysRun) {
-              logOutputMessage(
-                log: log,
-                communication: OutputMessage(
-                  message:
-                      'Generated client already exists at [$path] and configuration is annotated with alwaysRun: [${args.alwaysRun}]. Therefore, skipping this build. Note that the "alwaysRun" config will be removed in future versions.',
-                  level: Level.INFO,
-                ),
-              );
-              return '';
-            }
-          }
-        } else {
+        if (args.useNextGen) {
           // If the flag to use the next generation of the generator is applied
           // use the new functionality.
           return generatorV2(
@@ -90,26 +67,42 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
               annotatedPath: buildStep.inputId.path);
         }
 
+        final path =
+            '${args.outputDirectory}${Platform.pathSeparator}lib${Platform.pathSeparator}api.dart';
+        if (await File(path).exists()) {
+          if (!args.alwaysRun) {
+            logOutputMessage(
+              log: log,
+              communication: OutputMessage(
+                message:
+                    'Generated client already exists at [$path] and configuration is annotated with alwaysRun: [${args.alwaysRun}]. Therefore, skipping this build. Note that the "alwaysRun" config will be removed in future versions.',
+                level: Level.INFO,
+              ),
+            );
+            return '';
+          }
+        }
+
         await runOpenApiJar(arguments: args);
         await fetchDependencies(baseCommand: baseCommand, args: args);
         await generateSources(baseCommand: baseCommand, args: args);
-      }
-    } catch (e, st) {
-      late OutputMessage communication;
-      if (e is! OutputMessage) {
-        communication = OutputMessage(
-          message: '- There was an error generating the spec.',
-          level: Level.SEVERE,
-          additionalContext: e,
-          stackTrace: st,
-        );
-      } else {
-        communication = e;
-      }
+      } catch (e, st) {
+        late OutputMessage communication;
+        if (e is! OutputMessage) {
+          communication = OutputMessage(
+            message: '- There was an error generating the spec.',
+            level: Level.SEVERE,
+            additionalContext: e,
+            stackTrace: st,
+          );
+        } else {
+          communication = e;
+        }
 
-      logOutputMessage(log: log, communication: communication);
+        logOutputMessage(log: log, communication: communication);
+      }
+      return '';
     }
-    return '';
   }
 
   /// Runs the OpenAPI compiler with the given [args].
@@ -130,23 +123,18 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     // Include java environment variables in openApiCliCommand
     var javaOpts = Platform.environment['JAVA_OPTS'] ?? '';
 
-    ProcessResult result;
-    if (!testMode) {
-      result = await Process.run(
-        'java',
-        [
+    final result = await runExternalProcess(
+      command: Command(
+        executable: 'java',
+        arguments: [
           if (javaOpts.isNotEmpty) javaOpts,
           '-jar',
           binPath,
           ...args,
         ],
-        workingDirectory: Directory.current.path,
-        runInShell: Platform.isWindows,
-      );
-    } else {
-      result = ProcessResult(999999, 0, null, null);
-    }
-
+      ),
+      workingDirectory: Directory.current.path,
+    );
     if (result.exitCode != 0) {
       return Future.error(
         OutputMessage(
@@ -359,17 +347,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       ),
     );
 
-    ProcessResult results;
-    if (!testMode) {
-      results = await Process.run(
-        command.executable,
-        command.arguments,
-        runInShell: Platform.isWindows,
-        workingDirectory: args.outputDirectory,
-      );
-    } else {
-      results = ProcessResult(99999, 0, null, null);
-    }
+    final results = await runExternalProcess(
+        command: command, workingDirectory: args.outputDirectory);
 
     if (results.exitCode != 0) {
       return Future.error(
@@ -415,18 +394,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         ),
       );
 
-      ProcessResult results;
-      if (!testMode) {
-        results = await Process.run(
-          command.executable,
-          command.arguments,
-          runInShell: Platform.isWindows,
-          workingDirectory: args.outputDirectory,
-        );
-      } else {
-        results = ProcessResult(999999, 0, null, null);
-      }
-
+      final results = await runExternalProcess(
+          command: command, workingDirectory: args.outputDirectory);
       if (results.exitCode != 0) {
         return Future.error(
           OutputMessage(
@@ -499,17 +468,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   /// Format the generated code in the output directory.
   Future<void> formatCode({required GeneratorArguments args}) async {
     final command = Command(executable: 'dart', arguments: ['format', './']);
-    ProcessResult result;
-    if (!testMode) {
-      result = await Process.run(
-        command.executable,
-        command.arguments,
-        workingDirectory: args.outputDirectory,
-        runInShell: Platform.isWindows,
-      );
-    } else {
-      result = ProcessResult(99999, 0, null, null);
-    }
+    final result = await runExternalProcess(
+        command: command, workingDirectory: args.outputDirectory);
 
     if (result.exitCode != 0) {
       return Future.error(
@@ -522,9 +482,20 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       );
     } else {
       logOutputMessage(
-          log: log,
-          communication:
-              OutputMessage(message: 'Successfully formatted code.'));
+        log: log,
+        communication: OutputMessage(
+          message: 'Successfully formatted code.',
+        ),
+      );
     }
   }
+
+  Future<ProcessResult> runExternalProcess(
+          {required Command command, required String workingDirectory}) =>
+      Process.run(
+        command.executable,
+        command.arguments,
+        workingDirectory: workingDirectory,
+        runInShell: Platform.isWindows,
+      );
 }
