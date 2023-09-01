@@ -16,3 +16,4 @@ jobs:
         with:
           command: manifest
           token: ${{ secrets.OG_BOT_TOKEN }}
+          manifest-tags: true
