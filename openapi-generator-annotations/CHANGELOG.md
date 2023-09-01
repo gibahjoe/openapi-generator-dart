@@ -1,3 +1,7 @@
+## 4.13.0
+
+- Deprecated some enum values in favor of dart style guide compatible ones
+
 ## 4.12.0
 
 - Added spec diff tracking. This means you Openapi generator now tracks changes to your spec and only regenerates the
