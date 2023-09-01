@@ -1,5 +1,5 @@
 {
-  "bootstrap-sha": "db9c8f6180d683045fa047658946ae2fce32b43e",
+  "bootstrap-sha": "417111537ac65122ce39f4b34f4cbc6b36f5856b",
   "include-component-in-tag": false,
   "packages": {
     "openapi-generator": {
@@ -8,7 +8,7 @@
     },
     "openapi-generator-annotations": {
       "release-type": "dart",
-      "component": "openapi-generator-cli"
+      "component": "openapi-generator-annotations"
     },
     "openapi-generator-cli": {
       "release-type": "dart",
