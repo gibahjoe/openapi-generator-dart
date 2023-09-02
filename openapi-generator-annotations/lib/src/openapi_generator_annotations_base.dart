@@ -228,7 +228,8 @@ class RemoteSpec extends InputSpec {
   Uri get url => Uri.parse(path);
 
   RemoteSpec.fromMap(Map<String, dynamic> map)
-      : headerDelegate = map['headerDelegate'],
+      : headerDelegate =
+            map['headerDelegate'] ?? const RemoteSpecHeaderDelegate(),
         super.fromMap(map);
 }
 

@@ -25,7 +25,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Start Docker compose containers
-        if: ${{ matrix.work_dir }} == 'openapi-generator'
+        if: ${{ matrix.work_dir == 'openapi-generator' }}
         run: docker-compose -f "docker-compose.yaml" up -d --build
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1.5.0
@@ -51,7 +51,7 @@ jobs:
           flags: ${{ matrix.work_dir }}
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       - name: Stop Docker Container
-        if: ${{ matrix.work_dir }} == 'openapi-generator' && always()
+        if: ${{ matrix.work_dir == 'openapi-generator' && always() }}
         run: docker-compose -f "docker-compose.yaml" down
 
   build:

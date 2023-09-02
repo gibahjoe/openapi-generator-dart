@@ -3,7 +3,8 @@ import 'dart:mirrors';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:openapi_generator/src/utils.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
-import 'package:source_gen/source_gen.dart' show ConstantReader, TypeChecker;
+import 'package:source_gen/source_gen.dart'
+    show ConstantReader, TypeChecker, Revivable, reviveInstance;
 
 /// Extension adding the type methods to `ConstantReader`.
 extension TypeMethods on ConstantReader {
@@ -81,38 +82,59 @@ extension ReadProperty on ConstantReader {
       return defaultValue;
     }
 
-    if (v.instanceOf(TypeChecker.fromRuntime(InputSpec))) {
-      final map = v.revive().namedArguments.map(
-            (key, value) => MapEntry(
-              key,
-              convertToPropertyValue(value),
-            ),
-          );
+    if (isA(v, InputSpec)) {
+      final revived = v.revive();
 
-      if (v.instanceOf(TypeChecker.fromRuntime(RemoteSpec))) {
-        return RemoteSpec.fromMap(map) as T;
+      if (isA(v, RemoteSpec)) {
+        final map = revived.namedArguments;
+        final delegate = map['headerDelegate']!;
+        final mapped = <String, dynamic>{
+          'path': convertToPropertyValue(map['path']!),
+        };
+        if (delegate.isNull) {
+          return RemoteSpec.fromMap(mapped) as T;
+        } else {
+          final delegateReader = ConstantReader(delegate);
+          if (isA(delegateReader, AWSRemoteSpecHeaderDelegate)) {
+            mapped['headerDelegate'] = AWSRemoteSpecHeaderDelegate.fromMap(
+              delegateReader.revive().namedArguments.map(
+                    (key, value) => MapEntry(
+                      key,
+                      convertToPropertyValue(value),
+                    ),
+                  ),
+            );
+          }
+          return RemoteSpec.fromMap(mapped) as T;
+        }
       } else {
+        final map = revived.namedArguments.map(
+          (key, value) => MapEntry(
+            key,
+            convertToPropertyValue(value),
+          ),
+        );
         return InputSpec.fromMap(map) as T;
       }
     }
 
-    if (v.instanceOf(TypeChecker.fromRuntime(AdditionalProperties))) {
+    if (isA(v, AdditionalProperties)) {
       final map = v.revive().namedArguments.map(
             (key, value) => MapEntry(
               key,
               convertToPropertyValue(value),
             ),
           );
-      if (v.instanceOf(TypeChecker.fromRuntime(DioProperties))) {
+      if (isA(v, DioProperties)) {
         return DioProperties.fromMap(map) as T;
-      } else if (v.instanceOf(TypeChecker.fromRuntime(DioAltProperties))) {
+      } else if (isA(v, DioAltProperties)) {
         return DioAltProperties.fromMap(map) as T;
       } else {
         return AdditionalProperties.fromMap(map) as T;
       }
     }
 
-    if (v.instanceOf(TypeChecker.fromRuntime(InlineSchemaOptions))) {
+    if (isA(v, InlineSchemaOptions)) {
       return InlineSchemaOptions.fromMap(
         v.revive().namedArguments.map(
               (key, value) => MapEntry(
