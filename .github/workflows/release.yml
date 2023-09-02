@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Quality checks 👌🧪:
+  test:
     uses: gibahjoe/openapi-generator-dart/.github/workflows/code_quality.yml@master
   publish-cli:
     runs-on: ubuntu-latest
