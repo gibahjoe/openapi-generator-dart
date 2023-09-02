@@ -138,6 +138,11 @@ class Example extends OpenapiGeneratorConfig {}
     - Must be a path to a `json` file.
     - Can only be set when `useNextGen` is `true`
 
+## Contributing
+
+All contributions are welcome. Please ensure to read through our [contributing guidelines](Contributing.md) before
+sending your PRs.
+
 ## Features and bugs
 
 Please file feature requests and bugs at the [issue tracker][tracker].
