@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:openapi_generator/src/gen_on_spec_changes.dart';
 import 'package:openapi_generator/src/models/output_message.dart';
+import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 import 'package:test/test.dart';
 import 'package:yaml/yaml.dart';
 
@@ -24,7 +25,8 @@ void main() {
     group('Load Spec', () {
       test('throws an error for unsupported files', () async {
         try {
-          await loadSpec(specPath: './thisIsSomeInvalidPath.wrong');
+          await loadSpec(
+              specConfig: InputSpec(path: './thisIsSomeInvalidPath.wrong'));
           fail('Should\'ve thrown as not supported file type.');
         } catch (e, _) {
           expect((e as OutputMessage).message, 'Invalid spec file format.');
@@ -32,7 +34,8 @@ void main() {
       });
       test('throws an error for missing config file', () async {
         try {
-          await loadSpec(specPath: './thisIsSomeInvalidPath.yaml');
+          await loadSpec(
+              specConfig: InputSpec(path: './thisIsSomeInvalidPath.yaml'));
           fail('Should\'ve thrown as not supported file type.');
         } catch (e, _) {
           expect((e as OutputMessage).message,
@@ -42,7 +45,8 @@ void main() {
       test('returns empty map when cache isn\'t found', () async {
         try {
           final cached = await loadSpec(
-              specPath: './nonValidCacheSpecPath.yaml', isCached: true);
+              specConfig: InputSpec(path: './nonValidCacheSpecPath.yaml'),
+              isCached: true);
           expect(cached, isEmpty);
         } catch (e, _) {
           fail(
@@ -52,8 +56,8 @@ void main() {
       group('returns a map', () {
         test('json', () async {
           try {
-            final mapped =
-                await loadSpec(specPath: supportedExtensions['json']!);
+            final mapped = await loadSpec(
+                specConfig: InputSpec(path: supportedExtensions['json']!));
             expect(mapped, jsonSpecFile);
           } catch (e, _) {
             print(e);
@@ -62,8 +66,8 @@ void main() {
         });
         test('yaml (requires transformation)', () async {
           try {
-            final loaded =
-                await loadSpec(specPath: supportedExtensions['yaml']!);
+            final loaded = await loadSpec(
+                specConfig: InputSpec(path: supportedExtensions['yaml']!));
             expect(loaded, jsonSpecFile);
           } catch (_, __) {
             fail('Should successfully convert yaml to Map');
@@ -71,8 +75,8 @@ void main() {
         });
         test('yml (requires transformation)', () async {
           try {
-            final loaded =
-                await loadSpec(specPath: supportedExtensions['yml']!);
+            final loaded = await loadSpec(
+                specConfig: InputSpec(path: supportedExtensions['yml']!));
             expect(loaded, jsonSpecFile);
           } catch (_, __) {
             fail('Should successfully convert yml to Map');
@@ -87,7 +91,8 @@ void main() {
             final resp = await http.get(url);
             final expected =
                 convertYamlMapToDartMap(yamlMap: loadYaml(resp.body));
-            final spec = await loadSpec(specPath: url.toString());
+            final spec =
+                await loadSpec(specConfig: RemoteSpec(path: url.toString()));
             expect(spec, expected);
           } catch (e, _) {
             fail('Should load remote files successfully');
@@ -99,7 +104,7 @@ void main() {
           try {
             final url = Uri.parse(
                 'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yml');
-            await loadSpec(specPath: url.toString());
+            await loadSpec(specConfig: RemoteSpec(path: url.toString()));
             fail('Should fail when remote files can\'t be found');
           } catch (e, _) {
             final errorMessage = e as OutputMessage;
@@ -121,7 +126,8 @@ void main() {
         expect(isSpecDirty(cachedSpec: {}, loadedSpec: {}), isFalse);
       });
       test('returns false when specs match', () async {
-        final loaded = await loadSpec(specPath: supportedExtensions['json']!);
+        final loaded = await loadSpec(
+            specConfig: InputSpec(path: supportedExtensions['json']!));
         expect(
             isSpecDirty(cachedSpec: jsonSpecFile, loadedSpec: loaded), isFalse);
       });

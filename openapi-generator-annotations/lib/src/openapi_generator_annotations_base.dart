@@ -1,3 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:crypto/crypto.dart';
+import 'package:meta/meta.dart';
+
 /// Config base class
 /// Your annotated class must extend this config class
 @Deprecated(
@@ -23,7 +29,21 @@ class Openapi {
   /// relative path or url to spec file
   ///
   /// -i
+  @Deprecated('To be removed in the next major')
   final String inputSpecFile;
+
+  /// Provides the access information to the input spec file.
+  ///
+  /// For use with useNextGen.
+  ///
+  /// The next generation of the OAS spec file information. Allows for local and
+  /// remote spec files.
+  ///
+  /// This version of the spec file configuration allows for custom authorization
+  /// to be applied to the fetch request when the spec file is in a remote
+  /// location. There is also special handling for when the spec file lives within
+  /// AWS.
+  final InputSpec? inputSpec;
 
   /// folder containing the template files
   ///
@@ -133,6 +153,7 @@ class Openapi {
     this.overwriteExistingFiles,
     this.skipSpecValidation = false,
     required this.inputSpecFile,
+    this.inputSpec,
     this.templateDirectory,
     required this.generatorName,
     this.outputDirectory,
@@ -150,6 +171,170 @@ class Openapi {
     this.projectPubspecPath,
     this.debugLogging = false,
   });
+}
+
+/// Provides the input spec file to be used.
+///
+/// Provides the location of the input spec file to be used by the generator.
+/// Includes the option to use the default json or yaml paths.
+class InputSpec {
+  final String path;
+  final bool defaultYaml;
+  final bool useYml;
+
+  const InputSpec({String? path, this.defaultYaml = true, this.useYml = false})
+      : path = path ??
+            'openapi.${defaultYaml ? 'y${useYml ? '' : 'a'}ml' : 'json'}';
+
+  const InputSpec.empty() : this();
+
+  const InputSpec.emptyJson() : this(defaultYaml: false);
+  const InputSpec.emptyYml() : this(useYml: true);
+
+  Map<String, dynamic> toJsonMap() => {
+        'path': path,
+        'defaultYaml': defaultYaml,
+        'useYml': useYml,
+      };
+
+  InputSpec.fromMap(Map<String, dynamic> map)
+      : this(
+          path: map['path'],
+          defaultYaml: map['defaultYaml'] == 'true' ? true : false,
+          useYml: map['useYml'] == 'true' ? true : false,
+        );
+}
+
+/// Provides the location for the remote specification.
+///
+/// Provides basic support for fetching remote specification files hidden behind
+/// an authenticated endpoint.
+///
+/// By default when no [url] is provided a default [Uri.http] to
+/// localhost:8080/ is used.
+///
+/// This contains authentication information for fetching the OAS spec ONLY. This
+/// does not apply security to the entry points defined in the OAS spec.
+class RemoteSpec extends InputSpec {
+  final RemoteSpecHeaderDelegate headerDelegate;
+
+  const RemoteSpec({
+    required String path,
+    this.headerDelegate = const RemoteSpecHeaderDelegate(),
+  }) : super(path: path);
+
+  const RemoteSpec.empty() : this(path: 'http://localhost:8080/');
+
+  Uri get url => Uri.parse(path);
+
+  RemoteSpec.fromMap(Map<String, dynamic> map)
+      : headerDelegate =
+            map['headerDelegate'] ?? const RemoteSpecHeaderDelegate(),
+        super.fromMap(map);
+}
+
+/// Default [RemoteSpecHeaderDelegate] used when retrieving a remote OAS spec.
+class RemoteSpecHeaderDelegate {
+  const RemoteSpecHeaderDelegate();
+
+  Map<String, String>? header() => null;
+
+  RemoteSpecHeaderDelegate.fromMap(Map<String, dynamic> map) : this();
+}
+
+/// Indicates whether or not the spec file live within AWS.
+///
+/// Since AWS handles the authentication header differently, we need to inform
+/// the builder to include the alternate auth header.
+///
+/// This currently only supports AWS Object GET.
+///
+/// This contains authentication information for fetching the OAS spec ONLY. This
+/// does not apply security to the entry points defined in the OAS spec.
+///
+/// This delegate makes the assumption that the AWS credentials to be used are
+/// provided by the environment and are not empty.
+class AWSRemoteSpecHeaderDelegate extends RemoteSpecHeaderDelegate {
+  /// The [bucket] where the OAS spec is stored within AWS.
+  final String bucket;
+  final String? accessKeyId;
+  final String? secretAccessKey;
+
+  const AWSRemoteSpecHeaderDelegate({
+    required this.bucket,
+    this.secretAccessKey = null,
+    this.accessKeyId = null,
+  }) : super();
+
+  AWSRemoteSpecHeaderDelegate.fromMap(Map<String, dynamic> map)
+      : bucket = map['bucket'],
+        accessKeyId = map['accessKeyId'],
+        secretAccessKey = map['secretAccessKey'],
+        super.fromMap(map);
+
+  /// Generates the [header] map used within the GET request.
+  ///
+  /// Assumes that the user's auth AWS credentials
+  @override
+  Map<String, String>? header({
+    String? path,
+  }) {
+    if (!(path != null && path.isNotEmpty)) {
+      throw new AssertionError('The path to the OAS spec should be provided');
+    }
+
+    // Use the provided credentials to the constructor, if any, otherwise
+    // fallback to the environment values or throw.
+    final accessKey = accessKeyId ?? Platform.environment['AWS_ACCESS_KEY_ID'];
+    final secretKey =
+        secretAccessKey ?? Platform.environment['AWS_SECRET_ACCESS_KEY'];
+    if ((accessKey == null || accessKey.isEmpty) ||
+        (secretKey == null || secretKey.isEmpty)) {
+      throw new AssertionError(
+          'AWS_SECRET_KEY_ID & AWS_SECRET_ACCESS_KEY should be defined and not empty or they should be provided in the delegate constructor.');
+    }
+
+    final now = DateTime.now();
+
+    return {
+      'Authorization': authHeaderContent(
+        now: now,
+        bucket: bucket,
+        path: path,
+        accessKeyId: accessKey,
+        secretAccessKey: secretKey,
+      ),
+      'x-amz-date': now.toIso8601String(),
+    };
+  }
+
+  /// The [Authentication] header content.
+  ///
+  /// This builds the Authorization header content format used by AWS.
+  @visibleForTesting
+  String authHeaderContent({
+    required DateTime now,
+    required String bucket,
+    required String path,
+    required String accessKeyId,
+    required String secretAccessKey,
+  }) {
+    // https://docs.aws.amazon.com/AmazonS3/latest/userguide/RESTAuthentication.html#RESTAuthenticationExamples
+    String toSign = [
+      'GET',
+      '',
+      '',
+      now.toIso8601String(),
+      '/$bucket/$path',
+    ].join('\n');
+
+    final utf8AKey = utf8.encode(secretAccessKey);
+    final utf8ToSign = utf8.encode(toSign);
+
+    final signature =
+        base64Encode(Hmac(sha1, utf8AKey).convert(utf8ToSign).bytes);
+    return 'AWS $accessKeyId:$signature';
+  }
 }
 
 class AdditionalProperties {

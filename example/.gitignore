@@ -46,3 +46,4 @@ app.*.map.json
 /android/app/release
 api/petstore_api/**
 !api/petstore_api/pubspec.yaml
+cache.json

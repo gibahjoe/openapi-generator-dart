@@ -84,23 +84,25 @@ void main() {
     group('accepts overrides', () {
       final annos = src_gen.ConstantReader(null);
       final args = GeneratorArguments(
-          annotations: annos,
-          alwaysRun: true,
-          useNextGen: true,
-          cachePath: 'test',
-          outputDirectory: 'path',
-          templateDirectory: 'template',
-          runSourceGen: false,
-          generator: Generator.dioAlt,
-          skipValidation: true,
-          fetchDependencies: false,
-          inputSpecFile: 'test.yaml',
-          importMapping: {'key': 'value'},
-          typeMapping: {'package': 'type'},
-          reservedWordsMapping: {'const': 'final'},
-          inlineSchemaNameMapping: {'L': 'R'},
-          additionalProperties: AdditionalProperties(wrapper: Wrapper.fvm),
-          pubspecPath: 'testing/pubspec.yaml');
+        annotations: annos,
+        alwaysRun: true,
+        useNextGen: true,
+        cachePath: 'test',
+        outputDirectory: 'path',
+        templateDirectory: 'template',
+        runSourceGen: false,
+        generator: Generator.dioAlt,
+        skipValidation: true,
+        fetchDependencies: false,
+        inputSpecFile: 'test.yaml',
+        inputSpec: InputSpec(path: 'test/specs/openapi.test.yaml'),
+        importMapping: {'key': 'value'},
+        typeMapping: {'package': 'type'},
+        reservedWordsMapping: {'const': 'final'},
+        inlineSchemaNameMapping: {'L': 'R'},
+        additionalProperties: AdditionalProperties(wrapper: Wrapper.fvm),
+        pubspecPath: 'testing/pubspec.yaml',
+      );
       test('alwaysRun', () => expect(args.alwaysRun, isTrue));
       test('useNextGen', () => expect(args.useNextGen, isTrue));
       test('cachePath', () => expect(args.cachePath, 'test'));
@@ -109,8 +111,10 @@ void main() {
       test('shouldFetchDependencies',
           () => expect(args.shouldFetchDependencies, isFalse));
       test('skipValidation', () => expect(args.skipValidation, isTrue));
-      test('inputFile',
-          () async => expect(await args.inputFileOrFetch, 'test.yaml'));
+      test(
+          'inputFile',
+          () async => expect(
+              await args.inputFileOrFetch, 'test/specs/openapi.test.yaml'));
       test('templateDirectory',
           () => expect(args.templateDirectory, 'template'));
       test('generator', () => expect(args.generator, Generator.dioAlt));
@@ -169,7 +173,7 @@ void main() {
       expect(args.runSourceGen, isTrue);
       expect(args.shouldFetchDependencies, isTrue);
       expect(args.skipValidation, isFalse);
-      expect(await args.inputFileOrFetch, './openapi.test.yaml');
+      expect(await args.inputFileOrFetch, './test/specs/openapi.test.yaml');
       expect(args.templateDirectory, 'template');
       expect(args.generator, Generator.dio);
       expect(args.wrapper, Wrapper.fvm);
