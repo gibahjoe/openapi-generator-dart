@@ -156,6 +156,7 @@ void main() {
         generatedOutput = await generate('''
         @Openapi(
             inputSpecFile: '$specPath',
+            inputSpec: RemoteSpec(path: '$specPath'),
             typeMappings: {'int-or-string':'IntOrString'},
             importMappings: {'IntOrString':'./int_or_string.dart'},
             generatorName: Generator.dioAlt,
@@ -172,6 +173,7 @@ void main() {
         final src = '''
         @Openapi(
             inputSpecFile: '$specPath',
+            inputSpec: RemoteSpec(path: '$specPath'),
             useNextGen: true,
             cachePath: '${f.path}',
             outputDirectory: '${f.parent.path}/when-spec-is-dirty'
@@ -182,10 +184,12 @@ void main() {
             generatedOutput, contains('Dirty Spec found. Running generation.'));
       });
       test('and terminates early when there is no diff', () async {
-        f.writeAsStringSync(jsonEncode(await loadSpec(specPath: specPath)));
+        f.writeAsStringSync(
+            jsonEncode(await loadSpec(specConfig: RemoteSpec(path: specPath))));
         final src = '''
         @Openapi(
             inputSpecFile: '$specPath',
+            inputSpec: RemoteSpec(path: '$specPath'),
             useNextGen: true,
             cachePath: '${f.path}',
             outputDirectory: '${f.parent.path}/early-term'
@@ -211,6 +215,7 @@ void main() {
         @Openapi(
   inputSpecFile:
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
   cachePath: '${f.path}',
@@ -231,6 +236,7 @@ void main() {
         @Openapi(
   inputSpecFile:
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
   cachePath: '${f.path}',
@@ -245,6 +251,7 @@ void main() {
         @Openapi(
   inputSpecFile:
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
   cachePath: '${f.path}',
@@ -267,6 +274,7 @@ void main() {
 @Openapi(
   inputSpecFile:
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
   cachePath: '${f.path}',
@@ -288,6 +296,7 @@ void main() {
 @Openapi(
   inputSpecFile:
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
   cachePath: '${f.path}',
@@ -320,6 +329,7 @@ void main() {
 @Openapi(
   inputSpecFile:
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
   cachePath: '${f.path}',
@@ -352,6 +362,7 @@ void main() {
 @Openapi(
   inputSpecFile:
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
   cachePath: '${f.path}',
@@ -378,6 +389,7 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
 @Openapi(
   inputSpecFile:
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
   cachePath: '${f.path}',
@@ -399,6 +411,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
 @Openapi(
   inputSpecFile:
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
   cachePath: '${f.path}',
@@ -419,6 +432,7 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
 @Openapi(
   inputSpecFile:
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dart,
   useNextGen: true,
   cachePath: '${f.path}',
@@ -438,6 +452,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
 @Openapi(
   inputSpecFile:
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dart,
   useNextGen: true,
   cachePath: '${f.path}',
@@ -455,6 +470,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
 @Openapi(
   inputSpecFile:
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
   cachePath: '${f.path}',
@@ -472,6 +488,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
 @Openapi(
   inputSpecFile:
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
   cachePath: '${f.path}',
@@ -488,6 +505,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
 @Openapi(
   inputSpecFile:
       'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+  inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
   cachePath: '${f.path}',
@@ -504,6 +522,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
         final src = '''
         @Openapi(
             inputSpecFile: '$specPath',
+            inputSpec: RemoteSpec(path: '$specPath'),
             useNextGen: true,
             cachePath: '${f.path}',
             outputDirectory: '${f.parent.path}/update-cache',
@@ -519,13 +538,14 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
           generatedOutput = await generate(src);
           expect(f.existsSync(), isTrue);
           expect(jsonDecode(f.readAsStringSync()),
-              await loadSpec(specPath: specPath));
+              await loadSpec(specConfig: RemoteSpec(path: specPath)));
         });
         test('updates the cache file when found', () async {
           f.writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
           expect(f.existsSync(), isTrue);
           generatedOutput = await generate(src);
-          final expectedSpec = await loadSpec(specPath: specPath);
+          final expectedSpec =
+              await loadSpec(specConfig: RemoteSpec(path: specPath));
           final actualSpec = jsonDecode(f.readAsStringSync());
           expect(actualSpec, expectedSpec);
         });
@@ -535,6 +555,33 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
           expect(
               generatedOutput, contains('Successfully cached spec changes.'));
         });
+      });
+      test('uses AWS', () async {
+        generatedOutput = await generate('''
+@Openapi(
+  inputSpecFile: '',
+  inputSpec: RemoteSpec(
+      path:
+          'http://bucket.s3.us-east-1.localhost.localstack.cloud:4566/openapi.yaml',
+      headerDelegate: AWSRemoteSpecHeaderDelegate(
+        bucket: 'bucket',
+        accessKeyId: 'test',
+        secretAccessKey: 'test',
+      ),
+    ),
+  generatorName: Generator.dio,
+  useNextGen: true,
+  cachePath: '${f.path}',
+  outputDirectory: '${f.parent.path}/uses-aws-spec',
+  projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
+)
+          ''');
+
+        expect(generatedOutput, contains('Running source code generation.'));
+        expect(
+            generatedOutput,
+            contains(
+                'dart pub run build_runner build --delete-conflicting-outputs'));
       });
     });
   });

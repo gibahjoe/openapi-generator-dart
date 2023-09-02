@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:openapi_generator/src/models/output_message.dart';
+import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 import 'package:yaml/yaml.dart';
 
 // .json
@@ -27,10 +28,11 @@ final _supportedRegexes = [jsonRegex, yamlRegex];
 ///
 /// WARNING: THIS DOESN'T VALIDATE THE SPECIFICATION CONTENT
 FutureOr<Map<String, dynamic>> loadSpec(
-    {required String specPath, bool isCached = false}) async {
+    {required InputSpec specConfig, bool isCached = false}) async {
   // If the spec file doesn't match any of the currently supported spec formats
   // reject the request.
-  if (!_supportedRegexes.any((fileEnding) => fileEnding.hasMatch(specPath))) {
+  if (!_supportedRegexes
+      .any((fileEnding) => fileEnding.hasMatch(specConfig.path))) {
     return Future.error(
       OutputMessage(
         message: 'Invalid spec file format.',
@@ -40,13 +42,12 @@ FutureOr<Map<String, dynamic>> loadSpec(
     );
   }
 
-  final isRemote = RegExp(r'^https?://').hasMatch(specPath);
-  if (!isRemote) {
-    final file = File(specPath);
+  if (!(specConfig is RemoteSpec)) {
+    final file = File(specConfig.path);
     if (file.existsSync()) {
       final contents = await file.readAsString();
       late Map<String, dynamic> spec;
-      if (yamlRegex.hasMatch(specPath)) {
+      if (yamlRegex.hasMatch(specConfig.path)) {
         // Load yaml and convert to file
         spec = convertYamlMapToDartMap(yamlMap: loadYaml(contents));
       } else {
@@ -57,11 +58,28 @@ FutureOr<Map<String, dynamic>> loadSpec(
       return spec;
     }
   } else {
-    // TODO: Support custom headers?
-    final url = Uri.parse(specPath);
-    final resp = await http.get(url);
+    Map<String, String>? headers;
+    if (specConfig.headerDelegate is AWSRemoteSpecHeaderDelegate) {
+      try {
+        headers = (specConfig.headerDelegate as AWSRemoteSpecHeaderDelegate)
+            .header(path: specConfig.url.path);
+      } catch (e, st) {
+        return Future.error(
+          OutputMessage(
+            message: 'failed to generate AWS headers',
+            additionalContext: e,
+            stackTrace: st,
+            level: Level.SEVERE,
+          ),
+        );
+      }
+    } else {
+      headers = specConfig.headerDelegate.header();
+    }
+
+    final resp = await http.get(specConfig.url, headers: headers);
     if (resp.statusCode == 200) {
-      if (yamlRegex.hasMatch(specPath)) {
+      if (yamlRegex.hasMatch(specConfig.path)) {
         return convertYamlMapToDartMap(yamlMap: loadYaml(resp.body));
       } else {
         return jsonDecode(resp.body);
@@ -88,7 +106,7 @@ FutureOr<Map<String, dynamic>> loadSpec(
 
   return Future.error(
     OutputMessage(
-        message: 'Unable to find spec file $specPath',
+        message: 'Unable to find spec file ${specConfig.path}',
         level: Level.WARNING,
         stackTrace: StackTrace.current),
   );

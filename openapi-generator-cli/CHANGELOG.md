@@ -1,3 +1,10 @@
+## [4.13.0](https://github.com/gibahjoe/openapi-generator-dart/compare/4.12.0...v4.13.0) (2023-09-02)
+
+
+### Features
+
+* Bumped versions to match ([506689c](https://github.com/gibahjoe/openapi-generator-dart/commit/506689c960491962c56cbb4418fc86dafc1a4c2e))
+
 ## 4.12.0
 
 - Bumped version to match annotations and core.

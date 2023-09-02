@@ -81,23 +81,67 @@ extension ReadProperty on ConstantReader {
       return defaultValue;
     }
 
-    if (defaultValue is AdditionalProperties? ||
-        defaultValue is InlineSchemaOptions?) {
-      final mapping = v
-          .revive()
-          .namedArguments
-          .map((key, value) => MapEntry(key, convertToPropertyValue(value)));
-      if (defaultValue is AdditionalProperties?) {
-        if (defaultValue is DioProperties?) {
-          return DioProperties.fromMap(mapping) as T;
-        } else if (defaultValue is DioAltProperties?) {
-          return DioAltProperties.fromMap(mapping) as T;
+    if (isA(v, InputSpec)) {
+      final revived = v.revive();
+
+      if (isA(v, RemoteSpec)) {
+        final map = revived.namedArguments;
+        final delegate = map['headerDelegate'];
+        final mapped = <String, dynamic>{
+          'path': convertToPropertyValue(map['path']!),
+        };
+        if (delegate?.isNull ?? true) {
+          return RemoteSpec.fromMap(mapped) as T;
         } else {
-          return AdditionalProperties.fromMap(mapping) as T;
+          final delegateReader = ConstantReader(delegate);
+          if (isA(delegateReader, AWSRemoteSpecHeaderDelegate)) {
+            mapped['headerDelegate'] = AWSRemoteSpecHeaderDelegate.fromMap(
+              delegateReader.revive().namedArguments.map(
+                    (key, value) => MapEntry(
+                      key,
+                      convertToPropertyValue(value),
+                    ),
+                  ),
+            );
+          }
+          return RemoteSpec.fromMap(mapped) as T;
         }
       } else {
-        return InlineSchemaOptions.fromMap(mapping) as T;
+        final map = revived.namedArguments.map(
+          (key, value) => MapEntry(
+            key,
+            convertToPropertyValue(value),
+          ),
+        );
+        return InputSpec.fromMap(map) as T;
       }
+    }
+
+    if (isA(v, AdditionalProperties)) {
+      final map = v.revive().namedArguments.map(
+            (key, value) => MapEntry(
+              key,
+              convertToPropertyValue(value),
+            ),
+          );
+      if (isA(v, DioProperties)) {
+        return DioProperties.fromMap(map) as T;
+      } else if (isA(v, DioAltProperties)) {
+        return DioAltProperties.fromMap(map) as T;
+      } else {
+        return AdditionalProperties.fromMap(map) as T;
+      }
+    }
+
+    if (isA(v, InlineSchemaOptions)) {
+      return InlineSchemaOptions.fromMap(
+        v.revive().namedArguments.map(
+              (key, value) => MapEntry(
+                key,
+                convertToPropertyValue(value),
+              ),
+            ),
+      ) as T;
     }
 
     if (isA(v, Map)) {
@@ -112,9 +156,9 @@ extension ReadProperty on ConstantReader {
     } else if (isA(v, String)) {
       return v.stringValue as T;
     } else if (isA(v, Set)) {
-      return v.setValue as T;
+      return v.setValue.map(convertToPropertyValue) as T;
     } else if (isA(v, List)) {
-      return v.listValue as T;
+      return v.listValue.map(convertToPropertyValue) as T;
     } else if (isA(v, Enum)) {
       return v.enumValue();
     } else {

@@ -1,31 +1,29 @@
-
-
 [![pub package](https://img.shields.io/pub/v/openapi_generator.svg)](https://pub.dev/packages/openapi_generator)
 
 This library is the dart/flutter implementation of openapi client sdk code generation.
 
-With this library, you can generate openapi client sdk libraries from your openapi specification right in your flutter/dart projects. (see example)
+With this library, you can generate openapi client sdk libraries from your openapi specification right in your
+flutter/dart projects. (see example)
 
 To be used together with [openapi-generator-annotations](https://pub.dev/packages/openapi_generator_annotations)
 
-
 ## Usage
 
-Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generator_annotations) as a dependency in the dependencies section of your pubspec.yaml file :
+Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generator_annotations) as a dependency in the
+dependencies section of your pubspec.yaml file :
 
 ```yaml
 dependencies:
   openapi_generator_annotations: ^4.11.0
 ```
 
-
-Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev dependencies section of your pubspec.yaml file:
+Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev dependencies section of your pubspec.yaml
+file:
 
 ```yaml
 dev_dependencies:
   openapi_generator: ^4.11.0
 ```
-
 
 Annotate a dart class with @Openapi() annotation
 
@@ -39,7 +37,8 @@ Annotate a dart class with @Openapi() annotation
 class Example extends OpenapiGeneratorConfig {}
 ```
 
-Run command below to generate open api client sdk from spec file specified in annotation. 
+Run command below to generate open api client sdk from spec file specified in annotation.
+
 ```cmd
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
@@ -47,9 +46,13 @@ flutter pub run build_runner build --delete-conflicting-outputs
 The api sdk will be generated in the folder specified in the annotation. See examples for more details
 
 ## Known Issues
+
 ### Dependency issues/conflicts
-This is not an issue with this library but with flutter/dart in general. If you are having issues with dependencies, what
-you can do is make use of dependency overrides. This is added to the pubspec.yaml of the generated package and then the pubspec
+
+This is not an issue with this library but with flutter/dart in general. If you are having issues with dependencies,
+what
+you can do is make use of dependency overrides. This is added to the pubspec.yaml of the generated package and then the
+pubspec
 must be added to the .openapi-generator-ignore of the generated package.
 For example, let's assume you want to override the analyzer package for the generated source
 
@@ -88,5 +91,10 @@ Please file feature requests and bugs at the [issue tracker][tracker].
 
 [tracker]: https://github.com/gibahjoe/openapi-generator-dart/issues
 
+## Running Tests
+
+Requirements:
+
+- [Docker](https://www.docker.com/products/docker-desktop/)
 
 <a href="https://www.buymeacoffee.com/gibahjoe" target="_blank"><img src="https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>

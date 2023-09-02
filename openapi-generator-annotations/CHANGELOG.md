@@ -1,3 +1,18 @@
+## [4.13.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v4.12.0...v4.13.0) (2023-09-02)
+
+
+### Features
+
+* Add headers options for requests (nextGen only) ([bc4a170](https://github.com/gibahjoe/openapi-generator-dart/commit/bc4a170be1c011ca3e2843cf05a92a39965bcc29))
+* Bumped versions to match ([506689c](https://github.com/gibahjoe/openapi-generator-dart/commit/506689c960491962c56cbb4418fc86dafc1a4c2e))
+
+
+### Bug Fixes
+
+* move to delegate, add tests, revert version requirement ([6a32542](https://github.com/gibahjoe/openapi-generator-dart/commit/6a32542cc7e09558db837d0313c4029951dc48ba))
+* remove duplicate run test, fix failing tests ([677a318](https://github.com/gibahjoe/openapi-generator-dart/commit/677a3189d4f694c999d3ea1cf0075543649e40c1))
+* repair the docker run command, update the type_methods to expand out the remote delegate ([c00b334](https://github.com/gibahjoe/openapi-generator-dart/commit/c00b3345d934e2f1508ba1129a3a769f86a85017))
+
 ## 4.12.0
 
 - Added spec diff tracking. This means you Openapi generator now tracks changes to your spec and only regenerates the

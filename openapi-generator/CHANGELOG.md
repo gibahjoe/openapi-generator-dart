@@ -1,6 +1,19 @@
-## 4.12.1
+## [4.13.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v4.12.1...v4.13.0) (2023-09-02)
 
-- fixed outdated pubs
+
+### Features
+
+* Add a format stage to the end of nextGen ([acac104](https://github.com/gibahjoe/openapi-generator-dart/commit/acac1044cbd6161c5a959a178a120fbf010f5c27))
+* Add headers options for requests (nextGen only) ([bc4a170](https://github.com/gibahjoe/openapi-generator-dart/commit/bc4a170be1c011ca3e2843cf05a92a39965bcc29))
+
+
+### Bug Fixes
+
+* fix incorrect find and replace causing tests to fail ([0016a03](https://github.com/gibahjoe/openapi-generator-dart/commit/0016a031e3a7447f2deab1fa4e49ed228a29dc82))
+* move to delegate, add tests, revert version requirement ([6a32542](https://github.com/gibahjoe/openapi-generator-dart/commit/6a32542cc7e09558db837d0313c4029951dc48ba))
+* remove duplicate run test, fix failing tests ([677a318](https://github.com/gibahjoe/openapi-generator-dart/commit/677a3189d4f694c999d3ea1cf0075543649e40c1))
+* remove unused imports ([4eb64c9](https://github.com/gibahjoe/openapi-generator-dart/commit/4eb64c90c2468a8ce26b79266c0e705be3e979de))
+* repair the docker run command, update the type_methods to expand out the remote delegate ([c00b334](https://github.com/gibahjoe/openapi-generator-dart/commit/c00b3345d934e2f1508ba1129a3a769f86a85017))
 
 ## 4.12.0
 
