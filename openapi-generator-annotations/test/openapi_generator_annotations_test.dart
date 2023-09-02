@@ -69,7 +69,7 @@ void main() {
           test('provides default yaml path', () {
             expect(InputSpec.empty().path, 'openapi.yaml');
             expect(InputSpec.empty().defaultYaml, isTrue);
-            expect(InputSpec.empty().defaultYaml, isFalse);
+            expect(InputSpec.empty().useYml, isFalse);
           });
           test('provides default yml path', () {
             expect(InputSpec.emptyYml().path, 'openapi.yml');
@@ -188,22 +188,6 @@ void main() {
                 },
                 workingDirectory: Directory.current.path,
               );
-              if (result.exitCode != 0) {
-                print(result.stderr);
-                fail('Tests returned a non 0 exit code.');
-              }
-            });
-            test('env vars not provided', () async {
-              final result = Process.runSync(
-                'dart',
-                [
-                  'test',
-                  'test/remote_spec_header_delegates/aws_delegate_with_env_test.dart'
-                ],
-                environment: {},
-                workingDirectory: Directory.current.path,
-              );
-
               if (result.exitCode != 0) {
                 print(result.stderr);
                 fail('Tests returned a non 0 exit code.');

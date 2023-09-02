@@ -86,11 +86,11 @@ extension ReadProperty on ConstantReader {
 
       if (isA(v, RemoteSpec)) {
         final map = revived.namedArguments;
-        final delegate = map['headerDelegate']!;
+        final delegate = map['headerDelegate'];
         final mapped = <String, dynamic>{
           'path': convertToPropertyValue(map['path']!),
         };
-        if (delegate.isNull) {
+        if (delegate?.isNull ?? true) {
           return RemoteSpec.fromMap(mapped) as T;
         } else {
           final delegateReader = ConstantReader(delegate);
