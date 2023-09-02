@@ -8,6 +8,7 @@ on:
   pull_request:
     paths-ignore:
       - '**/*.md'
+  workflow_call:
   workflow_dispatch:
 
 jobs:
