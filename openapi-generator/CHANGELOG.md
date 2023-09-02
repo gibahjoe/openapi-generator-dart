@@ -1,7 +1,3 @@
-## 4.12.1
-
-- fixed outdated pubs
-
 ## [4.13.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v4.12.1...v4.13.0) (2023-09-02)
 
 

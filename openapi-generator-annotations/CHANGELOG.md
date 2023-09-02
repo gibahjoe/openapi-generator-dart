@@ -1,7 +1,3 @@
-## 4.13.0
-
-- Deprecated some enum values in favor of dart style guide compatible ones
-
 ## [4.13.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v4.12.0...v4.13.0) (2023-09-02)
 
 

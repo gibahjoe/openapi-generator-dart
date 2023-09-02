@@ -1,7 +1,3 @@
-## 4.13.0
-
-- Bumped version to match annotations and core.
-
 ## [4.13.0](https://github.com/gibahjoe/openapi-generator-dart/compare/4.12.0...v4.13.0) (2023-09-02)
 
 
