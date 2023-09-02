@@ -9,7 +9,7 @@ on:
 
 jobs:
   Quality checks 👌🧪:
-    uses: gibahjoe/openapi-generator-dart/.github/workflows/code_quality.yml@main
+    uses: gibahjoe/openapi-generator-dart/.github/workflows/code_quality.yml@master
   publish-cli:
     runs-on: ubuntu-latest
     needs: [Dart CI Checks, Build example project 🛠️]
