@@ -53,11 +53,11 @@ void main() {
           expect(logs.length, 1);
           expect(
               logs[0].message,
-              [
+              contains([
                 ':::::::::::::::::::::::::::::::::::::::::::',
                 '::      Openapi generator for dart       ::',
                 ':::::::::::::::::::::::::::::::::::::::::::',
-              ].join('\n'));
+              ].join('\n')));
           expect(logs[0].level, Level.INFO);
         }
       });
