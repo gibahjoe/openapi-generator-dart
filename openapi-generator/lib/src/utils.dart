@@ -6,7 +6,7 @@ import 'models/output_message.dart';
 /// A utility function that prints out a log meant for the end user.
 void logOutputMessage(
         {required Logger log, required OutputMessage communication}) =>
-    log.log(communication.level, communication.message + '\n',
+    log.log(communication.level, communication.message,
         communication.additionalContext, communication.stackTrace);
 
 /// Transforms a [Map] into a string.

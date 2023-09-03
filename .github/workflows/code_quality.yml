@@ -36,6 +36,9 @@ jobs:
         run: dart pub get
       - name: Validate formatting
         run: dart format ./ --set-exit-if-changed
+      - name: Generate Mocks
+        if: ${{ matrix.work_dir == 'openapi-generator' }}
+        run: dart run build_runner build --delete-conflicting-outputs
       - name: Run analyzer
         run: dart analyze --fatal-warnings
       - name: Run tests
