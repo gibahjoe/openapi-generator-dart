@@ -6,7 +6,6 @@ import 'dart:isolate';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:logging/logging.dart';
-import 'package:openapi_generator/src/determine_flutter_project_status.dart';
 import 'package:openapi_generator/src/models/output_message.dart';
 import 'package:openapi_generator/src/utils.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart'
@@ -25,12 +24,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   OpenapiGenerator({
     this.testMode = false,
     this.runner = const CommandRunner(),
-    Logger? log,
-  }) : _log = log ?? Logger('OpenApiGenerator') {
-    _log.onRecord.listen((event) {
-      print(event.toString());
-    });
-  }
+    Logger? logger,
+  }) : _log = logger ?? Logger('OpenApiGenerator');
 
   @override
   FutureOr<String> generateForAnnotatedElement(

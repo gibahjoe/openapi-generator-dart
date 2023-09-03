@@ -46,7 +46,7 @@ void main() {
         final logs = <LogRecord>[];
         logger.onRecord.listen(logs.add);
         try {
-          await OpenapiGenerator(log: logger).generateForAnnotatedElement(
+          await OpenapiGenerator(logger: logger).generateForAnnotatedElement(
               MockMethodElement(), defaultAnnotations, MockBuildStep());
           fail('Should throw when not ClassElement');
         } catch (_, __) {
@@ -108,7 +108,7 @@ void main() {
                   providedPubspecPath: anyNamed('providedPubspecPath')))
               .thenAnswer((_) async => false);
 
-          await OpenapiGenerator(log: logger, runner: mockRunner)
+          await OpenapiGenerator(logger: logger, runner: mockRunner)
               .generateForAnnotatedElement(
                   MockClassElement(), defaultAnnotations, MockBuildStep());
 
@@ -136,7 +136,7 @@ void main() {
                   providedPubspecPath: anyNamed('providedPubspecPath')))
               .thenAnswer((_) async => true);
 
-          await OpenapiGenerator(log: logger, runner: mockRunner)
+          await OpenapiGenerator(logger: logger, runner: mockRunner)
               .generateForAnnotatedElement(
                   MockClassElement(), annotations, MockBuildStep());
 
@@ -164,7 +164,7 @@ void main() {
                   providedPubspecPath: anyNamed('providedPubspecPath')))
               .thenAnswer((_) async => true);
 
-          await OpenapiGenerator(log: logger, runner: mockRunner)
+          await OpenapiGenerator(logger: logger, runner: mockRunner)
               .generateForAnnotatedElement(
                   MockClassElement(), annotations, MockBuildStep());
 
@@ -193,7 +193,7 @@ void main() {
             ),
           ).thenAnswer((_) async => true);
 
-          await OpenapiGenerator(log: logger, runner: mockRunner)
+          await OpenapiGenerator(logger: logger, runner: mockRunner)
               .generateForAnnotatedElement(
                   MockClassElement(), annotations, MockBuildStep());
 
@@ -206,7 +206,7 @@ void main() {
           late OpenapiGenerator generator;
           setUpAll(() {
             resetMockitoState();
-            generator = OpenapiGenerator(log: logger, runner: mockRunner);
+            generator = OpenapiGenerator(logger: logger, runner: mockRunner);
             when(mockRunner.runCommand(
                     command: anyNamed('command'),
                     workingDirectory: anyNamed('workingDirectory')))
@@ -289,7 +289,7 @@ void main() {
           late OpenapiGenerator generator;
           setUpAll(() {
             resetMockitoState();
-            generator = OpenapiGenerator(log: logger, runner: mockRunner);
+            generator = OpenapiGenerator(logger: logger, runner: mockRunner);
           });
           test('warning when using remote spec', () async {
             final logs = <LogRecord>[];
@@ -632,7 +632,7 @@ void main() {
             logger.onRecord.listen(logs.add);
             when(mockedArgs.shouldFetchDependencies).thenReturn(false);
 
-            await OpenapiGenerator(log: logger)
+            await OpenapiGenerator(logger: logger)
                 .fetchDependencies(baseCommand: 'cmd', args: mockedArgs);
 
             expect(logs.length, 1);
@@ -651,7 +651,7 @@ void main() {
                 .thenAnswer(
                     (_) => Future.value(ProcessResult(999, 0, 'yes', '')));
 
-            await OpenapiGenerator(log: logger, runner: mockRunner)
+            await OpenapiGenerator(logger: logger, runner: mockRunner)
                 .fetchDependencies(baseCommand: 'dart', args: mockedArgs);
 
             expect(logs.length, 2);
@@ -676,7 +676,7 @@ void main() {
                 .thenAnswer(
                     (_) => Future.value(ProcessResult(999, 0, 'yes', '')));
 
-            await OpenapiGenerator(log: logger, runner: mockRunner)
+            await OpenapiGenerator(logger: logger, runner: mockRunner)
                 .fetchDependencies(baseCommand: 'dart', args: mockedArgs);
 
             expect(logs.length, 2);
@@ -875,7 +875,7 @@ void main() {
                   workingDirectory: anyNamed('workingDirectory')))
               .thenAnswer((_) => Future.value(ProcessResult(999, 0, '', '')));
           try {
-            await OpenapiGenerator(runner: mockRunner, log: logger)
+            await OpenapiGenerator(runner: mockRunner, logger: logger)
                 .formatCode(args: mockedArgs);
             expect(logs.length, 1);
             expect(logs[0].message, 'Successfully formatted code.');
@@ -926,7 +926,7 @@ void main() {
             when(mockedArgs.jarArgs)
                 .thenAnswer((realInvocation) => realArguments.jarArgs);
             when(mockedArgs.isDebug).thenReturn(false);
-            await OpenapiGenerator(runner: mockRunner, log: logger)
+            await OpenapiGenerator(runner: mockRunner, logger: logger)
                 .runOpenApiJar(arguments: mockedArgs);
             expect(logs.length, 2);
             expect(
@@ -960,7 +960,7 @@ void main() {
             when(mockedArgs.jarArgs)
                 .thenAnswer((realInvocation) => realArguments.jarArgs);
             when(mockedArgs.isDebug).thenReturn(true);
-            await OpenapiGenerator(runner: mockRunner, log: logger)
+            await OpenapiGenerator(runner: mockRunner, logger: logger)
                 .runOpenApiJar(arguments: mockedArgs);
             expect(logs.length, 2);
             expect(
