@@ -10,6 +10,7 @@ void main() {
   additionalProperties:
       DioProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep..'),
   inputSpecFile: 'openapi-spec.yaml',
+  inputSpec: InputSpec(path: 'openapi-spec.yaml'),
   typeMappings: {'Pet': 'ExamplePet'},
   generatorName: Generator.dio,
   runSourceGenOnOutput: true,

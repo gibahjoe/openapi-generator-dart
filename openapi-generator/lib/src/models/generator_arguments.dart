@@ -117,7 +117,7 @@ class GeneratorArguments {
     required src_gen.ConstantReader annotations,
     bool alwaysRun = false,
     String inputSpecFile = '',
-    InputSpec inputSpec = const InputSpec.empty(),
+    InputSpec inputSpec = const InputSpec.json(),
     String templateDirectory = '',
     Generator generator = Generator.dart,
     Map<String, String> typeMapping = const {},

@@ -152,7 +152,7 @@ class Openapi {
     this.additionalProperties,
     this.overwriteExistingFiles,
     this.skipSpecValidation = false,
-    required this.inputSpecFile,
+    @Deprecated('To be removed in the next major') required this.inputSpecFile,
     this.inputSpec,
     this.templateDirectory,
     required this.generatorName,
@@ -179,30 +179,18 @@ class Openapi {
 /// Includes the option to use the default json or yaml paths.
 class InputSpec {
   final String path;
-  final bool defaultYaml;
-  final bool useYml;
 
-  const InputSpec({String? path, this.defaultYaml = true, this.useYml = false})
-      : path = path ??
-            'openapi.${defaultYaml ? 'y${useYml ? '' : 'a'}ml' : 'json'}';
+  const InputSpec({required this.path});
 
-  const InputSpec.empty() : this();
+  const InputSpec.json() : this(path: 'openapi.json');
 
-  const InputSpec.emptyJson() : this(defaultYaml: false);
-  const InputSpec.emptyYml() : this(useYml: true);
+  const InputSpec.yaml({bool shortExtension = false})
+      : this(path: 'openapi.y${shortExtension ? '' : 'a'}ml');
 
-  Map<String, dynamic> toJsonMap() => {
-        'path': path,
-        'defaultYaml': defaultYaml,
-        'useYml': useYml,
-      };
+  Map<String, dynamic> toJsonMap() => {'path': path};
 
   InputSpec.fromMap(Map<String, dynamic> map)
-      : this(
-          path: map['path'],
-          defaultYaml: map['defaultYaml'] == 'true' ? true : false,
-          useYml: map['useYml'] == 'true' ? true : false,
-        );
+      : this(path: map['path']);
 }
 
 /// Provides the location for the remote specification.

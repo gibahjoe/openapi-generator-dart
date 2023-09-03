@@ -9,15 +9,15 @@ void main() {
   group('OpenApi', () {
     test('defaults', () {
       final props = Openapi(
-        inputSpecFile: InputSpec.empty().path,
-        inputSpec: InputSpec.empty(),
+        inputSpecFile: InputSpec.json().path,
+        inputSpec: InputSpec.json(),
         generatorName: Generator.dart,
       );
       expect(props.additionalProperties, isNull);
       expect(props.overwriteExistingFiles, isNull);
       expect(props.skipSpecValidation, false);
-      expect(props.inputSpecFile, InputSpec.empty().path);
-      expect(props.inputSpec!.path, InputSpec.empty().path);
+      expect(props.inputSpecFile, InputSpec.json().path);
+      expect(props.inputSpec!.path, InputSpec.json().path);
       expect(props.templateDirectory, isNull);
       expect(props.generatorName, Generator.dart);
       expect(props.outputDirectory, isNull);
@@ -37,29 +37,29 @@ void main() {
     group('NextGen', () {
       test('Sets cachePath', () {
         final api = Openapi(
-            inputSpecFile: InputSpec.empty().path,
+            inputSpecFile: InputSpec.json().path,
             generatorName: Generator.dart,
             cachePath: 'somePath');
         expect(api.cachePath, 'somePath');
       });
       test('Sets useNextGenFlag', () {
         final api = Openapi(
-            inputSpecFile: InputSpec.empty().path,
+            inputSpecFile: InputSpec.json().path,
             generatorName: Generator.dart,
             useNextGen: true);
         expect(api.useNextGen, isTrue);
       });
       test('Sets projectPubspecPath', () {
         final api = Openapi(
-            inputSpecFile: InputSpec.empty().path,
+            inputSpecFile: InputSpec.json().path,
             generatorName: Generator.dart,
             projectPubspecPath: 'test');
         expect(api.projectPubspecPath, 'test');
       });
       test('Set debug logging', () {
         final api = Openapi(
-            inputSpecFile: InputSpec.empty().path,
-            inputSpec: InputSpec.empty(),
+            inputSpecFile: InputSpec.json().path,
+            inputSpec: InputSpec.json(),
             generatorName: Generator.dart,
             debugLogging: true);
         expect(api.debugLogging, isTrue);
@@ -67,19 +67,15 @@ void main() {
       group('InputSpec', () {
         group('local spec', () {
           test('provides default yaml path', () {
-            expect(InputSpec.empty().path, 'openapi.yaml');
-            expect(InputSpec.empty().defaultYaml, isTrue);
-            expect(InputSpec.empty().useYml, isFalse);
+            expect(InputSpec.yaml().path, 'openapi.yaml');
+            expect(InputSpec.yaml(shortExtension: true).path, 'openapi.yml');
           });
           test('provides default yml path', () {
-            expect(InputSpec.emptyYml().path, 'openapi.yml');
-            expect(InputSpec.emptyYml().defaultYaml, isTrue);
-            expect(InputSpec.emptyYml().useYml, isTrue);
+            expect(InputSpec.yaml(shortExtension: true).path, 'openapi.yml');
+            expect(InputSpec.yaml(shortExtension: false).path, 'openapi.yaml');
           });
           test('provides default json path', () {
-            expect(InputSpec.emptyJson().path, 'openapi.json');
-            expect(InputSpec.emptyJson().defaultYaml, isFalse);
-            expect(InputSpec.emptyJson().useYml, isFalse);
+            expect(InputSpec.json().path, 'openapi.json');
           });
           test('uses path', () {
             expect(InputSpec(path: 'path').path, 'path');
