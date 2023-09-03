@@ -30,6 +30,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       log: log,
       communication: OutputMessage(
         message: [
+          '\n',
           ':::::::::::::::::::::::::::::::::::::::::::',
           '::      Openapi generator for dart       ::',
           ':::::::::::::::::::::::::::::::::::::::::::',
