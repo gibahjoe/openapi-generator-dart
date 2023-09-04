@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:analyzer/dart/element/type.dart';
-import 'package:build_test/build_test.dart';
 import 'package:logging/logging.dart';
 import 'package:mockito/mockito.dart';
 import 'package:openapi_generator/src/models/command.dart';
@@ -30,15 +29,8 @@ void main() {
         mockedArgs = MockGeneratorArguments();
         mockRunner = MockCommandRunner();
         mockedAnnotations = MockConstantReader();
-        defaultAnnotations = (await resolveSource(
-                File('$testSpecPath/next_gen_builder_test_config.dart')
-                    .readAsStringSync(),
-                (resolver) async =>
-                    (await resolver.findLibraryByName('test_lib'))!))
-            .getClass('TestClassConfig')!
-            .metadata
-            .map((e) => ConstantReader(e.computeConstantValue()!))
-            .first;
+        defaultAnnotations =
+            await loadAnnoation('next_gen_builder_test_config.dart');
         realArguments = GeneratorArguments(annotations: defaultAnnotations);
       });
 
@@ -117,16 +109,8 @@ void main() {
         test('flutter when wrapper is fvm', () async {
           final logs = <LogRecord>[];
           logger.onRecord.listen(logs.add);
-          final annotations = (await resolveSource(
-                  File('$testSpecPath/next_gen_builder_fvm_test_config.dart')
-                      .readAsStringSync(),
-                  (resolver) async =>
-                      (await resolver.findLibraryByName('test_lib'))!))
-              .getClass('TestClassConfig')!
-              .metadata
-              .map((e) => ConstantReader(e.computeConstantValue()!))
-              .first;
-
+          final annotations =
+              await loadAnnoation('next_gen_builder_fvm_test_config.dart');
           when(mockRunner.checkForFlutterEnvironemt(
                   wrapper: argThat(
                     TypeMatcher<Wrapper>()
@@ -145,15 +129,8 @@ void main() {
         test('flutter when wrapper is ./flutter', () async {
           final logs = <LogRecord>[];
           logger.onRecord.listen(logs.add);
-          final annotations = (await resolveSource(
-                  File('$testSpecPath/next_gen_builder_flutterw_test_config.dart')
-                      .readAsStringSync(),
-                  (resolver) async =>
-                      (await resolver.findLibraryByName('test_lib'))!))
-              .getClass('TestClassConfig')!
-              .metadata
-              .map((e) => ConstantReader(e.computeConstantValue()!))
-              .first;
+          final annotations =
+              await loadAnnoation('next_gen_builder_flutterw_test_config.dart');
 
           when(mockRunner.checkForFlutterEnvironemt(
                   wrapper: argThat(
@@ -173,15 +150,8 @@ void main() {
         test('when defined in pubspec', () async {
           final logs = <LogRecord>[];
           logger.onRecord.listen(logs.add);
-          final annotations = (await resolveSource(
-                  File('$testSpecPath/next_gen_builder_flutter_test_config.dart')
-                      .readAsStringSync(),
-                  (resolver) async =>
-                      (await resolver.findLibraryByName('test_lib'))!))
-              .getClass('TestClassConfig')!
-              .metadata
-              .map((e) => ConstantReader(e.computeConstantValue()!))
-              .first;
+          final annotations =
+              await loadAnnoation('next_gen_builder_flutter_test_config.dart');
 
           when(
             mockRunner.checkForFlutterEnvironemt(
@@ -198,6 +168,109 @@ void main() {
                   MockClassElement(), annotations, MockBuildStep());
 
           expect(logs[1].message, 'Using flutter environemnt');
+        });
+      });
+
+      group('uses correct generator', () {
+        test('dart', () async {
+          final logs = <LogRecord>[];
+          logger.onRecord.listen(logs.add);
+
+          final annotations =
+              await loadAnnoation('next_gen_builder_local_test_config.dart');
+
+          when(mockRunner.runCommand(
+                  command: anyNamed('command'),
+                  workingDirectory: anyNamed('workingDirectory')))
+              .thenAnswer(
+                  (_) async => ProcessResult(999, 0, 'stdout', 'stderr'));
+
+          when(mockRunner.isSpecFileDirty(
+                  cachedSpec: anyNamed('cachedSpec'),
+                  loadedSpec: anyNamed('loadedSpec')))
+              .thenAnswer((_) async => true);
+          final args = GeneratorArguments(annotations: annotations);
+          await OpenapiGenerator(logger: logger, runner: mockRunner)
+              .generatorV2(
+                  args: args,
+                  baseCommand: 'dart',
+                  annotatedPath: 'annotatedPath');
+          final generationLogIndex = logs.indexWhere((element) =>
+              element.message.contains(
+                  'Running following command to generate openapi client - '));
+          logs.forEach((element) {
+            print(element.message);
+          });
+          final log = logs[generationLogIndex];
+          expect(log.message, contains('-g=dart'));
+          final sourceGenLogIndex = logs
+              .indexWhere((element) => element.message.contains('source gen'));
+          expect(logs[sourceGenLogIndex].message,
+              'Skipping source gen because generator does not need it.');
+        });
+        test('dio', () async {
+          final logs = <LogRecord>[];
+          logger.onRecord.listen(logs.add);
+
+          final annotations =
+              await loadAnnoation('next_gen_builder_test_config.dart');
+
+          when(mockRunner.runCommand(
+                  command: anyNamed('command'),
+                  workingDirectory: anyNamed('workingDirectory')))
+              .thenAnswer(
+                  (_) async => ProcessResult(999, 0, 'stdout', 'stderr'));
+
+          when(mockRunner.isSpecFileDirty(
+                  cachedSpec: anyNamed('cachedSpec'),
+                  loadedSpec: anyNamed('loadedSpec')))
+              .thenAnswer((_) async => true);
+          final args = GeneratorArguments(annotations: annotations);
+          await OpenapiGenerator(logger: logger, runner: mockRunner)
+              .generatorV2(
+                  args: args,
+                  baseCommand: 'dart',
+                  annotatedPath: 'annotatedPath');
+          final generationLogIndex = logs.indexWhere((element) =>
+              element.message.contains(
+                  'Running following command to generate openapi client - '));
+          logs.forEach((element) {
+            print(element.message);
+          });
+          final log = logs[generationLogIndex];
+          expect(log.message, contains('-g=dart-dio'));
+        });
+        test('dioAlt', () async {
+          final logs = <LogRecord>[];
+          logger.onRecord.listen(logs.add);
+
+          final annotations =
+              await loadAnnoation('next_gen_builder_dio_alt_test_config.dart');
+
+          when(mockRunner.runCommand(
+                  command: anyNamed('command'),
+                  workingDirectory: anyNamed('workingDirectory')))
+              .thenAnswer(
+                  (_) async => ProcessResult(999, 0, 'stdout', 'stderr'));
+
+          when(mockRunner.isSpecFileDirty(
+                  cachedSpec: anyNamed('cachedSpec'),
+                  loadedSpec: anyNamed('loadedSpec')))
+              .thenAnswer((_) async => true);
+          final args = GeneratorArguments(annotations: annotations);
+          await OpenapiGenerator(logger: logger, runner: mockRunner)
+              .generatorV2(
+                  args: args,
+                  baseCommand: 'dart',
+                  annotatedPath: 'annotatedPath');
+          final generationLogIndex = logs.indexWhere((element) =>
+              element.message.contains(
+                  'Running following command to generate openapi client - '));
+          logs.forEach((element) {
+            print(element.message);
+          });
+          final log = logs[generationLogIndex];
+          expect(log.message, contains('-g=dart2-api'));
         });
       });
 

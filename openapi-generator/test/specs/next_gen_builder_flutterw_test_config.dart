@@ -14,4 +14,4 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
     additionalProperties: AdditionalProperties(wrapper: Wrapper.flutterw),
     cachePath: './test/specs/output-nextgen/expected-args/cache.json',
     outputDirectory: './test/specs/output-nextgen/expected-args')
-class TestClassConfig extends OpenapiGeneratorConfig {}
+class TestClassConfig {}

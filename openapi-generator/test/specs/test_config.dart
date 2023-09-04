@@ -22,4 +22,4 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
   overwriteExistingFiles: true,
   projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
 )
-class TestClassConfig extends OpenapiGeneratorConfig {}
+class TestClassConfig {}

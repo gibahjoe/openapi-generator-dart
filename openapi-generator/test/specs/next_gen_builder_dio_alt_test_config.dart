@@ -9,10 +9,7 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
       path:
           'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
     ),
-    generatorName: Generator.dio,
-    additionalProperties: AdditionalProperties(
-      wrapper: Wrapper.fvm,
-    ),
+    generatorName: Generator.dioAlt,
     useNextGen: true,
     cachePath: './test/specs/output-nextgen/expected-args/cache.json',
     outputDirectory: './test/specs/output-nextgen/expected-args')
