@@ -153,50 +153,155 @@ void main() {
         ),
       );
     });
-    test('uses config', () async {
-      final config = File(
-              '${Directory.current.path}${Platform.pathSeparator}test${Platform.pathSeparator}specs${Platform.pathSeparator}test_config.dart')
-          .readAsStringSync();
-      final annotations = (await resolveSource(
-              config,
-              (resolver) async =>
-                  (await resolver.findLibraryByName('test_lib'))!))
-          .getClass('TestClassConfig')!
-          .metadata
-          .map((e) => src_gen.ConstantReader(e.computeConstantValue()!))
-          .first;
-      final args = GeneratorArguments(annotations: annotations);
-      expect(args.alwaysRun, isTrue);
-      expect(args.useNextGen, isTrue);
-      expect(args.cachePath, './test/specs/output/cache.json');
-      expect(args.outputDirectory, './test/specs/output');
-      expect(args.runSourceGen, isTrue);
-      expect(args.shouldFetchDependencies, isTrue);
-      expect(args.skipValidation, isFalse);
-      expect(await args.inputFileOrFetch, './test/specs/openapi.test.yaml');
-      expect(args.templateDirectory, 'template');
-      expect(args.generator, Generator.dio);
-      expect(args.wrapper, Wrapper.fvm);
-      expect(args.importMappings, {'package': 'test'});
-      expect(args.typeMappings, {'key': 'value'});
-      expect(args.reservedWordsMappings, {'const': 'final'});
-      expect(args.inlineSchemaNameMappings, {'200resp': 'OkResp'});
-      expect(args.pubspecPath, './test/specs/dart_pubspec.test.yaml');
-      expect(args.isRemote, isFalse);
-      expect(args.generatorName, 'dart-dio');
-      expect(args.shouldGenerateSources, isTrue);
-      expect(await args.jarArgs, [
-        'generate',
-        '-o=${args.outputDirectory}',
-        '-i=${await args.inputFileOrFetch}',
-        '-t=${args.templateDirectory}',
-        '-g=${args.generatorName}',
-        '--reserved-words-mappings=${args.reservedWordsMappings.entries.fold('', foldStringMap())}',
-        '--inline-schema-name-mappings=${args.inlineSchemaNameMappings.entries.fold('', foldStringMap())}',
-        '--import-mappings=${args.importMappings.entries.fold('', foldStringMap())}',
-        '--type-mappings=${args.typeMappings.entries.fold('', foldStringMap())}',
-        '--additional-properties=${args.additionalProperties!.toMap().entries.fold('', foldStringMap(keyModifier: convertToPropertyKey))}'
-      ]);
+    group('annotation specification', () {
+      // https://github.com/gibahjoe/openapi-generator-dart/issues/110
+      test('Processes annotations correctly', () async {
+        final config = File(
+                '${Directory.current.path}${Platform.pathSeparator}test${Platform.pathSeparator}specs${Platform.pathSeparator}test_config.dart')
+            .readAsStringSync();
+        final annotations = (await resolveSource(
+                config,
+                (resolver) async =>
+                    (await resolver.findLibraryByName('test_lib'))!))
+            .getClass('TestClassConfig')!
+            .metadata
+            .map((e) => src_gen.ConstantReader(e.computeConstantValue()!))
+            .first;
+        final args = GeneratorArguments(annotations: annotations);
+        expect(args.alwaysRun, isTrue);
+        expect(args.useNextGen, isTrue);
+        expect(args.cachePath, './test/specs/output/cache.json');
+        expect(args.outputDirectory, './test/specs/output');
+        expect(args.runSourceGen, isTrue);
+        expect(args.shouldFetchDependencies, isTrue);
+        expect(args.skipValidation, isFalse);
+        expect(await args.inputFileOrFetch, './test/specs/openapi.test.yaml');
+        expect(args.templateDirectory, 'template');
+        expect(args.generator, Generator.dio);
+        expect(args.wrapper, Wrapper.fvm);
+        expect(args.importMappings, {'package': 'test'});
+        expect(args.typeMappings, {'key': 'value'});
+        expect(args.reservedWordsMappings, {'const': 'final'});
+        expect(args.inlineSchemaNameMappings, {'200resp': 'OkResp'});
+        expect(args.pubspecPath, './test/specs/dart_pubspec.test.yaml');
+        expect(args.isRemote, isFalse);
+        expect(args.generatorName, 'dart-dio');
+        expect(args.shouldGenerateSources, isTrue);
+        expect(args.additionalProperties?.useEnumExtension, isTrue);
+        expect(args.additionalProperties?.pubAuthor, 'test author');
+        expect(await args.jarArgs, [
+          'generate',
+          '-o=${args.outputDirectory}',
+          '-i=${await args.inputFileOrFetch}',
+          '-t=${args.templateDirectory}',
+          '-g=${args.generatorName}',
+          '--reserved-words-mappings=${args.reservedWordsMappings.entries.fold('', foldStringMap())}',
+          '--inline-schema-name-mappings=${args.inlineSchemaNameMappings.entries.fold('', foldStringMap())}',
+          '--import-mappings=${args.importMappings.entries.fold('', foldStringMap())}',
+          '--type-mappings=${args.typeMappings.entries.fold('', foldStringMap())}',
+          '--additional-properties=${args.additionalProperties!.toMap().entries.fold('', foldStringMap(keyModifier: convertToPropertyKey))}'
+        ]);
+      });
+      test('Processes annotation with DioProperties correctly', () async {
+        final config = File(
+                '${Directory.current.path}${Platform.pathSeparator}test${Platform.pathSeparator}specs${Platform.pathSeparator}dio_properties_test_config.dart')
+            .readAsStringSync();
+        final annotations = (await resolveSource(
+                config,
+                (resolver) async =>
+                    (await resolver.findLibraryByName('test_lib'))!))
+            .getClass('DioPropertiesTestConfig')!
+            .metadata
+            .map((e) => src_gen.ConstantReader(e.computeConstantValue()!))
+            .first;
+        final args = GeneratorArguments(annotations: annotations);
+        expect(args.alwaysRun, isTrue);
+        expect(args.useNextGen, isTrue);
+        expect(args.cachePath, './test/specs/output/cache.json');
+        expect(args.outputDirectory, './test/specs/output');
+        expect(args.runSourceGen, isTrue);
+        expect(args.shouldFetchDependencies, isTrue);
+        expect(args.skipValidation, isFalse);
+        expect(await args.inputFileOrFetch, './test/specs/openapi.test.yaml');
+        expect(args.templateDirectory, 'template');
+        expect(args.generator, Generator.dio);
+        expect(args.wrapper, Wrapper.fvm);
+        expect(args.importMappings, {'package': 'test'});
+        expect(args.typeMappings, {'key': 'value'});
+        expect(args.reservedWordsMappings, {'const': 'final'});
+        expect(args.inlineSchemaNameMappings, {'200resp': 'OkResp'});
+        expect(args.pubspecPath, './test/specs/dart_pubspec.test.yaml');
+        expect(args.isRemote, isFalse);
+        expect(args.generatorName, 'dart-dio');
+        expect(args.shouldGenerateSources, isTrue);
+        expect(args.additionalProperties?.useEnumExtension, isTrue);
+        expect((args.additionalProperties as DioProperties?)?.nullableFields,
+            isTrue);
+        expect(await args.jarArgs, [
+          'generate',
+          '-o=${args.outputDirectory}',
+          '-i=${await args.inputFileOrFetch}',
+          '-t=${args.templateDirectory}',
+          '-g=${args.generatorName}',
+          '--reserved-words-mappings=${args.reservedWordsMappings.entries.fold('', foldStringMap())}',
+          '--inline-schema-name-mappings=${args.inlineSchemaNameMappings.entries.fold('', foldStringMap())}',
+          '--import-mappings=${args.importMappings.entries.fold('', foldStringMap())}',
+          '--type-mappings=${args.typeMappings.entries.fold('', foldStringMap())}',
+          '--additional-properties=${args.additionalProperties!.toMap().entries.fold('', foldStringMap(keyModifier: convertToPropertyKey))}'
+        ]);
+      });
+      test('Processes annotation with DioAltProperties correctly', () async {
+        final config = File(
+                '${Directory.current.path}${Platform.pathSeparator}test${Platform.pathSeparator}specs${Platform.pathSeparator}dio_alt_properties_test_config.dart')
+            .readAsStringSync();
+        final annotations = (await resolveSource(
+                config,
+                (resolver) async =>
+                    (await resolver.findLibraryByName('test_lib'))!))
+            .getClass('DioAltPropertiesTestConfig')!
+            .metadata
+            .map((e) => src_gen.ConstantReader(e.computeConstantValue()!))
+            .first;
+        final args = GeneratorArguments(annotations: annotations);
+        expect(args.alwaysRun, isTrue);
+        expect(args.useNextGen, isTrue);
+        expect(args.cachePath, './test/specs/output/cache.json');
+        expect(args.outputDirectory, './test/specs/output');
+        expect(args.runSourceGen, isTrue);
+        expect(args.shouldFetchDependencies, isTrue);
+        expect(args.skipValidation, isFalse);
+        expect(await args.inputFileOrFetch, './test/specs/openapi.test.yaml');
+        expect(args.templateDirectory, 'template');
+        expect(args.generator, Generator.dio);
+        expect(args.wrapper, Wrapper.fvm);
+        expect(args.importMappings, {'package': 'test'});
+        expect(args.typeMappings, {'key': 'value'});
+        expect(args.reservedWordsMappings, {'const': 'final'});
+        expect(args.inlineSchemaNameMappings, {'200resp': 'OkResp'});
+        expect(args.pubspecPath, './test/specs/dart_pubspec.test.yaml');
+        expect(args.isRemote, isFalse);
+        expect(args.generatorName, 'dart-dio');
+        expect(args.shouldGenerateSources, isTrue);
+        expect(args.additionalProperties?.useEnumExtension, isTrue);
+        expect(
+            (args.additionalProperties as DioAltProperties?)?.nullSafe, isTrue);
+        expect(
+            (args.additionalProperties as DioAltProperties?)
+                ?.nullSafeArrayDefault,
+            isTrue);
+        expect(await args.jarArgs, [
+          'generate',
+          '-o=${args.outputDirectory}',
+          '-i=${await args.inputFileOrFetch}',
+          '-t=${args.templateDirectory}',
+          '-g=${args.generatorName}',
+          '--reserved-words-mappings=${args.reservedWordsMappings.entries.fold('', foldStringMap())}',
+          '--inline-schema-name-mappings=${args.inlineSchemaNameMappings.entries.fold('', foldStringMap())}',
+          '--import-mappings=${args.importMappings.entries.fold('', foldStringMap())}',
+          '--type-mappings=${args.typeMappings.entries.fold('', foldStringMap())}',
+          '--additional-properties=${args.additionalProperties!.toMap().entries.fold('', foldStringMap(keyModifier: convertToPropertyKey))}'
+        ]);
+      });
     });
   });
 }
