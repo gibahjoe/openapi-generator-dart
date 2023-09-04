@@ -45,9 +45,7 @@ const useNextGen = false;
 @Openapi(
   inputSpecFile: '',
   generatorName: Generator.dart,
-  additionalProperties: AdditionalProperties(
-    wrapper: Wrapper.flutterw,
-  ),
+  additionalProperties: AdditionalProperties(wrapper: Wrapper.flutterw),
 )
 class TestClassHasCustomAnnotations extends OpenapiGeneratorConfig {}
 
