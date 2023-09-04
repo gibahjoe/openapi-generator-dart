@@ -15,6 +15,15 @@
 * remove unused imports ([4eb64c9](https://github.com/gibahjoe/openapi-generator-dart/commit/4eb64c90c2468a8ce26b79266c0e705be3e979de))
 * repair the docker run command, update the type_methods to expand out the remote delegate ([c00b334](https://github.com/gibahjoe/openapi-generator-dart/commit/c00b3345d934e2f1508ba1129a3a769f86a85017))
 
+## [4.13.1](https://github.com/gibahjoe/openapi-generator-dart/compare/v4.13.0...v4.13.1) (2023-09-04)
+
+
+### Bug Fixes
+
+* **dependencies:** added required dependencies to pubspec ([7738439](https://github.com/gibahjoe/openapi-generator-dart/commit/7738439a89637bb1226f6586a0c9d311053e1702))
+* fixes useEnumExtension and other non string additional properties fields throwing error ([53b711a](https://github.com/gibahjoe/openapi-generator-dart/commit/53b711a3c9319e31ec0b159edfc76674b62feb19))
+* updated logs ([45af1cf](https://github.com/gibahjoe/openapi-generator-dart/commit/45af1cf21ab1d11b12898b6cb8f2ee9895dca133))
+
 ## 4.12.0
 
 - Added spec diff tracking. This means you Openapi generator now tracks changes to your spec and only regenerates the
