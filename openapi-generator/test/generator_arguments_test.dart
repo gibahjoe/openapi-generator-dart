@@ -1,19 +1,18 @@
 import 'dart:io';
 
-import 'package:build_test/build_test.dart';
 import 'package:openapi_generator/src/models/generator_arguments.dart';
 import 'package:openapi_generator/src/models/output_message.dart';
 import 'package:openapi_generator/src/utils.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
-import 'package:source_gen/source_gen.dart' as src_gen;
 import 'package:test/test.dart';
 
 void main() {
   group('GeneratorArguments', () {
     group('defaults', () {
       late GeneratorArguments args;
-      setUpAll(() =>
-          args = GeneratorArguments(annotations: src_gen.ConstantReader(null)));
+      setUpAll(() => args = GeneratorArguments(
+          annotation:
+              Openapi(inputSpecFile: '', generatorName: Generator.dart)));
       test('alwaysRun', () => expect(args.alwaysRun, isFalse));
       test('useNextGen', () => expect(args.useNextGen, isFalse));
       test('cachePath', () => expect(args.cachePath, defaultCachedPath));
@@ -82,9 +81,11 @@ void main() {
       });
     });
     group('accepts overrides', () {
-      final annos = src_gen.ConstantReader(null);
       final args = GeneratorArguments(
-        annotations: annos,
+        annotation: Openapi(
+          inputSpecFile: '',
+          generatorName: Generator.dart,
+        ),
         alwaysRun: true,
         useNextGen: true,
         cachePath: 'test',
@@ -100,7 +101,9 @@ void main() {
         typeMapping: {'package': 'type'},
         reservedWordsMapping: {'const': 'final'},
         inlineSchemaNameMapping: {'L': 'R'},
-        additionalProperties: AdditionalProperties(wrapper: Wrapper.fvm),
+        additionalProperties: AdditionalProperties(
+          wrapper: Wrapper.fvm,
+        ),
         pubspecPath: 'testing/pubspec.yaml',
       );
       test('alwaysRun', () => expect(args.alwaysRun, isTrue));
@@ -154,18 +157,27 @@ void main() {
       );
     });
     test('uses config', () async {
-      final config = File(
-              '${Directory.current.path}${Platform.pathSeparator}test${Platform.pathSeparator}specs${Platform.pathSeparator}test_config.dart')
-          .readAsStringSync();
-      final annotations = (await resolveSource(
-              config,
-              (resolver) async =>
-                  (await resolver.findLibraryByName('test_lib'))!))
-          .getClass('TestClassConfig')!
-          .metadata
-          .map((e) => src_gen.ConstantReader(e.computeConstantValue()!))
-          .first;
-      final args = GeneratorArguments(annotations: annotations);
+      final annotation = Openapi(
+        inputSpecFile: './openapi.test.yaml',
+        inputSpec: InputSpec(path: './test/specs/openapi.test.yaml'),
+        generatorName: Generator.dio,
+        useNextGen: true,
+        cachePath: './test/specs/output/cache.json',
+        typeMappings: {'key': 'value'},
+        templateDirectory: 'template',
+        alwaysRun: true,
+        outputDirectory: './test/specs/output',
+        runSourceGenOnOutput: true,
+        apiPackage: 'test',
+        skipSpecValidation: false,
+        importMappings: {'package': 'test'},
+        reservedWordsMappings: {'const': 'final'},
+        additionalProperties: AdditionalProperties(wrapper: Wrapper.fvm),
+        inlineSchemaNameMappings: {'200resp': 'OkResp'},
+        overwriteExistingFiles: true,
+        projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
+      );
+      final args = GeneratorArguments(annotation: annotation);
       expect(args.alwaysRun, isTrue);
       expect(args.useNextGen, isTrue);
       expect(args.cachePath, './test/specs/output/cache.json');

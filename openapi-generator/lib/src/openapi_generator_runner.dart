@@ -49,13 +49,14 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         todo: 'Remove the [Openapi] annotation from `$friendlyName`.',
       );
     } else {
-      if (!(annotations.read('useNextGen').literalValue as bool) &&
-          annotations.read('cachePath').literalValue != null) {
+      final apiAnnotation = Reviver(annotations) as annots.Openapi;
+
+      if (!apiAnnotation.useNextGen && apiAnnotation.cachePath != null) {
         throw AssertionError('useNextGen must be set when using cachePath');
       }
       try {
         // Transform the annotations.
-        final args = GeneratorArguments(annotations: annotations);
+        final args = GeneratorArguments(annotation: apiAnnotation);
         // Determine if the project has a dependency on the flutter sdk or not.
         final baseCommand = await runner.checkForFlutterEnvironemt(
                 wrapper: args.wrapper, providedPubspecPath: args.pubspecPath)

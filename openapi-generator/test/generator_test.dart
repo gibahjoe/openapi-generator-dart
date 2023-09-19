@@ -9,7 +9,7 @@ import 'package:openapi_generator/src/models/output_message.dart';
 import 'package:openapi_generator/src/openapi_generator_runner.dart';
 import 'package:openapi_generator/src/utils.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
-import 'package:source_gen/source_gen.dart';
+import 'package:source_gen/source_gen.dart' as src_gen;
 import 'package:test/test.dart';
 
 import 'mocks.mocks.dart';
@@ -19,7 +19,8 @@ void main() {
   group('OpenApiGenerator', () {
     group('NextGen', () {
       late MockConstantReader mockedAnnotations;
-      late ConstantReader defaultAnnotations;
+      late src_gen.ConstantReader defaultAnnotations;
+      late Openapi annotation;
       late GeneratorArguments realArguments;
       late MockGeneratorArguments mockedArgs;
       late MockCommandRunner mockRunner;
@@ -31,7 +32,8 @@ void main() {
         mockedAnnotations = MockConstantReader();
         defaultAnnotations =
             await loadAnnoation('next_gen_builder_test_config.dart');
-        realArguments = GeneratorArguments(annotations: defaultAnnotations);
+        annotation = src_gen.Reviver(defaultAnnotations).toInstance();
+        realArguments = GeneratorArguments(annotation: annotation);
       });
 
       test('should have banner logger', () async {
@@ -60,8 +62,8 @@ void main() {
               MockMethodElement(), defaultAnnotations, MockBuildStep());
           fail('Should throw when not ClassElement');
         } catch (e, _) {
-          expect(e, isA<InvalidGenerationSourceError>());
-          e as InvalidGenerationSourceError;
+          expect(e, isA<src_gen.InvalidGenerationSourceError>());
+          e as src_gen.InvalidGenerationSourceError;
           expect(e.message, 'Generator cannot target ``.');
           expect(e.todo, 'Remove the [Openapi] annotation from ``.');
         }
@@ -176,9 +178,6 @@ void main() {
           final logs = <LogRecord>[];
           logger.onRecord.listen(logs.add);
 
-          final annotations =
-              await loadAnnoation('next_gen_builder_local_test_config.dart');
-
           when(mockRunner.runCommand(
                   command: anyNamed('command'),
                   workingDirectory: anyNamed('workingDirectory')))
@@ -189,7 +188,7 @@ void main() {
                   cachedSpec: anyNamed('cachedSpec'),
                   loadedSpec: anyNamed('loadedSpec')))
               .thenAnswer((_) async => true);
-          final args = GeneratorArguments(annotations: annotations);
+          final args = GeneratorArguments(annotation: annotation);
           await OpenapiGenerator(logger: logger, runner: mockRunner)
               .generatorV2(
                   args: args,
@@ -212,9 +211,6 @@ void main() {
           final logs = <LogRecord>[];
           logger.onRecord.listen(logs.add);
 
-          final annotations =
-              await loadAnnoation('next_gen_builder_test_config.dart');
-
           when(mockRunner.runCommand(
                   command: anyNamed('command'),
                   workingDirectory: anyNamed('workingDirectory')))
@@ -225,7 +221,7 @@ void main() {
                   cachedSpec: anyNamed('cachedSpec'),
                   loadedSpec: anyNamed('loadedSpec')))
               .thenAnswer((_) async => true);
-          final args = GeneratorArguments(annotations: annotations);
+          final args = GeneratorArguments(annotation: annotation);
           await OpenapiGenerator(logger: logger, runner: mockRunner)
               .generatorV2(
                   args: args,
@@ -244,9 +240,6 @@ void main() {
           final logs = <LogRecord>[];
           logger.onRecord.listen(logs.add);
 
-          final annotations =
-              await loadAnnoation('next_gen_builder_dio_alt_test_config.dart');
-
           when(mockRunner.runCommand(
                   command: anyNamed('command'),
                   workingDirectory: anyNamed('workingDirectory')))
@@ -257,7 +250,20 @@ void main() {
                   cachedSpec: anyNamed('cachedSpec'),
                   loadedSpec: anyNamed('loadedSpec')))
               .thenAnswer((_) async => true);
-          final args = GeneratorArguments(annotations: annotations);
+          final args = GeneratorArguments(
+            annotation: Openapi(
+                inputSpecFile:
+                    'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+                inputSpec: RemoteSpec(
+                  path:
+                      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
+                ),
+                generatorName: Generator.dioAlt,
+                useNextGen: true,
+                cachePath:
+                    './test/specs/output-nextgen/expected-args/cache.json',
+                outputDirectory: './test/specs/output-nextgen/expected-args'),
+          );
           await OpenapiGenerator(logger: logger, runner: mockRunner)
               .generatorV2(
                   args: args,

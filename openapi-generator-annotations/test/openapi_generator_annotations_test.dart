@@ -91,6 +91,7 @@ void main() {
             expect(remote.path, 'http://localhost:8080/');
             expect(remote.headerDelegate, isA<RemoteSpecHeaderDelegate>());
           });
+
           test('uses path', () {
             final remote = RemoteSpec(path: 'https://example.com/path');
             expect(remote.path, 'https://example.com/path');
@@ -112,7 +113,6 @@ void main() {
               accessKeyId: 'test',
               secretAccessKey: 'test',
             );
-
             test('signs the url correctly', () {
               final now = DateTime.now();
               final actual = delegate.authHeaderContent(
