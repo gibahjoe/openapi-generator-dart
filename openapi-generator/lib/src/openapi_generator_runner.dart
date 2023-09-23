@@ -49,7 +49,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         todo: 'Remove the [Openapi] annotation from `$friendlyName`.',
       );
     } else {
-      final apiAnnotation = Reviver(annotations) as annots.Openapi;
+      final apiAnnotation = Reviver(annotations).toInstance() as annots.Openapi;
 
       if (!apiAnnotation.useNextGen && apiAnnotation.cachePath != null) {
         throw AssertionError('useNextGen must be set when using cachePath');

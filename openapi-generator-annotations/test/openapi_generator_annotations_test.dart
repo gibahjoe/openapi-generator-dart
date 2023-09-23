@@ -176,6 +176,7 @@ void main() {
               }
             });
             test('uses the provided environment', () async {
+              print(Directory.current.path);
               final result = Process.runSync(
                 'dart',
                 [

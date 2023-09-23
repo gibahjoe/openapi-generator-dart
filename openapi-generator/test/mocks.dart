@@ -7,11 +7,9 @@ import 'package:openapi_generator/src/models/command.dart';
 import 'package:openapi_generator/src/models/generator_arguments.dart';
 import 'package:openapi_generator/src/openapi_generator_runner.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
-import 'package:source_gen/source_gen.dart';
 
 @GenerateNiceMocks([
   MockSpec<OpenapiGenerator>(),
-  MockSpec<ConstantReader>(),
   MockSpec<BuildStep>(),
   MockSpec<MethodElement>(),
   MockSpec<ClassElement>(),

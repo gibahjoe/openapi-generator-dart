@@ -114,44 +114,47 @@ class GeneratorArguments {
 
   GeneratorArguments({
     required Openapi annotation,
-    bool alwaysRun = false,
+    bool? alwaysRun,
     String? inputSpecFile,
-    InputSpec inputSpec = const InputSpec.empty(),
-    String templateDirectory = '',
+    InputSpec? inputSpec,
+    String? templateDirectory,
     Generator? generator,
-    Map<String, String> typeMapping = const {},
-    Map<String, String> importMapping = const {},
-    Map<String, String> reservedWordsMapping = const {},
-    Map<String, String> inlineSchemaNameMapping = const {},
+    Map<String, String>? typeMapping,
+    Map<String, String>? importMapping,
+    Map<String, String>? reservedWordsMapping,
+    Map<String, String>? inlineSchemaNameMapping,
     AdditionalProperties? additionalProperties,
     InlineSchemaOptions? inlineSchemaOptions,
-    bool skipValidation = false,
-    bool runSourceGen = true,
+    bool? skipValidation,
+    bool? runSourceGen,
     String? outputDirectory,
-    bool fetchDependencies = true,
+    bool? fetchDependencies,
     bool? useNextGen,
     String? cachePath,
     String? pubspecPath,
-    bool isDebug = false,
-  })  : alwaysRun = annotation.alwaysRun ?? alwaysRun,
+    bool? isDebug,
+  })  : alwaysRun = alwaysRun ?? annotation.alwaysRun ?? true,
         _inputFile = inputSpecFile ?? annotation.inputSpecFile,
-        templateDirectory = annotation.templateDirectory ?? templateDirectory,
+        templateDirectory =
+            templateDirectory ?? annotation.templateDirectory ?? '',
         generator = generator ?? annotation.generatorName,
-        typeMappings = annotation.typeMappings ?? typeMapping,
-        importMappings = annotation.importMappings ?? importMapping,
+        typeMappings = typeMapping ?? annotation.typeMappings ?? {},
+        importMappings = importMapping ?? annotation.importMappings ?? {},
         reservedWordsMappings =
-            annotation.reservedWordsMappings ?? reservedWordsMapping,
-        inlineSchemaNameMappings =
-            annotation.inlineSchemaNameMappings ?? inlineSchemaNameMapping,
+            reservedWordsMapping ?? annotation.reservedWordsMappings ?? {},
+        inlineSchemaNameMappings = inlineSchemaNameMapping ??
+            annotation.inlineSchemaNameMappings ??
+            {},
         additionalProperties =
             additionalProperties ?? annotation.additionalProperties,
         inlineSchemaOptions = inlineSchemaOptions,
         // ?? annotations.readPropertyOrDefault(
         // 'inlineSchemaOptions', inlineSchemaOptions),
-        skipValidation = annotation.skipSpecValidation ?? skipValidation,
-        runSourceGen = annotation.runSourceGenOnOutput ?? runSourceGen,
+        skipValidation =
+            skipValidation ?? annotation.skipSpecValidation ?? false,
+        runSourceGen = runSourceGen ?? annotation.runSourceGenOnOutput ?? true,
         shouldFetchDependencies =
-            annotation.fetchDependencies ?? fetchDependencies,
+            fetchDependencies ?? annotation.fetchDependencies ?? true,
         outputDirectory = annotation.outputDirectory ??
             outputDirectory ??
             Directory.current.path,
@@ -161,7 +164,7 @@ class GeneratorArguments {
             pubspecPath ??
             '${Directory.current.path}${Platform.pathSeparator}pubspec.yaml',
         isDebug = annotation.debugLogging,
-        inputSpec = annotation.inputSpec ?? inputSpec;
+        inputSpec = inputSpec ?? annotation.inputSpec ?? InputSpec.empty();
 
   /// The stringified name of the [Generator].
   String get generatorName => generator == Generator.dart

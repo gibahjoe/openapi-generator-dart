@@ -18,7 +18,6 @@ import 'utils.dart';
 void main() {
   group('OpenApiGenerator', () {
     group('NextGen', () {
-      late MockConstantReader mockedAnnotations;
       late src_gen.ConstantReader defaultAnnotations;
       late Openapi annotation;
       late GeneratorArguments realArguments;
@@ -29,7 +28,6 @@ void main() {
         resetMockitoState();
         mockedArgs = MockGeneratorArguments();
         mockRunner = MockCommandRunner();
-        mockedAnnotations = MockConstantReader();
         defaultAnnotations =
             await loadAnnoation('next_gen_builder_test_config.dart');
         annotation = src_gen.Reviver(defaultAnnotations).toInstance();
@@ -71,19 +69,11 @@ void main() {
 
       test('throws AssertionError when useCache is set but useNextGen is not',
           () async {
-        final mockedUseNextGen = MockConstantReader();
-        when(mockedUseNextGen.literalValue).thenReturn(false);
-
-        final mockedUseCachePath = MockConstantReader();
-        when(mockedUseCachePath.literalValue).thenReturn('something');
-
-        when(mockedAnnotations.read('useNextGen')).thenReturn(mockedUseNextGen);
-        when(mockedAnnotations.read('cachePath'))
-            .thenReturn(mockedUseCachePath);
-
         try {
           await OpenapiGenerator().generateForAnnotatedElement(
-              MockClassElement(), mockedAnnotations, MockBuildStep());
+              MockClassElement(),
+              await loadAnnoation('next_gen_builder_test_invalid_config.dart'),
+              MockBuildStep());
           fail('Should throw when useNextGen is false and cache path is set.');
         } catch (e, _) {
           expect(e, isA<AssertionError>());
@@ -188,7 +178,8 @@ void main() {
                   cachedSpec: anyNamed('cachedSpec'),
                   loadedSpec: anyNamed('loadedSpec')))
               .thenAnswer((_) async => true);
-          final args = GeneratorArguments(annotation: annotation);
+          final args = GeneratorArguments(
+              annotation: annotation, generator: Generator.dart);
           await OpenapiGenerator(logger: logger, runner: mockRunner)
               .generatorV2(
                   args: args,
