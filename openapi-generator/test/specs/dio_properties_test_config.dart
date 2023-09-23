@@ -17,14 +17,13 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
   skipSpecValidation: false,
   importMappings: {'package': 'test'},
   reservedWordsMappings: {'const': 'final'},
-  additionalProperties: AdditionalProperties(
+  additionalProperties: DioProperties(
       wrapper: Wrapper.fvm,
       useEnumExtension: true,
       pubAuthor: 'test author',
-      sortModelPropertiesByRequiredFlag: true,
-      legacyDiscriminatorBehavior: true),
+      nullableFields: true),
   inlineSchemaNameMappings: {'200resp': 'OkResp'},
   overwriteExistingFiles: true,
   projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
 )
-class TestClassConfig {}
+class DioPropertiesTestConfig {}
