@@ -138,13 +138,16 @@ class GeneratorArguments {
         templateDirectory =
             templateDirectory ?? annotation.templateDirectory ?? '',
         generator = generator ?? annotation.generatorName,
-        typeMappings = typeMapping ?? annotation.typeMappings ?? {},
-        importMappings = importMapping ?? annotation.importMappings ?? {},
-        reservedWordsMappings =
-            reservedWordsMapping ?? annotation.reservedWordsMappings ?? {},
+        typeMappings =
+            typeMapping ?? annotation.typeMappings ?? <String, String>{},
+        importMappings =
+            importMapping ?? annotation.importMappings ?? <String, String>{},
+        reservedWordsMappings = reservedWordsMapping ??
+            annotation.reservedWordsMappings ??
+            <String, String>{},
         inlineSchemaNameMappings = inlineSchemaNameMapping ??
             annotation.inlineSchemaNameMappings ??
-            {},
+            <String, String>{},
         additionalProperties =
             additionalProperties ?? annotation.additionalProperties,
         inlineSchemaOptions = inlineSchemaOptions,
