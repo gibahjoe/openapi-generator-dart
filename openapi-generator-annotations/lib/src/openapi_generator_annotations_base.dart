@@ -377,6 +377,11 @@ class AdditionalProperties {
   /// Allow the 'x-enum-values' extension for enums
   final bool? useEnumExtension;
 
+  /// With this option enabled, each enum will have a new case, 'unknown_default_open_api',
+  /// so that when the server sends an enum case that is not known by the client/spec,
+  /// they can safely fallback to this case
+  final bool? enumUnknownDefaultCase;
+
   /// Flutter wrapper to use (none|flutterw|fvm)
   final Wrapper wrapper;
 
@@ -399,6 +404,7 @@ class AdditionalProperties {
     this.allowUnicodeIdentifiers = false,
     this.ensureUniqueParams = true,
     this.useEnumExtension = false,
+    this.enumUnknownDefaultCase = true,
     this.prependFormOrBodyParameters = false,
     this.pubAuthor,
     this.pubAuthorEmail,
@@ -419,6 +425,7 @@ class AdditionalProperties {
           allowUnicodeIdentifiers: map['allowUnicodeIdentifiers'] ?? false,
           ensureUniqueParams: map['ensureUniqueParams'] ?? true,
           useEnumExtension: map['useEnumExtension'] ?? true,
+          enumUnknownDefaultCase: map['enumUnknownDefaultCase'] ?? true,
           prependFormOrBodyParameters:
               map['prependFormOrBodyParameters'] ?? false,
           pubAuthor: map['pubAuthor'],
@@ -440,6 +447,7 @@ class AdditionalProperties {
         'allowUnicodeIdentifiers': allowUnicodeIdentifiers,
         'ensureUniqueParams': ensureUniqueParams,
         'useEnumExtension': useEnumExtension,
+        'enumUnknownDefaultCase': enumUnknownDefaultCase,
         'prependFormOrBodyParameters': prependFormOrBodyParameters,
         if (pubAuthor != null) 'pubAuthor': pubAuthor,
         if (pubAuthorEmail != null) 'pubAuthorEmail': pubAuthorEmail,
@@ -524,6 +532,7 @@ class DioProperties extends AdditionalProperties {
       bool sortModelPropertiesByRequiredFlag = true,
       bool sortParamsByRequiredFlag = true,
       bool useEnumExtension = true,
+      bool enumUnknownDefaultCase = true,
       String? sourceFolder,
       Wrapper wrapper = Wrapper.none})
       : super(
@@ -541,6 +550,7 @@ class DioProperties extends AdditionalProperties {
             sortParamsByRequiredFlag: sortParamsByRequiredFlag,
             sourceFolder: sourceFolder,
             useEnumExtension: useEnumExtension,
+            enumUnknownDefaultCase: enumUnknownDefaultCase,
             wrapper: wrapper);
 
   DioProperties.fromMap(Map<String, dynamic> map)
@@ -599,6 +609,7 @@ class DioAltProperties extends AdditionalProperties {
       bool sortModelPropertiesByRequiredFlag = true,
       bool sortParamsByRequiredFlag = true,
       bool useEnumExtension = true,
+      bool enumUnknownDefaultCase = true,
       String? sourceFolder,
       Wrapper wrapper = Wrapper.none})
       : super(
@@ -616,6 +627,7 @@ class DioAltProperties extends AdditionalProperties {
             sortParamsByRequiredFlag: sortParamsByRequiredFlag,
             sourceFolder: sourceFolder,
             useEnumExtension: useEnumExtension,
+            enumUnknownDefaultCase: enumUnknownDefaultCase,
             wrapper: wrapper);
 
   DioAltProperties.fromMap(Map<String, dynamic> map)
