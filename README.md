@@ -79,7 +79,7 @@ Annotate a dart class with @Openapi() annotation
     inputSpecFile: 'example/openapi-spec.yaml',
     generatorName: Generator.dart,
     outputDirectory: 'api/petstore_api')
-class Example extends OpenapiGeneratorConfig {}
+class Example {}
 ```
 
 Run
@@ -126,7 +126,7 @@ New:
     cachePath: 'some/preferred/directory/cache.json',
     useNextGen: true
 )
-class Example extends OpenapiGeneratorConfig {}
+class Example {}
 ```
 
 **IMPORTANT** With the new changes comes 2 new annotation properties:
