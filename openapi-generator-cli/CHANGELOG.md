@@ -5,6 +5,13 @@
 
 * Bumped versions to match ([506689c](https://github.com/gibahjoe/openapi-generator-dart/commit/506689c960491962c56cbb4418fc86dafc1a4c2e))
 
+## [4.13.1](https://github.com/gibahjoe/openapi-generator-dart/compare/v4.13.0...v4.13.1) (2023-09-04)
+
+
+### Bug Fixes
+
+* Trigger version bump for CLI ([996f328](https://github.com/gibahjoe/openapi-generator-dart/commit/996f3281cad0bdaf58a3d0bbdc4df7dbdc7b135f))
+
 ## 4.12.0
 
 - Bumped version to match annotations and core.

@@ -18,13 +18,13 @@ String getMapAsString(Map<dynamic, dynamic> data) {
 }
 
 /// Converts a [DartObject] to it's given type.
-String convertToPropertyValue(DartObject value) {
+dynamic convertToPropertyValue(DartObject value) {
   if (value.isNull) {
     return '';
   }
   return value.toStringValue() ??
-      value.toBoolValue()?.toString() ??
-      value.toIntValue()?.toString() ??
+      value.toBoolValue() ??
+      value.toIntValue() ??
       value.getField('_name')?.toStringValue() ??
       '';
 }

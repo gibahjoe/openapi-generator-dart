@@ -1,6 +1,6 @@
 name: openapi_generator
 description: Generator for openapi client sdk inspired by the npm implementation of openapi-generator-cli.
-version: 4.13.0
+version: 4.13.1
 homepage: https://github.com/gibahjoe/openapi-generator-dart
 
 environment:
@@ -25,6 +25,6 @@ dev_dependencies:
   pedantic:
   coverage: ^1.6.3
 
-dependency_overrides:
-  openapi_generator_annotations:
-    path: ../openapi-generator-annotations
+#dependency_overrides:
+#  openapi_generator_annotations:
+#    path: ../openapi-generator-annotations

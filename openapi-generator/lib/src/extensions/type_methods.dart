@@ -144,9 +144,10 @@ extension ReadProperty on ConstantReader {
       ) as T;
     }
 
-    if (isA(v, Map)) {
+    if (isA(v, Map<String, String>)) {
       return v.mapValue.map((key, value) => MapEntry(
-          convertToPropertyValue(key!), convertToPropertyValue(value!))) as T;
+          convertToPropertyValue(key!) as String,
+          convertToPropertyValue(value!) as String)) as T;
     } else if (isA(v, bool)) {
       return v.boolValue as T;
     } else if (isA(v, double)) {
