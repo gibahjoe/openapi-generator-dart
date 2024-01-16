@@ -59,23 +59,23 @@ FutureOr<Map<String, dynamic>> loadSpec(
     }
   } else {
     Map<String, String>? headers;
-    // if (specConfig.headerDelegate is AWSRemoteSpecHeaderDelegate) {
-    //   try {
-    //     headers = (specConfig.headerDelegate as AWSRemoteSpecHeaderDelegate)
-    //         .header(path: specConfig.url.path);
-    //   } catch (e, st) {
-    //     return Future.error(
-    //       OutputMessage(
-    //         message: 'failed to generate AWS headers',
-    //         additionalContext: e,
-    //         stackTrace: st,
-    //         level: Level.SEVERE,
-    //       ),
-    //     );
-    //   }
-    // } else {
-    //   headers = specConfig.headerDelegate.header();
-    // }
+    if (specConfig.headerDelegate is AWSRemoteSpecHeaderDelegate) {
+      try {
+        headers = (specConfig.headerDelegate as AWSRemoteSpecHeaderDelegate)
+            .header(path: specConfig.url.path);
+      } catch (e, st) {
+        return Future.error(
+          OutputMessage(
+            message: 'failed to generate AWS headers',
+            additionalContext: e,
+            stackTrace: st,
+            level: Level.SEVERE,
+          ),
+        );
+      }
+    } else {
+      headers = specConfig.headerDelegate.header();
+    }
 
     final resp = await http.get(specConfig.url, headers: headers);
     if (resp.statusCode == 200) {
