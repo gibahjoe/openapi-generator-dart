@@ -3,7 +3,8 @@ library test_lib;
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 
 @Openapi(
-  inputSpec: InputSpec(path: './test/specs/openapi.test.yaml'),
+  inputSpec:
+      RemoteSpec(path: 'https://petstore3.swagger.io/api/v3/openapi.json'),
   generatorName: Generator.dio,
   cachePath: './test/specs/output/cache.json',
   typeMappings: {'key': 'value'},

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -15,101 +16,112 @@ import 'utils.dart';
 /// We test the build runner by mocking the specs and then checking the output
 /// content for the expected generate command.
 void main() {
-  group('generator dio', () {
+  group('dio generator', () {
     test('to generate appropriate openapi cli command', () async {
-      expect(
-          await generate('''
-      @Openapi(
+      final annotations = await getReaderForAnnotation('''
+@Openapi(
           additionalProperties:
               DioProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep...'),
-          inputSpecFile: '../openapi-spec.yaml',
+          inputSpec: InputSpec(path: '../openapi-spec.yaml'),
           typeMappings: {'Pet': 'ExamplePet'},
           generatorName: Generator.dio,
           runSourceGenOnOutput: true,
           alwaysRun: true,
           outputDirectory: 'api/petstore_api')
-      '''),
+          ''');
+      final args = GeneratorArguments(annotations: annotations);
+      expect(
+          (await args.jarArgs).join(' '),
           contains(
-              'generate -o=api/petstore_api -i=../openapi-spec.yaml -g=dart-dio --type-mappings=Pet=ExamplePet --additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,prependFormOrBodyParameters=false,pubAuthor=Johnny dep...,pubName=petstore_api,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=none'));
+              'generate -o=api/petstore_api -i=../openapi-spec.yaml -g=dart-dio --type-mappings=Pet=ExamplePet --additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,enumUnknownDefaultCase=false,prependFormOrBodyParameters=false,pubAuthor=Johnny dep...,pubName=petstore_api,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=none'));
     });
 
     test('to generate command with import and type mappings', () async {
-      expect(
-          await generate('''
-      @Openapi(
-          inputSpecFile: '../openapi-spec.yaml',
+      final annotations = await getReaderForAnnotation('''
+@Openapi(
+          inputSpec: InputSpec(path: '../openapi-spec.yaml'),
           typeMappings: {'int-or-string':'IntOrString'},
           importMappings: {'IntOrString':'./int_or_string.dart'},
           generatorName: Generator.dio,
           outputDirectory: '${testSpecPath}output',
           )
-      '''),
+          ''');
+      final args = GeneratorArguments(annotations: annotations);
+      expect(
+          (await args.jarArgs).join(' '),
           contains(
               'generate -o=${testSpecPath}output -i=../openapi-spec.yaml -g=dart-dio --import-mappings=IntOrString=./int_or_string.dart --type-mappings=int-or-string=IntOrString'));
     });
 
     test('to generate command with inline schema mappings', () async {
-      expect(
-          await generate('''
-      @Openapi(
-          inputSpecFile: '../openapi-spec.yaml',
+      final annotations = await getReaderForAnnotation('''
+@Openapi(
+          inputSpec: InputSpec(path: '../openapi-spec.yaml'),
           typeMappings: {'int-or-string':'IntOrString'},
           inlineSchemaNameMappings: {'inline_object_2':'SomethingMapped','inline_object_4':'nothing_new'},
           generatorName: Generator.dio,
           outputDirectory: '${testSpecPath}output',
           )
-      '''),
-          contains('''
+          ''');
+      final args = GeneratorArguments(annotations: annotations);
+      expect(
+          (await args.jarArgs).join(' '),
+          equals('''
               generate -o=${testSpecPath}output -i=../openapi-spec.yaml -g=dart-dio --inline-schema-name-mappings=inline_object_2=SomethingMapped,inline_object_4=nothing_new --type-mappings=int-or-string=IntOrString
               '''
               .trim()));
     });
-
-    // test('to generate command with inline schema options', () async {
-    //   expect(await generate('''
-    //   @Openapi(
-    //       inputSpecFile: '../openapi-spec.yaml',
-    //       inlineSchemaOptions: InlineSchemaOptions(skipSchemaReuse: true,refactorAllofInlineSchemas: true,resolveInlineEnums: true),
-    //       generatorName: Generator.dio)
-    //   '''), contains('''
-    //           generate -i ../openapi-spec.yaml -g dart-dio --type-mappings=int-or-string=IntOrString --inline-schema-name-mappings=inline_object_2=SomethingMapped,inline_object_4=nothing_new
-    //           '''.trim()));
-    // });
   });
 
   group('generator dioAlt', () {
     test('to generate appropriate openapi cli command', () async {
-      expect(
-          await generate('''
-      @Openapi(
+      final annotations = (await resolveSource(
+              '''
+library test_lib;
+
+import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
+
+ @Openapi(
           additionalProperties:
               DioProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep...'),
-          inputSpecFile: '../openapi-spec.yaml',
+          inputSpec: InputSpec(path: '../openapi-spec.yaml'),
           typeMappings: {'Pet': 'ExamplePet'},
           generatorName: Generator.dio,
           runSourceGenOnOutput: true,
           alwaysRun: true,
           outputDirectory: 'api/petstore_api')
-      '''),
+class TestClassConfig extends OpenapiGeneratorConfig {}
+                    ''',
+              (resolver) async =>
+                  (await resolver.findLibraryByName('test_lib'))!))
+          .getClass('TestClassConfig')!
+          .metadata
+          .map((e) => ConstantReader(e.computeConstantValue()!))
+          .first;
+      final args = GeneratorArguments(annotations: annotations);
+      expect(
+          (await args.jarArgs).join(' '),
           contains('''
-              generate -o=api/petstore_api -i=../openapi-spec.yaml -g=dart-dio --type-mappings=Pet=ExamplePet --additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,prependFormOrBodyParameters=false,pubAuthor=Johnny dep...,pubName=petstore_api,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=none
+              generate -o=api/petstore_api -i=../openapi-spec.yaml -g=dart-dio --type-mappings=Pet=ExamplePet --additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,enumUnknownDefaultCase=false,prependFormOrBodyParameters=false,pubAuthor=Johnny dep...,pubName=petstore_api,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=none
           '''
               .trim()));
     });
 
     test('to generate command with import and type mappings for dioAlt',
         () async {
-      expect(
-          await generate('''
-        @Openapi(
-            inputSpecFile: '../openapi-spec.yaml',
+      var annots = await getReaderForAnnotation('''
+       @Openapi(
+            inputSpec: InputSpec(path:'../openapi-spec.yaml'),
             typeMappings: {'int-or-string':'IntOrString'},
             importMappings: {'IntOrString':'./int_or_string.dart'},
             generatorName: Generator.dioAlt,
             outputDirectory: '${testSpecPath}output',
             )
-      '''),
-          contains(
+      ''');
+      var args = GeneratorArguments(annotations: annots);
+      expect(
+          (await args.jarArgs).join(' '),
+          equals(
               'generate -o=${testSpecPath}output -i=../openapi-spec.yaml -g=dart2-api --import-mappings=IntOrString=./int_or_string.dart --type-mappings=int-or-string=IntOrString'));
     });
   });
@@ -136,21 +148,6 @@ void main() {
         if (f.existsSync()) {
           f.deleteSync();
         }
-      });
-      test('fails with invalid configuration', () async {
-        generatedOutput = await generate('''
-        @Openapi(
-            inputSpecFile: '$specPath',
-            typeMappings: {'int-or-string':'IntOrString'},
-            importMappings: {'IntOrString':'./int_or_string.dart'},
-            generatorName: Generator.dioAlt,
-            useNextGen: false,
-            cachePath: '${f.path}',
-            outputDirectory: '${f.parent.path}/invalid_config/'
-            )
-      ''');
-        expect(generatedOutput,
-            contains('useNextGen must be set when using cachePath'));
       });
       test('Logs warning when using remote spec', () async {
         generatedOutput = await generate('''
@@ -409,8 +406,6 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
             expect(args.runSourceGen, isFalse);
             generatedOutput = await generate('''
 @Openapi(
-  inputSpecFile:
-      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
@@ -450,8 +445,6 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
             expect(args.runSourceGen, isTrue);
             generatedOutput = await generate('''
 @Openapi(
-  inputSpecFile:
-      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dart,
   useNextGen: true,
@@ -468,8 +461,6 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
         test('logs when successful', () async {
           generatedOutput = await generate('''
 @Openapi(
-  inputSpecFile:
-      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
@@ -486,8 +477,6 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
         test('except when flag is present', () async {
           generatedOutput = await generate('''
 @Openapi(
-  inputSpecFile:
-      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
@@ -503,8 +492,6 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
         test('succeeds', () async {
           generatedOutput = await generate('''
 @Openapi(
-  inputSpecFile:
-      'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
   inputSpec: RemoteSpec(path: '$specPath'),
   generatorName: Generator.dio,
   useNextGen: true,
@@ -521,7 +508,6 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
       group('update cache', () {
         final src = '''
         @Openapi(
-            inputSpecFile: '$specPath',
             inputSpec: RemoteSpec(path: '$specPath'),
             useNextGen: true,
             cachePath: '${f.path}',
@@ -556,33 +542,22 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
               generatedOutput, contains('Successfully cached spec changes.'));
         });
       });
-      test('uses AWS', () async {
-        generatedOutput = await generate('''
-@Openapi(
-  inputSpecFile: '',
-  inputSpec: RemoteSpec(
-      path:
-          'http://bucket.s3.us-east-1.localhost.localstack.cloud:4566/openapi.yaml',
-      headerDelegate: AWSRemoteSpecHeaderDelegate(
-        bucket: 'bucket',
-        accessKeyId: 'test',
-        secretAccessKey: 'test',
-      ),
-    ),
-  generatorName: Generator.dio,
-  useNextGen: true,
-  cachePath: '${f.path}',
-  outputDirectory: '${f.parent.path}/uses-aws-spec',
-  projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
-)
-          ''');
-
-        expect(generatedOutput, contains('Running source code generation.'));
-        expect(
-            generatedOutput,
-            contains(
-                'dart pub run build_runner build --delete-conflicting-outputs'));
-      });
     });
   });
+}
+
+Future<ConstantReader> getReaderForAnnotation(String annotationDef) async {
+  final annotations = (await resolveSource('''
+library test_lib;
+import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
+
+$annotationDef
+class TestClassConfig {}
+                    ''',
+          (resolver) async => (await resolver.findLibraryByName('test_lib'))!))
+      .getClass('TestClassConfig')!
+      .metadata
+      .map((e) => ConstantReader(e.computeConstantValue()!))
+      .first;
+  return annotations;
 }

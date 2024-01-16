@@ -81,6 +81,19 @@ extension ReadProperty on ConstantReader {
       return defaultValue;
     }
 
+    var property = readPropertyOrNull<T>(name);
+    if (property == null) {
+      return defaultValue;
+    }
+    return property;
+  }
+
+  T? readPropertyOrNull<T>(String name) {
+    final v = peek(name);
+    if (v == null) {
+      return null;
+    }
+
     if (isA(v, InputSpec)) {
       final revived = v.revive();
 
@@ -163,7 +176,7 @@ extension ReadProperty on ConstantReader {
     } else if (isA(v, Enum)) {
       return v.enumValue();
     } else {
-      return defaultValue;
+      return null;
     }
   }
 }

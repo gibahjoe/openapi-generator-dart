@@ -4,12 +4,6 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:meta/meta.dart';
 
-/// Config base class
-/// Your annotated class must extend this config class
-@Deprecated(
-    'You do not need to extend this anymore (See example). This class would be removed in the next major release.')
-abstract class OpenapiGeneratorConfig {}
-
 class Openapi {
   /// Additional properties to pass to the compiler (CSV)
   ///
@@ -26,12 +20,6 @@ class Openapi {
   /// --api-package
   final String? apiPackage;
 
-  /// relative path or url to spec file
-  ///
-  /// -i
-  @Deprecated('To be removed in the next major')
-  final String inputSpecFile;
-
   /// Provides the access information to the input spec file.
   ///
   /// For use with useNextGen.
@@ -43,7 +31,7 @@ class Openapi {
   /// to be applied to the fetch request when the spec file is in a remote
   /// location. There is also special handling for when the spec file lives within
   /// AWS.
-  final InputSpec? inputSpec;
+  final InputSpec inputSpec;
 
   /// folder containing the template files
   ///
@@ -79,12 +67,6 @@ class Openapi {
   ///
   /// --reserved-words-mappings
   final Map<String, String>? reservedWordsMappings;
-
-  /// Tells openapi-generator to always run during the build process
-  /// if set to false (the default), openapi-generator will skip processing if the [outputDirectory] already exists
-  @Deprecated(
-      'The generator will always run to determine if there are changes made on the input spec file')
-  final bool? alwaysRun;
 
   /// if set to true, flutter pub get will be run on the [outputDirectory] after the code has been generated.
   /// Defaults to true for backwards compatibility
@@ -122,21 +104,6 @@ class Openapi {
   /// e.g {'inline_object_2': 'SomethingMapped'}
   final Map<String, String>? inlineSchemaNameMappings;
 
-  /// Use the next generation of the generator.
-  ///
-  /// This annotation informs the generator to use the new generator pathway.
-  /// Enabling this option allows for incremental changes to the [inputSpecFile]
-  /// to be generated even though the annotation was unchanged.
-  ///
-  /// Due to some limitations with build_runner and it only running when the
-  /// asset graph has changed, a generated line get injected at the beginning of
-  /// the file at the end of each run.
-  ///
-  /// This will become the default behaviour in the next Major version (v5).
-  ///
-  /// Default: false
-  final bool useNextGen;
-
   /// The path where to store the cached copy of the specification.
   ///
   /// For use with [useNextGen].
@@ -152,8 +119,7 @@ class Openapi {
     this.additionalProperties,
     this.overwriteExistingFiles,
     this.skipSpecValidation = false,
-    required this.inputSpecFile,
-    this.inputSpec,
+    required this.inputSpec,
     this.templateDirectory,
     required this.generatorName,
     this.outputDirectory,
@@ -165,9 +131,7 @@ class Openapi {
     this.apiPackage,
     this.fetchDependencies = true,
     this.runSourceGenOnOutput = true,
-    this.alwaysRun = false,
     this.cachePath,
-    this.useNextGen = false,
     this.projectPubspecPath,
     this.debugLogging = false,
   });
@@ -179,30 +143,18 @@ class Openapi {
 /// Includes the option to use the default json or yaml paths.
 class InputSpec {
   final String path;
-  final bool defaultYaml;
-  final bool useYml;
 
-  const InputSpec({String? path, this.defaultYaml = true, this.useYml = false})
-      : path = path ??
-            'openapi.${defaultYaml ? 'y${useYml ? '' : 'a'}ml' : 'json'}';
+  const InputSpec({required this.path});
 
-  const InputSpec.empty() : this();
+  const InputSpec.json() : this(path: 'openapi.json');
 
-  const InputSpec.emptyJson() : this(defaultYaml: false);
-  const InputSpec.emptyYml() : this(useYml: true);
+  const InputSpec.yaml({bool shortExtension = false})
+      : this(path: 'openapi.y${shortExtension ? '' : 'a'}ml');
 
-  Map<String, dynamic> toJsonMap() => {
-        'path': path,
-        'defaultYaml': defaultYaml,
-        'useYml': useYml,
-      };
+  Map<String, dynamic> toJsonMap() => {'path': path};
 
   InputSpec.fromMap(Map<String, dynamic> map)
-      : this(
-          path: map['path'],
-          defaultYaml: map['defaultYaml'] == 'true' ? true : false,
-          useYml: map['useYml'] == 'true' ? true : false,
-        );
+      : this(path: map['path']);
 }
 
 /// Provides the location for the remote specification.
@@ -377,10 +329,13 @@ class AdditionalProperties {
   /// Allow the 'x-enum-values' extension for enums
   final bool? useEnumExtension;
 
-  /// With this option enabled, each enum will have a new case, 'unknown_default_open_api',
+  /// If the server adds new enum cases, that are unknown by an old spec/client,
+  /// the client will fail to parse the network response.With this option enabled, each enum will have a new case, 'unknown_default_open_api',
   /// so that when the server sends an enum case that is not known by the client/spec,
-  /// they can safely fallback to this case
-  final bool? enumUnknownDefaultCase;
+  /// they can safely fallback to this case.
+  ///
+  /// Default: false
+  final bool enumUnknownDefaultCase;
 
   /// Flutter wrapper to use (none|flutterw|fvm)
   final Wrapper wrapper;
@@ -404,7 +359,7 @@ class AdditionalProperties {
     this.allowUnicodeIdentifiers = false,
     this.ensureUniqueParams = true,
     this.useEnumExtension = false,
-    this.enumUnknownDefaultCase = true,
+    this.enumUnknownDefaultCase = false,
     this.prependFormOrBodyParameters = false,
     this.pubAuthor,
     this.pubAuthorEmail,
@@ -425,7 +380,7 @@ class AdditionalProperties {
           allowUnicodeIdentifiers: map['allowUnicodeIdentifiers'] ?? false,
           ensureUniqueParams: map['ensureUniqueParams'] ?? true,
           useEnumExtension: map['useEnumExtension'] ?? true,
-          enumUnknownDefaultCase: map['enumUnknownDefaultCase'] ?? true,
+          enumUnknownDefaultCase: map['enumUnknownDefaultCase'] ?? false,
           prependFormOrBodyParameters:
               map['prependFormOrBodyParameters'] ?? false,
           pubAuthor: map['pubAuthor'],
@@ -532,7 +487,7 @@ class DioProperties extends AdditionalProperties {
       bool sortModelPropertiesByRequiredFlag = true,
       bool sortParamsByRequiredFlag = true,
       bool useEnumExtension = true,
-      bool enumUnknownDefaultCase = true,
+      bool enumUnknownDefaultCase = false,
       String? sourceFolder,
       Wrapper wrapper = Wrapper.none})
       : super(
@@ -609,7 +564,7 @@ class DioAltProperties extends AdditionalProperties {
       bool sortModelPropertiesByRequiredFlag = true,
       bool sortParamsByRequiredFlag = true,
       bool useEnumExtension = true,
-      bool enumUnknownDefaultCase = true,
+      bool enumUnknownDefaultCase = false,
       String? sourceFolder,
       Wrapper wrapper = Wrapper.none})
       : super(

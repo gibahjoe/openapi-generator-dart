@@ -74,12 +74,15 @@ Annotate a dart class with @Openapi() annotation
 
 ```dart
 @Openapi(
-    additionalProperties:
-    AdditionalProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep'),
-    inputSpecFile: 'example/openapi-spec.yaml',
-    generatorName: Generator.dart,
-    outputDirectory: 'api/petstore_api')
-class Example {}
+  additionalProperties:
+  DioProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep..'),
+  inputSpec:
+  RemoteSpec(path: 'https://petstore3.swagger.io/api/v3/openapi.json'),
+  typeMappings: {'Pet': 'ExamplePet'},
+  generatorName: Generator.dio,
+  runSourceGenOnOutput: true,
+  outputDirectory: 'api/petstore_api',
+)
 ```
 
 Run
@@ -99,7 +102,8 @@ The api sdk will be generated in the folder specified in the annotation. See exa
 
 ## Next Generation
 
-There is some new functionality slated to be added to the generator. This version will have the ability to:
+As of version 5.0 of this library, there is some new functionality slated to be added to the generator. This version
+will have the ability to:
 
 - cache changes in the OAS spec
 - Rerun when there ares difference in the cached copy and current copy
@@ -118,25 +122,18 @@ New:
 
 ```dart
 @Openapi(
-    additionalProperties:
-    AdditionalProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep'),
-    inputSpecFile: 'example/openapi-spec.yaml',
-    generatorName: Generator.dart,
-    outputDirectory: 'api/petstore_api',
-    cachePath: 'some/preferred/directory/cache.json',
-    useNextGen: true
+  additionalProperties:
+  DioProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep..'),
+  inputSpec:
+  RemoteSpec(path: 'https://petstore3.swagger.io/api/v3/openapi.json'),
+  typeMappings: {'Pet': 'ExamplePet'},
+  generatorName: Generator.dio,
+  runSourceGenOnOutput: true,
+  outputDirectory: 'api/petstore_api',
 )
 class Example {}
 ```
 
-**IMPORTANT** With the new changes comes 2 new annotation properties:
-
-- useNextGen (boolean)
-    - Default: `false`
-- cachePath (String)
-    - Default: `.dart_tool/openapi-generator-cache.json`
-    - Must be a path to a `json` file.
-    - Can only be set when `useNextGen` is `true`
 
 ## Contributing
 
