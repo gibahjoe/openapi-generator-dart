@@ -15,6 +15,29 @@
 * remove unused imports ([4eb64c9](https://github.com/gibahjoe/openapi-generator-dart/commit/4eb64c90c2468a8ce26b79266c0e705be3e979de))
 * repair the docker run command, update the type_methods to expand out the remote delegate ([c00b334](https://github.com/gibahjoe/openapi-generator-dart/commit/c00b3345d934e2f1508ba1129a3a769f86a85017))
 
+## [5.0.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v4.13.1...v5.0.0) (2024-01-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* **cli:** removed various deprecated methods and properties such as inputSpecFile
+
+### Features
+
+* **annotation:** removed deprecated properties from annotation ([51d3683](https://github.com/gibahjoe/openapi-generator-dart/commit/51d3683bb83dc3e8f0f05d9d4913e11d3cc82b0f))
+* **cli:** bumped official generator version to 7.2 ([51d3683](https://github.com/gibahjoe/openapi-generator-dart/commit/51d3683bb83dc3e8f0f05d9d4913e11d3cc82b0f))
+* **generator:** moved completely to newgen ([51d3683](https://github.com/gibahjoe/openapi-generator-dart/commit/51d3683bb83dc3e8f0f05d9d4913e11d3cc82b0f))
+
+
+### Bug Fixes
+
+* Apply types to default empty maps ([bfb0ec4](https://github.com/gibahjoe/openapi-generator-dart/commit/bfb0ec4f66296e38d3ad3cb5dac15f532a477def))
+* Consume testing version of the source_gen branch to simplify testing. ([37af696](https://github.com/gibahjoe/openapi-generator-dart/commit/37af696ac90f27e47c31f87bb5c60c952bf56230))
+* Correct most of the tests while using the newest verison of the source gen changes ([4156d9a](https://github.com/gibahjoe/openapi-generator-dart/commit/4156d9a18bf83337e608219315d19abbe08f8bd8))
+* dep override ([8266ab1](https://github.com/gibahjoe/openapi-generator-dart/commit/8266ab1b8d49350205ba5f43d9eefc4404029c59))
+* fmt ([e63c9b9](https://github.com/gibahjoe/openapi-generator-dart/commit/e63c9b9b74cf681d1c16fb93f9b055c6f56cf3d4))
+* **generator:** fixed bad deps ([5d6407a](https://github.com/gibahjoe/openapi-generator-dart/commit/5d6407a05e23480f946a325c35c81bdca04b3bdc))
+
 ## [4.13.1](https://github.com/gibahjoe/openapi-generator-dart/compare/v4.13.0...v4.13.1) (2023-09-04)
 
 
