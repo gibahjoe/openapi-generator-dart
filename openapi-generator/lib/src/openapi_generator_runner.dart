@@ -47,16 +47,6 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           todo: 'Remove the [Openapi] annotation from `$friendlyName`.',
         );
       } else {
-        if (!(annotations.read('useNextGen').literalValue as bool)) {
-          if (annotations.read('cachePath').literalValue != null) {
-            throw InvalidGenerationSourceError(
-              'useNextGen must be set when using cachePath',
-              todo:
-                  'Either set useNextGen: true on the annotation or remove the custom cachePath',
-            );
-          }
-        }
-
         // Transform the annotations.
         final args = GeneratorArguments(annotations: annotations);
 
@@ -66,34 +56,10 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
             ? 'flutter'
             : 'dart';
 
-        if (!args.useNextGen) {
-          final path =
-              '${args.outputDirectory}${Platform.pathSeparator}lib${Platform.pathSeparator}api.dart';
-          if (await File(path).exists()) {
-            if (!args.alwaysRun) {
-              logOutputMessage(
-                log: log,
-                communication: OutputMessage(
-                  message:
-                      'Generated client already exists at [$path] and configuration is annotated with alwaysRun: [${args.alwaysRun}]. Therefore, skipping this build. Note that the "alwaysRun" config will be removed in future versions.',
-                  level: Level.INFO,
-                ),
-              );
-              return '';
-            }
-          }
-        } else {
-          // If the flag to use the next generation of the generator is applied
-          // use the new functionality.
-          return generatorV2(
-              args: args,
-              baseCommand: baseCommand,
-              annotatedPath: buildStep.inputId.path);
-        }
-
-        await runOpenApiJar(arguments: args);
-        await fetchDependencies(baseCommand: baseCommand, args: args);
-        await generateSources(baseCommand: baseCommand, args: args);
+        return generatorV2(
+            args: args,
+            baseCommand: baseCommand,
+            annotatedPath: buildStep.inputId.path);
       }
     } catch (e, st) {
       late OutputMessage communication;

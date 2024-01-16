@@ -9,14 +9,12 @@ void main() {
   group('OpenApi', () {
     test('defaults', () {
       final props = Openapi(
-        inputSpecFile: InputSpec.json().path,
         inputSpec: InputSpec.json(),
         generatorName: Generator.dart,
       );
       expect(props.additionalProperties, isNull);
       expect(props.overwriteExistingFiles, isNull);
       expect(props.skipSpecValidation, false);
-      expect(props.inputSpecFile, InputSpec.json().path);
       expect(props.inputSpec!.path, InputSpec.json().path);
       expect(props.templateDirectory, isNull);
       expect(props.generatorName, Generator.dart);
@@ -28,37 +26,27 @@ void main() {
       expect(props.apiPackage, isNull);
       expect(props.fetchDependencies, true);
       expect(props.runSourceGenOnOutput, true);
-      expect(props.alwaysRun, false);
       expect(props.cachePath, isNull);
-      expect(props.useNextGen, false);
       expect(props.projectPubspecPath, isNull);
       expect(props.debugLogging, isFalse);
     });
     group('NextGen', () {
       test('Sets cachePath', () {
         final api = Openapi(
-            inputSpecFile: InputSpec.json().path,
+            inputSpec: InputSpec.json(),
             generatorName: Generator.dart,
             cachePath: 'somePath');
         expect(api.cachePath, 'somePath');
       });
-      test('Sets useNextGenFlag', () {
-        final api = Openapi(
-            inputSpecFile: InputSpec.json().path,
-            generatorName: Generator.dart,
-            useNextGen: true);
-        expect(api.useNextGen, isTrue);
-      });
       test('Sets projectPubspecPath', () {
         final api = Openapi(
-            inputSpecFile: InputSpec.json().path,
+            inputSpec: InputSpec.json(),
             generatorName: Generator.dart,
             projectPubspecPath: 'test');
         expect(api.projectPubspecPath, 'test');
       });
       test('Set debug logging', () {
         final api = Openapi(
-            inputSpecFile: InputSpec.json().path,
             inputSpec: InputSpec.json(),
             generatorName: Generator.dart,
             debugLogging: true);

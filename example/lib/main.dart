@@ -1,4 +1,4 @@
-// Openapi Generator last run: : 2023-08-20T13:11:18.157121
+// Openapi Generator last run: : 2023-10-01T09:26:15.827402
 import 'package:flutter/material.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 
@@ -9,12 +9,11 @@ void main() {
 @Openapi(
   additionalProperties:
       DioProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep..'),
-  inputSpecFile: 'openapi-spec.yaml',
-  inputSpec: InputSpec(path: 'openapi-spec.yaml'),
+  inputSpec:
+      RemoteSpec(path: 'https://petstore3.swagger.io/api/v3/openapi.json'),
   typeMappings: {'Pet': 'ExamplePet'},
   generatorName: Generator.dio,
   runSourceGenOnOutput: true,
-  useNextGen: true,
   outputDirectory: 'api/petstore_api',
 )
 class MyApp extends StatelessWidget {

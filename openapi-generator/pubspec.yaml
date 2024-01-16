@@ -25,6 +25,6 @@ dev_dependencies:
   pedantic:
   coverage: ^1.6.3
 
-#dependency_overrides:
-#  openapi_generator_annotations:
-#    path: ../openapi-generator-annotations
+dependency_overrides:
+ openapi_generator_annotations:
+   path: ../openapi-generator-annotations

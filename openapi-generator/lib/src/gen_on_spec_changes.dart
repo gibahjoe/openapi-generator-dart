@@ -29,6 +29,7 @@ final _supportedRegexes = [jsonRegex, yamlRegex];
 /// WARNING: THIS DOESN'T VALIDATE THE SPECIFICATION CONTENT
 FutureOr<Map<String, dynamic>> loadSpec(
     {required InputSpec specConfig, bool isCached = false}) async {
+  print('loadSpec - ' + specConfig.path);
   // If the spec file doesn't match any of the currently supported spec formats
   // reject the request.
   if (!_supportedRegexes

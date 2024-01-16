@@ -30,20 +30,13 @@ class TestGenerator extends src_gen.GeneratorForAnnotation<Openapi> {
       );
     }
 
-    if (!(annotation.read('useNextGen').literalValue as bool)) {
-      if (annotation.read('cachePath').literalValue != null) {
-        throw src_gen.InvalidGenerationSourceError(
-            'useNextGen must be set when using cachePath');
-      }
-    }
-
     // KEEP THIS IN LINE WITH THE FIELDS OF THE ANNOTATION CLASS
     final fields = [
       SupportedFields(name: 'additionalProperties', type: AdditionalProperties),
       SupportedFields(
           name: 'overwriteExistingFiles', isDeprecated: true, type: bool),
       SupportedFields(name: 'skipSpecValidation', type: bool),
-      SupportedFields(name: 'inputSpecFile', isRequired: true, type: String),
+      SupportedFields(name: 'inputSpec', isRequired: true, type: InputSpec),
       SupportedFields(name: 'templateDirectory', type: String),
       SupportedFields(name: 'generatorName', isRequired: true, type: Generator),
       SupportedFields(name: 'outputDirectory', type: Map),
@@ -55,16 +48,14 @@ class TestGenerator extends src_gen.GeneratorForAnnotation<Openapi> {
       SupportedFields(name: 'apiPackage', type: String),
       SupportedFields(name: 'fetchDependencies', type: bool),
       SupportedFields(name: 'runSourceGenOnOutput', type: bool),
-      SupportedFields(name: 'alwaysRun', isDeprecated: true, type: bool),
       SupportedFields(name: 'cachePath', type: String),
-      SupportedFields(name: 'useNextGen', type: bool),
       SupportedFields(name: 'projectPubspecPath', type: String),
     ]..sort((a, b) => a.name.compareTo(b.name));
     for (final field in fields) {
       final v = annotation.read(field.name);
       try {
         if ([
-          'inputSpecFile',
+          'inputSpec',
           'projectPubspecPath',
           'apiPackage',
           'templateDirectory',
