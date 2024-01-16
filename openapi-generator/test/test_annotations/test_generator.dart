@@ -33,8 +33,6 @@ class TestGenerator extends src_gen.GeneratorForAnnotation<Openapi> {
     // KEEP THIS IN LINE WITH THE FIELDS OF THE ANNOTATION CLASS
     final fields = [
       SupportedFields(name: 'additionalProperties', type: AdditionalProperties),
-      SupportedFields(
-          name: 'overwriteExistingFiles', isDeprecated: true, type: bool),
       SupportedFields(name: 'skipSpecValidation', type: bool),
       SupportedFields(name: 'inputSpec', isRequired: true, type: InputSpec),
       SupportedFields(name: 'templateDirectory', type: String),

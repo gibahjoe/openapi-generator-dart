@@ -13,9 +13,8 @@ void main() {
         generatorName: Generator.dart,
       );
       expect(props.additionalProperties, isNull);
-      expect(props.overwriteExistingFiles, isNull);
       expect(props.skipSpecValidation, false);
-      expect(props.inputSpec!.path, InputSpec.json().path);
+      expect(props.inputSpec.path, InputSpec.json().path);
       expect(props.templateDirectory, isNull);
       expect(props.generatorName, Generator.dart);
       expect(props.outputDirectory, isNull);

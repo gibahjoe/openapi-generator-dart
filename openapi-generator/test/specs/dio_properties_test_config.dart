@@ -20,7 +20,6 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
       pubAuthor: 'test author',
       nullableFields: true),
   inlineSchemaNameMappings: {'200resp': 'OkResp'},
-  overwriteExistingFiles: true,
   projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
 )
 class DioPropertiesTestConfig {}

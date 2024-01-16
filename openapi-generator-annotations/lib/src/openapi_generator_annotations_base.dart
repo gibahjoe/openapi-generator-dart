@@ -50,13 +50,6 @@ class Openapi {
   ///  -o, --output
   final String? outputDirectory;
 
-  ///  Specifies if the existing files should be overwritten during the generation
-  ///
-  ///  -s, --skip-overwrite
-  @Deprecated(
-      'Use .openapi-generator-ignore file to determine files that should not be overwritten')
-  final bool? overwriteExistingFiles;
-
   /// Skips the default behavior of validating an input specification.
   ///
   /// --skip-validate-spec
@@ -117,7 +110,6 @@ class Openapi {
 
   const Openapi({
     this.additionalProperties,
-    this.overwriteExistingFiles,
     this.skipSpecValidation = false,
     required this.inputSpec,
     this.templateDirectory,
@@ -618,9 +610,7 @@ enum DioSerializationLibrary {
   @Deprecated('Use [builtValue] instead.')
   built_value,
   builtValue,
-  jsonSerializable,
-  @Deprecated('Use [jsonSerializable] instead.')
-  json_serializable
+  jsonSerializable
 }
 
 enum SerializationFormat { JSON, PROTO }
@@ -681,7 +671,6 @@ class EnumTransformer {
   static String dioSerializationLibraryName(DioSerializationLibrary lib) {
     switch (lib) {
       case DioSerializationLibrary.jsonSerializable:
-      case DioSerializationLibrary.json_serializable:
         return 'json_serializable';
       default:
         return 'built_value';
