@@ -27,11 +27,7 @@ dependency_overrides:
     path: ../openapi-generator
   openapi_generator_cli:
     path: ../openapi-generator-cli
-  source_gen:
-    git:
-      ref: reviver
-      url: https://github.com/Nexushunter/source_gen
-      path: source_gen
+
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions

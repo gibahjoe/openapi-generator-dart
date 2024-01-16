@@ -6,6 +6,8 @@ import 'dart:isolate';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:logging/logging.dart';
+import 'package:openapi_generator/src/determine_flutter_project_status.dart';
+import 'package:openapi_generator/src/gen_on_spec_changes.dart';
 import 'package:openapi_generator/src/models/output_message.dart';
 import 'package:openapi_generator/src/utils.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart'
@@ -18,20 +20,14 @@ import 'models/generator_arguments.dart';
 class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   @Deprecated('To be removed in next major version')
   final bool testMode;
-  final CommandRunner runner;
-  final Logger _log;
 
-  OpenapiGenerator({
-    this.testMode = false,
-    this.runner = const CommandRunner(),
-    Logger? logger,
-  }) : _log = logger ?? Logger('OpenApiGenerator');
+  OpenapiGenerator({this.testMode = false});
 
   @override
   FutureOr<String> generateForAnnotatedElement(
       Element element, ConstantReader annotations, BuildStep buildStep) async {
     logOutputMessage(
-      log: _log,
+      log: log,
       communication: OutputMessage(
         message: [
           '\n',
@@ -42,35 +38,51 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       ),
     );
 
-    if (element is! ClassElement) {
-      final friendlyName = element.displayName;
+    try {
+      if (element is! ClassElement) {
+        final friendlyName = element.displayName;
 
-      throw InvalidGenerationSourceError(
-        'Generator cannot target `$friendlyName`.',
-        todo: 'Remove the [Openapi] annotation from `$friendlyName`.',
-      );
-    } else {
-      final apiAnnotation = Reviver(annotations).toInstance() as annots.Openapi;
+        throw InvalidGenerationSourceError(
+          'Generator cannot target `$friendlyName`.',
+          todo: 'Remove the [Openapi] annotation from `$friendlyName`.',
+        );
+      } else {
+        if (!(annotations.read('useNextGen').literalValue as bool)) {
+          if (annotations.read('cachePath').literalValue != null) {
+            throw InvalidGenerationSourceError(
+              'useNextGen must be set when using cachePath',
+              todo:
+                  'Either set useNextGen: true on the annotation or remove the custom cachePath',
+            );
+          }
+        }
 
-      if (!apiAnnotation.useNextGen && apiAnnotation.cachePath != null) {
-        throw AssertionError('useNextGen must be set when using cachePath');
-      }
-      try {
         // Transform the annotations.
-        final args = GeneratorArguments(annotation: apiAnnotation);
+        final args = GeneratorArguments(annotations: annotations);
+
         // Determine if the project has a dependency on the flutter sdk or not.
-        final baseCommand = await runner.checkForFlutterEnvironemt(
+        final baseCommand = await checkPubspecAndWrapperForFlutterSupport(
                 wrapper: args.wrapper, providedPubspecPath: args.pubspecPath)
             ? 'flutter'
             : 'dart';
-        logOutputMessage(
-          log: _log,
-          communication: OutputMessage(
-            message: 'Using $baseCommand environemnt',
-          ),
-        );
 
-        if (args.useNextGen) {
+        if (!args.useNextGen) {
+          final path =
+              '${args.outputDirectory}${Platform.pathSeparator}lib${Platform.pathSeparator}api.dart';
+          if (await File(path).exists()) {
+            if (!args.alwaysRun) {
+              logOutputMessage(
+                log: log,
+                communication: OutputMessage(
+                  message:
+                      'Generated client already exists at [$path] and configuration is annotated with alwaysRun: [${args.alwaysRun}]. Therefore, skipping this build. Note that the "alwaysRun" config will be removed in future versions.',
+                  level: Level.INFO,
+                ),
+              );
+              return '';
+            }
+          }
+        } else {
           // If the flag to use the next generation of the generator is applied
           // use the new functionality.
           return generatorV2(
@@ -79,49 +91,33 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
               annotatedPath: buildStep.inputId.path);
         }
 
-        final path =
-            '${args.outputDirectory}${Platform.pathSeparator}lib${Platform.pathSeparator}api.dart';
-        if (await File(path).exists()) {
-          if (!args.alwaysRun) {
-            logOutputMessage(
-              log: _log,
-              communication: OutputMessage(
-                message:
-                    'Generated client already exists at [$path] and configuration is annotated with alwaysRun: [${args.alwaysRun}]. Therefore, skipping this build. Note that the "alwaysRun" config will be removed in future versions.',
-                level: Level.INFO,
-              ),
-            );
-            return '';
-          }
-        }
-
         await runOpenApiJar(arguments: args);
         await fetchDependencies(baseCommand: baseCommand, args: args);
         await generateSources(baseCommand: baseCommand, args: args);
-      } catch (e, st) {
-        late OutputMessage communication;
-        if (e is! OutputMessage) {
-          communication = OutputMessage(
-            message: '- There was an error generating the spec.',
-            level: Level.SEVERE,
-            additionalContext: e,
-            stackTrace: st,
-          );
-        } else {
-          communication = e;
-        }
-
-        logOutputMessage(log: _log, communication: communication);
       }
-      return '';
+    } catch (e, st) {
+      late OutputMessage communication;
+      if (e is! OutputMessage) {
+        communication = OutputMessage(
+          message: '- There was an error generating the spec.',
+          level: Level.SEVERE,
+          additionalContext: e,
+          stackTrace: st,
+        );
+      } else {
+        communication = e;
+      }
+
+      logOutputMessage(log: log, communication: communication);
     }
+    return '';
   }
 
   /// Runs the OpenAPI compiler with the given [args].
   Future<void> runOpenApiJar({required GeneratorArguments arguments}) async {
     final args = await arguments.jarArgs;
     logOutputMessage(
-      log: _log,
+      log: log,
       communication: OutputMessage(
         message:
             'Running following command to generate openapi client - [ ${args.join(' ')} ]',
@@ -135,18 +131,23 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     // Include java environment variables in openApiCliCommand
     var javaOpts = Platform.environment['JAVA_OPTS'] ?? '';
 
-    final result = await runner.runCommand(
-      command: Command(
-        executable: 'java',
-        arguments: [
+    ProcessResult result;
+    if (!testMode) {
+      result = await Process.run(
+        'java',
+        [
           if (javaOpts.isNotEmpty) javaOpts,
           '-jar',
           binPath,
           ...args,
         ],
-      ),
-      workingDirectory: Directory.current.path,
-    );
+        workingDirectory: Directory.current.path,
+        runInShell: Platform.isWindows,
+      );
+    } else {
+      result = ProcessResult(999999, 0, null, null);
+    }
+
     if (result.exitCode != 0) {
       return Future.error(
         OutputMessage(
@@ -158,7 +159,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       );
     } else {
       logOutputMessage(
-        log: _log,
+        log: log,
         communication: OutputMessage(
           message: [
             if (arguments.isDebug) result.stdout,
@@ -181,7 +182,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       required String annotatedPath}) async {
     if (args.isRemote) {
       logOutputMessage(
-        log: _log,
+        log: log,
         communication: OutputMessage(
           message:
               'Using a remote specification, a cache will still be create but may be outdated.',
@@ -192,14 +193,14 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     try {
       if (!await hasDiff(args: args)) {
         logOutputMessage(
-          log: _log,
+          log: log,
           communication: OutputMessage(
             message: 'No diff between versions, not running generator.',
           ),
         );
       } else {
         logOutputMessage(
-          log: _log,
+          log: log,
           communication: OutputMessage(
             message: 'Dirty Spec found. Running generation.',
           ),
@@ -209,26 +210,26 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         await generateSources(baseCommand: baseCommand, args: args);
         if (!args.hasLocalCache) {
           logOutputMessage(
-            log: _log,
+            log: log,
             communication: OutputMessage(
               message: 'No local cache found. Creating one.',
-              level: Level.INFO,
+              level: Level.CONFIG,
             ),
           );
         } else {
           logOutputMessage(
-            log: _log,
+            log: log,
             communication: OutputMessage(
               message: 'Local cache found. Overwriting existing one.',
-              level: Level.INFO,
+              level: Level.CONFIG,
             ),
           );
         }
-        await runner.cacheSpecFile(
-            cachedPath: args.cachePath,
-            updatedSpec: await runner.loadSpecFile(specConfig: args.inputSpec));
+        await cacheSpec(
+            outputLocation: args.cachePath,
+            spec: await loadSpec(specConfig: args.inputSpec));
         logOutputMessage(
-          log: _log,
+          log: log,
           communication: OutputMessage(
             message: 'Successfully cached spec changes.',
           ),
@@ -236,7 +237,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       }
     } catch (e, st) {
       logOutputMessage(
-        log: _log,
+        log: log,
         communication: OutputMessage(
           message: 'Failed to generate content.',
           additionalContext: e,
@@ -248,7 +249,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       await formatCode(args: args).then(
         (_) {},
         onError: (e, st) => logOutputMessage(
-          log: _log,
+          log: log,
           communication: OutputMessage(
             message: 'Failed to format generated code.',
             additionalContext: e,
@@ -259,14 +260,14 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       );
       await updateAnnotatedFile(annotatedPath: annotatedPath).then(
         (_) => logOutputMessage(
-          log: _log,
+          log: log,
           communication: OutputMessage(
             message: 'Successfully updated annotated file.',
-            level: Level.INFO,
+            level: Level.CONFIG,
           ),
         ),
         onError: (e, st) => logOutputMessage(
-          log: _log,
+          log: log,
           communication: OutputMessage(
             message: 'Failed to update annotated class file.',
             level: Level.WARNING,
@@ -282,12 +283,12 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   /// Load both specs into memory and verify if there is a diff between them.
   FutureOr<bool> hasDiff({required GeneratorArguments args}) async {
     try {
-      final cachedSpec = await runner.loadSpecFile(
+      final cachedSpec = await loadSpec(
           specConfig: annots.InputSpec(path: args.cachePath), isCached: true);
-      final loadedSpec = await runner.loadSpecFile(specConfig: args.inputSpec);
+      final loadedSpec = await loadSpec(specConfig: args.inputSpec);
 
       logOutputMessage(
-        log: _log,
+        log: log,
         communication: OutputMessage(
           message: [
             'Loaded cached and current spec files.',
@@ -299,8 +300,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         ),
       );
 
-      return await runner.isSpecFileDirty(
-          cachedSpec: cachedSpec, loadedSpec: loadedSpec);
+      return isSpecDirty(cachedSpec: cachedSpec, loadedSpec: loadedSpec);
     } catch (e, st) {
       return Future.error(
         OutputMessage(
@@ -319,7 +319,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       {required String baseCommand, required GeneratorArguments args}) async {
     if (!args.runSourceGen) {
       logOutputMessage(
-        log: _log,
+        log: log,
         communication: OutputMessage(
           message: 'Skipping source gen step due to flag being set.',
           level: Level.WARNING,
@@ -327,7 +327,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       );
     } else if (!args.shouldGenerateSources) {
       logOutputMessage(
-        log: _log,
+        log: log,
         communication: OutputMessage(
           message: 'Skipping source gen because generator does not need it.',
         ),
@@ -335,7 +335,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     } else {
       return await runSourceGen(baseCommand: baseCommand, args: args).then(
         (_) => logOutputMessage(
-          log: _log,
+          log: log,
           communication: OutputMessage(
             message: 'Sources generated successfully.',
           ),
@@ -356,7 +356,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   Future<void> runSourceGen(
       {required String baseCommand, required GeneratorArguments args}) async {
     logOutputMessage(
-      log: _log,
+      log: log,
       communication: OutputMessage(
         message: 'Running source code generation.',
       ),
@@ -369,14 +369,23 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         wrapper: args.wrapper);
 
     logOutputMessage(
-      log: _log,
+      log: log,
       communication: OutputMessage(
         message: '${command.executable} ${command.arguments.join(' ')}',
       ),
     );
 
-    final results = await runner.runCommand(
-        command: command, workingDirectory: args.outputDirectory);
+    ProcessResult results;
+    if (!testMode) {
+      results = await Process.run(
+        command.executable,
+        command.arguments,
+        runInShell: Platform.isWindows,
+        workingDirectory: args.outputDirectory,
+      );
+    } else {
+      results = ProcessResult(99999, 0, null, null);
+    }
 
     if (results.exitCode != 0) {
       return Future.error(
@@ -389,7 +398,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       );
     } else {
       logOutputMessage(
-        log: _log,
+        log: log,
         communication: OutputMessage(
           message: 'Codegen completed successfully.',
         ),
@@ -402,7 +411,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       {required String baseCommand, required GeneratorArguments args}) async {
     if (!args.shouldFetchDependencies) {
       logOutputMessage(
-        log: _log,
+        log: log,
         communication: OutputMessage(
           message: 'Skipping install step because flag was set.',
           level: Level.WARNING,
@@ -415,15 +424,25 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           wrapper: args.wrapper);
 
       logOutputMessage(
-        log: _log,
+        log: log,
         communication: OutputMessage(
           message:
               'Installing dependencies with generated source. ${command.executable} ${command.arguments.join(' ')}',
         ),
       );
 
-      final results = await runner.runCommand(
-          command: command, workingDirectory: args.outputDirectory);
+      ProcessResult results;
+      if (!testMode) {
+        results = await Process.run(
+          command.executable,
+          command.arguments,
+          runInShell: Platform.isWindows,
+          workingDirectory: args.outputDirectory,
+        );
+      } else {
+        results = ProcessResult(999999, 0, null, null);
+      }
+
       if (results.exitCode != 0) {
         return Future.error(
           OutputMessage(
@@ -435,7 +454,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         );
       } else {
         logOutputMessage(
-          log: _log,
+          log: log,
           communication: OutputMessage(
             message: [
               if (args.isDebug) results.stdout,
@@ -452,35 +471,35 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     required Map<String, dynamic> updatedSpec,
     required String cachedPath,
   }) async =>
-      runner.cacheSpecFile(updatedSpec: updatedSpec, cachedPath: cachedPath);
+      cacheSpec(spec: updatedSpec, outputLocation: cachedPath);
 
   Future<void> updateAnnotatedFile({required annotatedPath}) async {
+    // The should exist since that is what triggered the build to begin with so
+    // there is no point in verifying it exists. It is also a relative file since
+    // it exists within the project.
+    final f = File(annotatedPath);
+    var content = f.readAsLinesSync();
+    final now = DateTime.now().toIso8601String();
+    final generated = '$lastRunPlaceHolder: $now';
+    if (content.first.contains(lastRunPlaceHolder)) {
+      content = content.sublist(1);
+      logOutputMessage(
+        log: log,
+        communication: OutputMessage(
+          message: 'Found generated timestamp. Updating with $now',
+        ),
+      );
+    } else {
+      logOutputMessage(
+        log: log,
+        communication: OutputMessage(
+          message: 'Creating generated timestamp with $now',
+        ),
+      );
+    }
     try {
-      // The should exist since that is what triggered the build to begin with so
-      // there is no point in verifying it exists. It is also a relative file since
-      // it exists within the project.
-      var content = await runner.loadAnnotatedFile(path: annotatedPath);
-      final now = DateTime.now().toIso8601String();
-      final generated = '$lastRunPlaceHolder: $now';
-      if (content.first.contains(lastRunPlaceHolder)) {
-        content = content.sublist(1);
-        logOutputMessage(
-          log: _log,
-          communication: OutputMessage(
-            message: 'Found generated timestamp. Updating with $now',
-          ),
-        );
-      } else {
-        logOutputMessage(
-          log: _log,
-          communication: OutputMessage(
-            message: 'Creating generated timestamp with $now',
-          ),
-        );
-      }
-
-      await runner.writeAnnotatedFile(
-          path: annotatedPath, content: content..insert(0, generated));
+      content.insert(0, generated);
+      f.writeAsStringSync(content.join('\n'), flush: true);
     } catch (e, st) {
       return Future.error(
         OutputMessage(
@@ -496,8 +515,17 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   /// Format the generated code in the output directory.
   Future<void> formatCode({required GeneratorArguments args}) async {
     final command = Command(executable: 'dart', arguments: ['format', './']);
-    final result = await runner.runCommand(
-        command: command, workingDirectory: args.outputDirectory);
+    ProcessResult result;
+    if (!testMode) {
+      result = await Process.run(
+        command.executable,
+        command.arguments,
+        workingDirectory: args.outputDirectory,
+        runInShell: Platform.isWindows,
+      );
+    } else {
+      result = ProcessResult(99999, 0, null, null);
+    }
 
     if (result.exitCode != 0) {
       return Future.error(
@@ -510,11 +538,9 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       );
     } else {
       logOutputMessage(
-        log: _log,
-        communication: OutputMessage(
-          message: 'Successfully formatted code.',
-        ),
-      );
+          log: log,
+          communication:
+              OutputMessage(message: 'Successfully formatted code.'));
     }
   }
 }

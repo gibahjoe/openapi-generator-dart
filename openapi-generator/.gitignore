@@ -169,6 +169,4 @@ example/.dart_tool
 
 # Generated test output
 test/specs/test-cached.json
-test/specs/commands-cache.json
-test/specs/localstack
-test/mocks.mocks.dart
+test/specs/localstack/**

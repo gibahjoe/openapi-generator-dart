@@ -25,6 +25,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Start Docker compose containers
+        if: ${{ matrix.work_dir == 'openapi-generator' }}
+        run: docker-compose -f "docker-compose.yaml" up -d --build
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1.5.0
         with:
@@ -33,9 +36,6 @@ jobs:
         run: dart pub get
       - name: Validate formatting
         run: dart format ./ --set-exit-if-changed
-      - name: Generate Mocks
-        if: ${{ matrix.work_dir == 'openapi-generator' }}
-        run: dart run build_runner build --delete-conflicting-outputs
       - name: Run analyzer
         run: dart analyze --fatal-warnings
       - name: Run tests
@@ -51,6 +51,9 @@ jobs:
           verbose: true
           flags: ${{ matrix.work_dir }}
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - name: Stop Docker Container
+        if: ${{ matrix.work_dir == 'openapi-generator' && always() }}
+        run: docker-compose -f "docker-compose.yaml" down
 
   build:
     name: Build example project 🛠️

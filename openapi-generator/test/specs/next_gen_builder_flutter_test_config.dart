@@ -10,4 +10,4 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
   cachePath: './test/specs/managed-cache.json',
   projectPubspecPath: './test/specs/flutter_pubspec.test.yaml',
 )
-class TestClassConfig {}
+class TestClassConfig extends OpenapiGeneratorConfig {}

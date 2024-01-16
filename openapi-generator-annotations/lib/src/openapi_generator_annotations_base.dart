@@ -1,11 +1,8 @@
-library openapi_generator_annotations;
-
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:meta/meta.dart';
-import 'package:source_gen/source_gen.dart';
 
 /// Config base class
 /// Your annotated class must extend this config class
@@ -229,6 +226,11 @@ class RemoteSpec extends InputSpec {
   const RemoteSpec.empty() : this(path: 'http://localhost:8080/');
 
   Uri get url => Uri.parse(path);
+
+  RemoteSpec.fromMap(Map<String, dynamic> map)
+      : headerDelegate =
+            map['headerDelegate'] ?? const RemoteSpecHeaderDelegate(),
+        super.fromMap(map);
 }
 
 /// Default [RemoteSpecHeaderDelegate] used when retrieving a remote OAS spec.
@@ -263,6 +265,12 @@ class AWSRemoteSpecHeaderDelegate extends RemoteSpecHeaderDelegate {
     this.secretAccessKey = null,
     this.accessKeyId = null,
   }) : super();
+
+  AWSRemoteSpecHeaderDelegate.fromMap(Map<String, dynamic> map)
+      : bucket = map['bucket'],
+        accessKeyId = map['accessKeyId'],
+        secretAccessKey = map['secretAccessKey'],
+        super.fromMap(map);
 
   /// Generates the [header] map used within the GET request.
   ///

@@ -13,4 +13,4 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
     useNextGen: true,
     cachePath: './test/specs/output-nextgen/expected-args/cache.json',
     outputDirectory: './test/specs/output-nextgen/expected-args')
-class TestClassConfig {}
+class TestClassConfig extends OpenapiGeneratorConfig {}
