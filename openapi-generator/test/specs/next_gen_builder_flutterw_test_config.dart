@@ -11,6 +11,7 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
     ),
     generatorName: Generator.dio,
     useNextGen: true,
+    additionalProperties: AdditionalProperties(wrapper: Wrapper.flutterw),
     cachePath: './test/specs/output-nextgen/expected-args/cache.json',
     outputDirectory: './test/specs/output-nextgen/expected-args')
 class TestClassConfig {}

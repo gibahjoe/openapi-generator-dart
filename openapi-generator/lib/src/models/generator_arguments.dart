@@ -2,10 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:logging/logging.dart';
-import 'package:openapi_generator/src/extensions/type_methods.dart';
 import 'package:openapi_generator/src/models/output_message.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
-import 'package:source_gen/source_gen.dart' as src_gen;
 
 import '../utils.dart';
 
@@ -74,6 +72,7 @@ class GeneratorArguments {
   /// Use the provided spec instead of one located in [Directory.current].
   ///
   /// Default: openapi.(ya?ml) | openapi.json
+  @Deprecated('Use inputSpec instead.')
   String _inputFile;
 
   /// Provides an OAS spec file.
@@ -114,63 +113,61 @@ class GeneratorArguments {
   final InlineSchemaOptions? inlineSchemaOptions;
 
   GeneratorArguments({
-    required src_gen.ConstantReader annotations,
-    bool alwaysRun = false,
-    String inputSpecFile = '',
-    InputSpec inputSpec = const InputSpec.empty(),
-    String templateDirectory = '',
-    Generator generator = Generator.dart,
-    Map<String, String> typeMapping = const {},
-    Map<String, String> importMapping = const {},
-    Map<String, String> reservedWordsMapping = const {},
-    Map<String, String> inlineSchemaNameMapping = const {},
+    required Openapi annotation,
+    bool? alwaysRun,
+    String? inputSpecFile,
+    InputSpec? inputSpec,
+    String? templateDirectory,
+    Generator? generator,
+    Map<String, String>? typeMapping,
+    Map<String, String>? importMapping,
+    Map<String, String>? reservedWordsMapping,
+    Map<String, String>? inlineSchemaNameMapping,
     AdditionalProperties? additionalProperties,
     InlineSchemaOptions? inlineSchemaOptions,
-    bool skipValidation = false,
-    bool runSourceGen = true,
+    bool? skipValidation,
+    bool? runSourceGen,
     String? outputDirectory,
-    bool fetchDependencies = true,
-    bool useNextGen = false,
+    bool? fetchDependencies,
+    bool? useNextGen,
     String? cachePath,
     String? pubspecPath,
-    bool isDebug = false,
-  })  : alwaysRun = annotations.readPropertyOrDefault('alwaysRun', alwaysRun),
-        _inputFile =
-            annotations.readPropertyOrDefault('inputSpecFile', inputSpecFile),
-        templateDirectory = annotations.readPropertyOrDefault(
-            'templateDirectory', templateDirectory),
-        generator =
-            annotations.readPropertyOrDefault('generatorName', generator),
+    bool? isDebug,
+  })  : alwaysRun = alwaysRun ?? annotation.alwaysRun ?? true,
+        _inputFile = inputSpecFile ?? annotation.inputSpecFile,
+        templateDirectory =
+            templateDirectory ?? annotation.templateDirectory ?? '',
+        generator = generator ?? annotation.generatorName,
         typeMappings =
-            annotations.readPropertyOrDefault('typeMappings', typeMapping),
+            typeMapping ?? annotation.typeMappings ?? <String, String>{},
         importMappings =
-            annotations.readPropertyOrDefault('importMappings', importMapping),
-        reservedWordsMappings = annotations.readPropertyOrDefault(
-            'reservedWordsMappings', reservedWordsMapping),
-        inlineSchemaNameMappings = annotations.readPropertyOrDefault(
-            'inlineSchemaNameMappings', inlineSchemaNameMapping),
-        additionalProperties = annotations.readPropertyOrDefault(
-            'additionalProperties', additionalProperties),
-        inlineSchemaOptions = annotations.readPropertyOrDefault(
-            'inlineSchemaOptions', inlineSchemaOptions),
-        skipValidation = annotations.readPropertyOrDefault(
-            'skipSpecValidation', skipValidation),
-        runSourceGen = annotations.readPropertyOrDefault(
-            'runSourceGenOnOutput', runSourceGen),
-        shouldFetchDependencies = annotations.readPropertyOrDefault(
-            'fetchDependencies', fetchDependencies),
-        outputDirectory = annotations.readPropertyOrDefault(
-            'outputDirectory', outputDirectory ?? Directory.current.path),
-        useNextGen =
-            annotations.readPropertyOrDefault('useNextGen', useNextGen),
-        cachePath = annotations.readPropertyOrDefault(
-            'cachePath', cachePath ?? defaultCachedPath),
-        pubspecPath = annotations.readPropertyOrDefault<String>(
-            'projectPubspecPath',
+            importMapping ?? annotation.importMappings ?? <String, String>{},
+        reservedWordsMappings = reservedWordsMapping ??
+            annotation.reservedWordsMappings ??
+            <String, String>{},
+        inlineSchemaNameMappings = inlineSchemaNameMapping ??
+            annotation.inlineSchemaNameMappings ??
+            <String, String>{},
+        additionalProperties =
+            additionalProperties ?? annotation.additionalProperties,
+        inlineSchemaOptions = inlineSchemaOptions,
+        // ?? annotations.readPropertyOrDefault(
+        // 'inlineSchemaOptions', inlineSchemaOptions),
+        skipValidation =
+            skipValidation ?? annotation.skipSpecValidation ?? false,
+        runSourceGen = runSourceGen ?? annotation.runSourceGenOnOutput ?? true,
+        shouldFetchDependencies =
+            fetchDependencies ?? annotation.fetchDependencies ?? true,
+        outputDirectory = annotation.outputDirectory ??
+            outputDirectory ??
+            Directory.current.path,
+        useNextGen = useNextGen ?? annotation.useNextGen,
+        cachePath = cachePath ?? annotation.cachePath ?? defaultCachedPath,
+        pubspecPath = annotation.projectPubspecPath ??
             pubspecPath ??
-                '${Directory.current.path}${Platform.pathSeparator}pubspec.yaml'),
-        isDebug = annotations.readPropertyOrDefault('debugLogging', isDebug),
-        inputSpec = annotations.readPropertyOrDefault('inputSpec', inputSpec);
+            '${Directory.current.path}${Platform.pathSeparator}pubspec.yaml',
+        isDebug = annotation.debugLogging,
+        inputSpec = inputSpec ?? annotation.inputSpec ?? InputSpec.empty();
 
   /// The stringified name of the [Generator].
   String get generatorName => generator == Generator.dart

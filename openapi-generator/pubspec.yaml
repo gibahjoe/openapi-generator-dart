@@ -24,7 +24,13 @@ dev_dependencies:
   source_gen_test:
   pedantic:
   coverage: ^1.6.3
+  mockito: 
 
-#dependency_overrides:
-#  openapi_generator_annotations:
-#    path: ../openapi-generator-annotations
+dependency_overrides:
+  openapi_generator_annotations:
+    path: ../openapi-generator-annotations
+  source_gen:
+    git:
+      ref: reviver
+      url: https://github.com/Nexushunter/source_gen.git
+      path: source_gen
