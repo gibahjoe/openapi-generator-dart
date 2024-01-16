@@ -13,6 +13,15 @@
 * remove duplicate run test, fix failing tests ([677a318](https://github.com/gibahjoe/openapi-generator-dart/commit/677a3189d4f694c999d3ea1cf0075543649e40c1))
 * repair the docker run command, update the type_methods to expand out the remote delegate ([c00b334](https://github.com/gibahjoe/openapi-generator-dart/commit/c00b3345d934e2f1508ba1129a3a769f86a85017))
 
+## [4.13.2](https://github.com/gibahjoe/openapi-generator-dart/compare/v4.13.1...v4.13.2) (2024-01-16)
+
+
+### Bug Fixes
+
+* Consume testing version of the source_gen branch to simplify testing. ([37af696](https://github.com/gibahjoe/openapi-generator-dart/commit/37af696ac90f27e47c31f87bb5c60c952bf56230))
+* Correct most of the tests while using the newest verison of the source gen changes ([4156d9a](https://github.com/gibahjoe/openapi-generator-dart/commit/4156d9a18bf83337e608219315d19abbe08f8bd8))
+* dep overrides v2 ([ea76ec8](https://github.com/gibahjoe/openapi-generator-dart/commit/ea76ec8c12dc302b64060059f21b38fd75c45c93))
+
 ## [4.13.1](https://github.com/gibahjoe/openapi-generator-dart/compare/v4.13.0...v4.13.1) (2023-09-04)
 
 
