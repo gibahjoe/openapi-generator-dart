@@ -1,4 +1,4 @@
-// Openapi Generator last run: : 2023-10-01T09:26:15.827402
+// Openapi Generator last run: : 2024-01-16T01:49:21.940229
 import 'package:flutter/material.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 
