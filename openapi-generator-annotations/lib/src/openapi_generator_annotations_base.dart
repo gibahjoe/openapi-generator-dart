@@ -153,8 +153,7 @@ class InputSpec {
 
   Map<String, dynamic> toJsonMap() => {'path': path};
 
-  InputSpec.fromMap(Map<String, dynamic> map)
-      : this(path: map['path']);
+  InputSpec.fromMap(Map<String, dynamic> map) : this(path: map['path']);
 }
 
 /// Provides the location for the remote specification.
