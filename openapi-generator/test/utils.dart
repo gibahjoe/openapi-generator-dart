@@ -2,13 +2,19 @@ import 'dart:io';
 
 import 'package:build/build.dart';
 import 'package:build_test/build_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:openapi_generator/src/models/output_message.dart';
 import 'package:openapi_generator/src/openapi_generator_runner.dart';
+import 'package:openapi_generator/src/process_runner.dart';
 import 'package:source_gen/source_gen.dart';
 
-final String pkgName = 'pkg';
+@GenerateNiceMocks([MockSpec<ProcessRunner>()])
+import 'utils.mocks.dart';
 
-final Builder builder = LibraryBuilder(OpenapiGenerator(testMode: true),
+final String pkgName = 'pkg';
+var _mockProcessRunner = MockProcessRunner();
+final Builder builder = LibraryBuilder(OpenapiGenerator(_mockProcessRunner),
     generatedExtension: '.openapi_generator');
 final testSpecPath =
     '${Directory.current.path}${Platform.pathSeparator}test${Platform.pathSeparator}specs${Platform.pathSeparator}';
@@ -18,6 +24,9 @@ final testSpecPath =
 /// [path] available so an override for the adds generated comment test can
 /// compare the output.
 Future<String> generate(String source, {String path = 'lib/myapp.dart'}) async {
+  when(_mockProcessRunner.run(any, any, environment: anyNamed('environment')))
+      .thenAnswer((_) async => ProcessResult(0, 0, 'Output', ''));
+
   final spec = File('${testSpecPath}openapi.test.yaml').readAsStringSync();
   var srcs = <String, String>{
     'openapi_generator_annotations|lib/src/openapi_generator_annotations_base.dart':

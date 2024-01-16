@@ -134,6 +134,9 @@ New:
 class Example {}
 ```
 
+## Known Issues
+
+Check out the known issues article here [Known Issues](openapi-generator-annotations/README.md#known-issues)
 
 ## Contributing
 

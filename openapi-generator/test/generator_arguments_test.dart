@@ -29,7 +29,7 @@ void main() {
               Directory.current.path + '${Platform.pathSeparator}openapi.json');
           f.createSync();
           f.writeAsStringSync('');
-          final p = await args.inputFileOrFetch;
+          final p = args.inputFileOrFetch;
           expect(f.path.endsWith(p), isTrue);
           f.deleteSync();
         });
@@ -61,7 +61,7 @@ void main() {
         f.writeAsStringSync('');
         expect(await args.jarArgs, [
           'generate',
-          '-i=${await args.inputFileOrFetch}',
+          '-i=${args.inputFileOrFetch}',
           '-g=${args.generatorName}',
         ]);
         f.deleteSync();
@@ -156,7 +156,7 @@ void main() {
         expect(args.runSourceGen, isTrue);
         expect(args.shouldFetchDependencies, isTrue);
         expect(args.skipValidation, isFalse);
-        expect(await args.inputFileOrFetch, './test/specs/openapi.test.yaml');
+        expect(args.inputFileOrFetch, './test/specs/openapi.test.yaml');
         expect(args.templateDirectory, 'template');
         expect(args.generator, Generator.dio);
         expect(args.wrapper, Wrapper.fvm);
@@ -173,7 +173,7 @@ void main() {
         expect(await args.jarArgs, [
           'generate',
           '-o=${args.outputDirectory}',
-          '-i=${await args.inputFileOrFetch}',
+          '-i=${args.inputFileOrFetch}',
           '-t=${args.templateDirectory}',
           '-g=${args.generatorName}',
           if (args.reservedWordsMappings?.isNotEmpty ?? false)
@@ -206,7 +206,7 @@ void main() {
         expect(args.runSourceGen, isTrue);
         expect(args.shouldFetchDependencies, isTrue);
         expect(args.skipValidation, isFalse);
-        expect(await args.inputFileOrFetch, './test/specs/openapi.test.yaml');
+        expect(args.inputFileOrFetch, './test/specs/openapi.test.yaml');
         expect(args.templateDirectory, 'template');
         expect(args.generator, Generator.dio);
         expect(args.wrapper, Wrapper.fvm);
@@ -224,7 +224,7 @@ void main() {
         expect(await args.jarArgs, [
           'generate',
           '-o=${args.outputDirectory}',
-          '-i=${await args.inputFileOrFetch}',
+          '-i=${args.inputFileOrFetch}',
           '-t=${args.templateDirectory}',
           '-g=${args.generatorName}',
           if (args.reservedWordsMappings?.isNotEmpty ?? false)
@@ -257,7 +257,7 @@ void main() {
         expect(args.runSourceGen, isTrue);
         expect(args.shouldFetchDependencies, isTrue);
         expect(args.skipValidation, isFalse);
-        expect(await args.inputFileOrFetch, './test/specs/openapi.test.yaml');
+        expect(args.inputFileOrFetch, './test/specs/openapi.test.yaml');
         expect(args.templateDirectory, 'template');
         expect(args.generator, Generator.dio);
         expect(args.wrapper, Wrapper.fvm);
@@ -279,7 +279,7 @@ void main() {
         expect(await args.jarArgs, [
           'generate',
           '-o=${args.outputDirectory}',
-          '-i=${await args.inputFileOrFetch}',
+          '-i=${args.inputFileOrFetch}',
           '-t=${args.templateDirectory}',
           '-g=${args.generatorName}',
           if (args.reservedWordsMappings?.isNotEmpty ?? false)
@@ -314,7 +314,7 @@ void main() {
         expect(args.runSourceGen, isTrue);
         expect(args.shouldFetchDependencies, isTrue);
         expect(args.skipValidation, isFalse);
-        expect(await args.inputFileOrFetch,
+        expect(args.inputFileOrFetch,
             'https://petstore3.swagger.io/api/v3/openapi.json');
         expect(args.templateDirectory, 'template');
         expect(args.generator, Generator.dio);

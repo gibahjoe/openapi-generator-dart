@@ -51,6 +51,10 @@ pubspec.yaml
 The above steps are usefull when you have issues with dependency conflicts, clashes. You can even use it to upgrade the
 library packages in the generated source.
 
+## Known Issues
+
+Check out the known issues article here [Known Issues](../openapi-generator-annotations/README.md#known-issues)
+
 ## Contributing
 
 Please read our [Contributing guidelines](../CONTRIBUTING.md) before submitting a Pull Request.

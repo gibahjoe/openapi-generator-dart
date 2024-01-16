@@ -21,7 +21,6 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
       nullSafe: true,
       nullSafeArrayDefault: true),
   inlineSchemaNameMappings: {'200resp': 'OkResp'},
-  overwriteExistingFiles: true,
   projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
 )
 class DioAltPropertiesTestConfig {}

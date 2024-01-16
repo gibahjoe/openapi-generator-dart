@@ -9,6 +9,7 @@ import 'package:logging/logging.dart';
 import 'package:openapi_generator/src/determine_flutter_project_status.dart';
 import 'package:openapi_generator/src/gen_on_spec_changes.dart';
 import 'package:openapi_generator/src/models/output_message.dart';
+import 'package:openapi_generator/src/process_runner.dart';
 import 'package:openapi_generator/src/utils.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart'
     as annots;
@@ -18,10 +19,9 @@ import 'models/command.dart';
 import 'models/generator_arguments.dart';
 
 class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
-  @Deprecated('To be removed in next major version')
-  final bool testMode;
+  final ProcessRunner _processRunner;
 
-  OpenapiGenerator({this.testMode = false});
+  OpenapiGenerator(this._processRunner);
 
   @override
   FutureOr<String> generateForAnnotatedElement(
@@ -98,21 +98,17 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     var javaOpts = Platform.environment['JAVA_OPTS'] ?? '';
 
     ProcessResult result;
-    if (!testMode) {
-      result = await Process.run(
-        'java',
-        [
-          if (javaOpts.isNotEmpty) javaOpts,
-          '-jar',
-          binPath,
-          ...args,
-        ],
-        workingDirectory: Directory.current.path,
-        runInShell: Platform.isWindows,
-      );
-    } else {
-      result = ProcessResult(999999, 0, null, null);
-    }
+    result = await _processRunner.run(
+      'java',
+      [
+        if (javaOpts.isNotEmpty) javaOpts,
+        '-jar',
+        binPath,
+        ...args,
+      ],
+      workingDirectory: Directory.current.path,
+      runInShell: Platform.isWindows,
+    );
 
     if (result.exitCode != 0) {
       return Future.error(
@@ -342,16 +338,12 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     );
 
     ProcessResult results;
-    if (!testMode) {
-      results = await Process.run(
-        command.executable,
-        command.arguments,
-        runInShell: Platform.isWindows,
-        workingDirectory: args.outputDirectory,
-      );
-    } else {
-      results = ProcessResult(99999, 0, null, null);
-    }
+    results = await _processRunner.run(
+      command.executable,
+      command.arguments,
+      runInShell: Platform.isWindows,
+      workingDirectory: args.outputDirectory,
+    );
 
     if (results.exitCode != 0) {
       return Future.error(
@@ -398,16 +390,12 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       );
 
       ProcessResult results;
-      if (!testMode) {
-        results = await Process.run(
-          command.executable,
-          command.arguments,
-          runInShell: Platform.isWindows,
-          workingDirectory: args.outputDirectory,
-        );
-      } else {
-        results = ProcessResult(999999, 0, null, null);
-      }
+      results = await _processRunner.run(
+        command.executable,
+        command.arguments,
+        runInShell: Platform.isWindows,
+        workingDirectory: args.outputDirectory,
+      );
 
       if (results.exitCode != 0) {
         return Future.error(
@@ -482,16 +470,13 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   Future<void> formatCode({required GeneratorArguments args}) async {
     final command = Command(executable: 'dart', arguments: ['format', './']);
     ProcessResult result;
-    if (!testMode) {
-      result = await Process.run(
-        command.executable,
-        command.arguments,
-        workingDirectory: args.outputDirectory,
-        runInShell: Platform.isWindows,
-      );
-    } else {
-      result = ProcessResult(99999, 0, null, null);
-    }
+
+    result = await _processRunner.run(
+      command.executable,
+      command.arguments,
+      workingDirectory: args.outputDirectory,
+      runInShell: Platform.isWindows,
+    );
 
     if (result.exitCode != 0) {
       return Future.error(

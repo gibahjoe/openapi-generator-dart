@@ -20,6 +20,8 @@ dependencies:
 
 dev_dependencies:
   test: ^1.24.2
+  mockito: ^5.4.4
+  test_process:
   build_test: '>=1.2.0 <3.0.0'
   source_gen_test:
   pedantic:

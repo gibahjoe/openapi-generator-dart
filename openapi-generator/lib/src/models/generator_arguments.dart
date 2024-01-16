@@ -155,7 +155,7 @@ class GeneratorArguments {
   FutureOr<List<String>> get jarArgs async => [
         'generate',
         if (outputDirectory?.isNotEmpty ?? false) '-o=$outputDirectory',
-        '-i=${await inputFileOrFetch}',
+        '-i=$inputFileOrFetch',
         if (templateDirectory?.isNotEmpty ?? false) '-t=$templateDirectory',
         '-g=$generatorName',
         if (skipValidation) '--skip-validate-spec',
