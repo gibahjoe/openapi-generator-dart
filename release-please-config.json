@@ -16,10 +16,6 @@
   },
   "plugins": [
     {
-      "type": "cargo-workspace",
-      "merge": false
-    },
-    {
       "type": "linked-versions",
       "groupName": "openapi generator",
       "components": [
