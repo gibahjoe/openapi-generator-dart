@@ -99,7 +99,10 @@ class Openapi {
 
   /// The path where to store the cached copy of the specification.
   ///
-  /// For use with [useNextGen].
+  /// If you have more than one spec file, you can use this to cache them separately otherwise they will all be cached
+  /// in the exact same file which means only the last spec that was processed with end up being cached.
+  ///
+  /// e.g .dart_tool/spec/specA.json
   final String? cachePath;
 
   /// Use a custom pubspec when running the generator.
