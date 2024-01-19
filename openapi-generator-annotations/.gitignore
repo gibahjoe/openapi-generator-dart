@@ -165,3 +165,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 .idea/
+
+**/*.mocks.dart

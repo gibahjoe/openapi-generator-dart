@@ -186,6 +186,9 @@ Future<void> cacheSpec({
   if (outputFile.existsSync()) {
     log('Found cached asset updating');
   } else {
+    if (!outputFile.parent.existsSync()) {
+      outputFile.parent.createSync(recursive: true);
+    }
     log('No previous openapi-generated cache found. Creating cache');
   }
 
