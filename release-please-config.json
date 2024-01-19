@@ -1,5 +1,4 @@
 {
-  "bootstrap-sha": "417111537ac65122ce39f4b34f4cbc6b36f5856b",
   "include-component-in-tag": false,
   "packages": {
     "openapi-generator": {
