@@ -13,6 +13,8 @@ const inputSpec = '';
 const runSourceGenOnOutput = true;
 
 const skipSpecValidation = false;
+
+const updateAnnotatedFile = true;
 ''')
 @Openapi(inputSpec: InputSpec(path: ''), generatorName: Generator.dio)
 class TestClassDefault {}
@@ -29,6 +31,8 @@ const inputSpec = '';
 const runSourceGenOnOutput = true;
 
 const skipSpecValidation = false;
+
+const updateAnnotatedFile = true;
 ''')
 @Openapi(
   inputSpec: InputSpec(path: ''),
@@ -49,6 +53,8 @@ const inputSpec = '';
 const runSourceGenOnOutput = true;
 
 const skipSpecValidation = false;
+
+const updateAnnotatedFile = true;
 ''')
 @Openapi(
   inputSpec: InputSpec(path: ''),
