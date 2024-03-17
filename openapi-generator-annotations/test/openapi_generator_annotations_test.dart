@@ -51,6 +51,13 @@ void main() {
             debugLogging: true);
         expect(api.debugLogging, isTrue);
       });
+      test('Sets updateAnnotatedFile', () {
+        final api = Openapi(
+            inputSpec: InputSpec.json(),
+            generatorName: Generator.dart,
+            updateAnnotatedFile: false);
+        expect(api.updateAnnotatedFile, isFalse);
+      });
       group('InputSpec', () {
         group('local spec', () {
           test('provides default yaml path', () {
