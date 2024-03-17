@@ -132,8 +132,8 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
         'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml';
     final basePath = '${testSpecPath}output-nextgen/';
     final f = File('${basePath}cache.json');
-    tearDown(() {
-      final b = File(basePath);
+    tearDownAll(() {
+      final b = Directory(basePath);
       if (b.existsSync()) b.deleteSync(recursive: true);
     });
 
@@ -262,6 +262,27 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
 
         copy.deleteSync();
         expect(hasOutput, isTrue);
+      });
+      test('skip updating annotated file', () async {
+        final annotatedFile = File(
+            '.${Platform.pathSeparator}test${Platform.pathSeparator}specs${Platform.pathSeparator}output-nextgen${Platform.pathSeparator}annotated_file.dart');
+        final annotetedFileContent = '\n';
+        await annotatedFile.writeAsString(annotetedFileContent, flush: true);
+
+        generatedOutput = await generate('''
+@Openapi(
+  inputSpecFile: '$specPath',
+  inputSpec: RemoteSpec(path: '$specPath'),
+  useNextGen: true,
+  cachePath: '${f.path}',
+  updateAnnotatedFile: false,
+)
+          ''', path: annotatedFile.path);
+        expect(
+            generatedOutput,
+            contains(
+                'Skipped updating annotated file step because flag was set.'));
+        expect(annotatedFile.readAsStringSync(), equals(annotetedFileContent));
       });
       group('source gen', () {
         group('uses Flutter', () {

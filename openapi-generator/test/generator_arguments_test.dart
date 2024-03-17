@@ -19,6 +19,8 @@ void main() {
       test('shouldFetchDependencies',
           () => expect(args.shouldFetchDependencies, isTrue));
       test('skipValidation', () => expect(args.skipValidation, isFalse));
+      test('updateAnnotatedFile',
+          () => expect(args.updateAnnotatedFile, isTrue));
       test(
           'pubspecPath',
           () => expect(
@@ -168,6 +170,7 @@ void main() {
         expect(args.isRemote, isFalse);
         expect(args.generatorName, 'dart-dio');
         expect(args.shouldGenerateSources, isTrue);
+        expect(args.updateAnnotatedFile, isTrue);
         expect(args.additionalProperties?.useEnumExtension, isTrue);
         expect(args.additionalProperties?.pubAuthor, 'test author');
         expect(await args.jarArgs, [
@@ -218,6 +221,7 @@ void main() {
         expect(args.isRemote, isFalse);
         expect(args.generatorName, 'dart-dio');
         expect(args.shouldGenerateSources, isTrue);
+        expect(args.updateAnnotatedFile, isTrue);
         expect(args.additionalProperties?.useEnumExtension, isTrue);
         expect((args.additionalProperties as DioProperties?)?.nullableFields,
             isTrue);
@@ -269,6 +273,7 @@ void main() {
         expect(args.isRemote, isFalse);
         expect(args.generatorName, 'dart-dio');
         expect(args.shouldGenerateSources, isTrue);
+        expect(args.updateAnnotatedFile, isTrue);
         expect(args.additionalProperties?.useEnumExtension, isTrue);
         expect(
             (args.additionalProperties as DioAltProperties?)?.nullSafe, isTrue);
@@ -329,6 +334,7 @@ void main() {
             'https://petstore3.swagger.io/api/v3/openapi.json');
         expect(args.generatorName, 'dart-dio');
         expect(args.shouldGenerateSources, isTrue);
+        expect(args.updateAnnotatedFile, isTrue);
         expect(args.additionalProperties?.useEnumExtension, isTrue);
         expect(
             (args.additionalProperties as DioAltProperties?)?.nullSafe, isTrue);

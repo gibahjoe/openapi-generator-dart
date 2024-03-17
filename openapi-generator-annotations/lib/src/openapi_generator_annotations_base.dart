@@ -111,6 +111,10 @@ class Openapi {
   /// Include in depth logging output from run commands.
   final bool debugLogging;
 
+  /// If set to true, the annotated file will be added or updated comment lines as of the last run date on the top of the file.
+  /// Defaults to true
+  final bool updateAnnotatedFile;
+
   const Openapi({
     this.additionalProperties,
     this.skipSpecValidation = false,
@@ -129,6 +133,7 @@ class Openapi {
     this.cachePath,
     this.projectPubspecPath,
     this.debugLogging = false,
+    this.updateAnnotatedFile = true,
   });
 }
 
