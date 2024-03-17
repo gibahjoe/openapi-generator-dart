@@ -132,8 +132,8 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
         'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml';
     final basePath = '${testSpecPath}output-nextgen/';
     final f = File('${basePath}cache.json');
-    tearDown(() {
-      final b = File(basePath);
+    tearDownAll(() {
+      final b = Directory(basePath);
       if (b.existsSync()) b.deleteSync(recursive: true);
     });
 
