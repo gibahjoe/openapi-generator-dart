@@ -220,24 +220,27 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           ),
         ),
       );
-      await updateAnnotatedFile(annotatedPath: annotatedPath).then(
-        (_) => logOutputMessage(
-          log: log,
-          communication: OutputMessage(
-            message: 'Successfully updated annotated file.',
-            level: Level.CONFIG,
+
+      if (args.updateAnnotatedFileTimestamp) {
+        await updateAnnotatedFile(annotatedPath: annotatedPath).then(
+          (_) => logOutputMessage(
+            log: log,
+            communication: OutputMessage(
+              message: 'Successfully updated annotated file.',
+              level: Level.CONFIG,
+            ),
           ),
-        ),
-        onError: (e, st) => logOutputMessage(
-          log: log,
-          communication: OutputMessage(
-            message: 'Failed to update annotated class file.',
-            level: Level.WARNING,
-            additionalContext: e,
-            stackTrace: st,
+          onError: (e, st) => logOutputMessage(
+            log: log,
+            communication: OutputMessage(
+              message: 'Failed to update annotated class file.',
+              level: Level.WARNING,
+              additionalContext: e,
+              stackTrace: st,
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
     return '';
   }

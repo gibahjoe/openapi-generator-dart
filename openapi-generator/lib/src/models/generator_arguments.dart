@@ -84,6 +84,9 @@ class GeneratorArguments {
   /// Customizes the way inline schema are handled.
   final InlineSchemaOptions? inlineSchemaOptions;
 
+  /// Whether to update the timestamp in the annotated file
+  final bool updateAnnotatedFileTimestamp;
+
   GeneratorArguments({required src_gen.ConstantReader annotations})
       : templateDirectory = annotations.readPropertyOrNull('templateDirectory'),
         generator =
@@ -112,7 +115,9 @@ class GeneratorArguments {
             '${Directory.current.path}${Platform.pathSeparator}pubspec.yaml'),
         isDebug = annotations.readPropertyOrDefault('debugLogging', false),
         inputSpec =
-            annotations.readPropertyOrDefault('inputSpec', InputSpec.json());
+            annotations.readPropertyOrDefault('inputSpec', InputSpec.json()),
+        updateAnnotatedFileTimestamp = annotations.readPropertyOrDefault(
+            'updateAnnotatedFileTimestamp', true);
 
   /// The stringified name of the [Generator].
   String get generatorName => generator == Generator.dart

@@ -111,6 +111,9 @@ class Openapi {
   /// Include in depth logging output from run commands.
   final bool debugLogging;
 
+  /// Whether to disable updating the timestamp in the annotated file.
+  final bool updateAnnotatedFileTimestamp;
+
   const Openapi({
     this.additionalProperties,
     this.skipSpecValidation = false,
@@ -129,6 +132,7 @@ class Openapi {
     this.cachePath,
     this.projectPubspecPath,
     this.debugLogging = false,
+    this.updateAnnotatedFileTimestamp = true,
   });
 }
 
