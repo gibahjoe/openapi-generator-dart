@@ -111,6 +111,10 @@ class Openapi {
   /// Include in depth logging output from run commands.
   final bool debugLogging;
 
+  /// Whether to disable caching the spec file. Defaults to `true` if the
+  /// [inputSpec] is not a [RemoteSpec].
+  final bool disableCache;
+
   const Openapi({
     this.additionalProperties,
     this.skipSpecValidation = false,
@@ -129,7 +133,8 @@ class Openapi {
     this.cachePath,
     this.projectPubspecPath,
     this.debugLogging = false,
-  });
+    bool? disableCache,
+  }) : disableCache = disableCache ?? inputSpec is! RemoteSpec;
 }
 
 /// Provides the input spec file to be used.
