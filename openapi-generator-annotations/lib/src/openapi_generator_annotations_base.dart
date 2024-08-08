@@ -521,14 +521,6 @@ class DioProperties extends AdditionalProperties {
 }
 
 class DioAltProperties extends AdditionalProperties {
-  /// Changes the minimum version of Dart to 2.12 and generate null safe code
-  final bool? nullSafe;
-
-  /// nullSafe-array-default
-  /// Makes even arrays that are not listed as being required in your OpenAPI "required"
-  /// but making them always generate a default value of []
-  final bool? nullSafeArrayDefault;
-
   /// This will turn off AnyOf support. This would be a bit weird, but you can do it if you want.
   final bool? listAnyOf;
 
@@ -541,8 +533,7 @@ class DioAltProperties extends AdditionalProperties {
   final String? pubspecDevDependencies;
 
   const DioAltProperties(
-      {this.nullSafe,
-      this.nullSafeArrayDefault,
+      {
       this.pubspecDependencies,
       this.pubspecDevDependencies,
       this.listAnyOf,
@@ -580,18 +571,13 @@ class DioAltProperties extends AdditionalProperties {
             wrapper: wrapper);
 
   DioAltProperties.fromMap(Map<String, dynamic> map)
-      : nullSafe = map['nullSafe'],
-        nullSafeArrayDefault = map['nullSafeArrayDefault'],
-        listAnyOf = map['listAnyOf'],
+      : listAnyOf = map['listAnyOf'],
         pubspecDependencies = map['pubspecDependencies'],
         pubspecDevDependencies = map['pubspecDevDependencies'],
         super.fromMap(map);
 
   Map<String, dynamic> toMap() => Map.from(super.toMap())
     ..addAll({
-      if (nullSafe != null) 'nullSafe': nullSafe,
-      if (nullSafeArrayDefault != null)
-        'nullSafeArrayDefault': nullSafeArrayDefault,
       if (listAnyOf != null) 'listAnyOf': listAnyOf,
       if (pubspecDependencies != null)
         'pubspecDependencies': pubspecDependencies,
