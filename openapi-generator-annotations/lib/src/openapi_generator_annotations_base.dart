@@ -79,6 +79,13 @@ class Openapi {
   ///   --type-mappings
   final Map<String, String>? typeMappings;
 
+  ///  sets mappings between OpenAPI spec properties name and generated code
+  ///  var/param/model in the format of OpenAPIName=generatedName.
+  ///  For example: update=updatable,_=underscore.
+
+  ///   --name-mappings
+  final Map<String, String>? nameMappings;
+
   /// specifies mappings between a given class and the import that should
   /// be used for that class in the format of type=import,type=import. You
   /// can also have multiple occurrences of this option.
@@ -119,6 +126,7 @@ class Openapi {
     required this.generatorName,
     this.outputDirectory,
     this.typeMappings,
+    this.nameMappings,
     this.importMappings,
     this.reservedWordsMappings,
     this.inlineSchemaNameMappings,
@@ -533,8 +541,7 @@ class DioAltProperties extends AdditionalProperties {
   final String? pubspecDevDependencies;
 
   const DioAltProperties(
-      {
-      this.pubspecDependencies,
+      {this.pubspecDependencies,
       this.pubspecDevDependencies,
       this.listAnyOf,
       bool allowUnicodeIdentifiers = false,
