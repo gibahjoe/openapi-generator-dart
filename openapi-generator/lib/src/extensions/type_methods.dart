@@ -172,7 +172,7 @@ extension ReadProperty on ConstantReader {
     } else if (isA(v, Set)) {
       return v.setValue.map(convertToPropertyValue) as T;
     } else if (isA(v, List)) {
-      return v.listValue.map(convertToPropertyValue) as T;
+      return v.listValue.map(convertToPropertyValue).toList() as T;
     } else if (isA(v, Enum)) {
       return v.enumValue();
     } else {
