@@ -47,6 +47,11 @@ class GeneratorArguments {
   /// Default: false
   final bool skipValidation;
 
+  /// Write the last run placeholder to the annotated file.
+  ///
+  /// Default: true
+  final bool updateAnnotatedFile;
+
   /// Provides an OAS spec file.
   ///
   /// When the [useNextGen] flag is set this should be the spec file configuration
@@ -104,6 +109,8 @@ class GeneratorArguments {
             annotations.readPropertyOrDefault('runSourceGenOnOutput', true),
         shouldFetchDependencies =
             annotations.readPropertyOrDefault('fetchDependencies', true),
+        updateAnnotatedFile =
+            annotations.readPropertyOrDefault('updateAnnotatedFile', true),
         outputDirectory = annotations.readPropertyOrNull('outputDirectory'),
         cachePath =
             annotations.readPropertyOrDefault('cachePath', defaultCachedPath),
