@@ -50,6 +50,11 @@ class Openapi {
   ///  -o, --output
   final String? outputDirectory;
 
+  /// Defines whether the output directory should be cleaned up before generating the output.
+  /// 
+  /// e.g [''], ['lib/src']
+  final List<dynamic>? cleanSubOutputDirectory;
+
   /// Skips the default behavior of validating an input specification.
   ///
   /// --skip-validate-spec
@@ -122,6 +127,7 @@ class Openapi {
     this.templateDirectory,
     required this.generatorName,
     this.outputDirectory,
+    this.cleanSubOutputDirectory,
     this.typeMappings,
     this.importMappings,
     this.reservedWordsMappings,

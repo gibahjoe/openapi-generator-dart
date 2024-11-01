@@ -90,6 +90,33 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       ),
     );
 
+    if (arguments.cleanSubOutputDirectory != null) {
+      arguments.cleanSubOutputDirectory?.forEach((directory) {
+        final childDirectory =
+            Directory('${arguments.outputDirectory}/${directory.toString()}');
+        try {
+          final outputDirectory = Directory('${arguments.outputDirectory}')
+              .resolveSymbolicLinksSync();
+          // Make sure is sub directory, avoid ../../
+          if (childDirectory
+              .resolveSymbolicLinksSync()
+              .startsWith(outputDirectory)) {
+            childDirectory.delete(recursive: true);
+          }
+        } catch (e, st) {
+          logOutputMessage(
+            log: log,
+            communication: OutputMessage(
+              message: 'Output directory already empty',
+              additionalContext: e,
+              stackTrace: st,
+              level: Level.WARNING,
+            ),
+          );
+        }
+      });
+    }
+
     var binPath = (await Isolate.resolvePackageUri(
             Uri.parse('package:openapi_generator_cli/openapi-generator.jar')))!
         .toFilePath(windows: Platform.isWindows);

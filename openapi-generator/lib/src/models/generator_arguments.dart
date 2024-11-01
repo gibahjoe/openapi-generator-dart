@@ -32,6 +32,9 @@ class GeneratorArguments {
   /// Default: Directory.current.path
   final String? outputDirectory;
 
+  /// Defines whether the output directory should be cleaned up before generating the output.
+  final List<dynamic>? cleanSubOutputDirectory;
+
   /// Informs the generator to run source gen on the output.
   ///
   /// Default: true
@@ -112,6 +115,8 @@ class GeneratorArguments {
         updateAnnotatedFile =
             annotations.readPropertyOrDefault('updateAnnotatedFile', true),
         outputDirectory = annotations.readPropertyOrNull('outputDirectory'),
+        cleanSubOutputDirectory =
+            annotations.readPropertyOrNull('cleanSubOutputDirectory'),
         cachePath =
             annotations.readPropertyOrDefault('cachePath', defaultCachedPath),
         pubspecPath = annotations.readPropertyOrDefault<String>(
