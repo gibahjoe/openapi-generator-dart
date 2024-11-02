@@ -51,6 +51,8 @@ class GeneratorArguments {
   final bool skipValidation;
 
   /// Write the last run placeholder to the annotated file.
+  /// This makes changes to the file containing @openapi() annotation
+  /// so that it is executed when next build runner is run
   ///
   /// Default: true
   final bool updateAnnotatedFile;
