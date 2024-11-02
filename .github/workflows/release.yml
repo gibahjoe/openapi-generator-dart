@@ -10,45 +10,27 @@ on:
 jobs:
   test:
     uses: gibahjoe/openapi-generator-dart/.github/workflows/code_quality.yml@master
-  publish-cli:
+  publish:
+    name: Publish Packages with Melos
     runs-on: ubuntu-latest
     needs: [test]
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
-      - name: Publish
-        uses: sakebook/actions-flutter-pub-publisher@v1.3.1
-        with:
-          credential: ${{ secrets.PUB_CREDENTIAL_JSON }}
-          package_directory: ./openapi-generator-cli
-          flutter_package: true
-          skip_test: true
-          dry_run: false
-  publish-annotation:
-    runs-on: ubuntu-latest
-    needs: [test]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-      - name: Publish
-        uses: sakebook/actions-flutter-pub-publisher@v1.3.1
-        with:
-          credential: ${{ secrets.PUB_CREDENTIAL_JSON }}
-          package_directory: ./openapi-generator-annotations
-          flutter_package: true
-          skip_test: true
-          dry_run: false
-  publish-generator:
-    runs-on: ubuntu-latest
-    needs: [publish-annotation, publish-cli]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-      - name: Publish
-        uses: sakebook/actions-flutter-pub-publisher@v1.3.1
-        with:
-          credential: ${{ secrets.PUB_CREDENTIAL_JSON }}
-          package_directory: ./openapi-generator
-          flutter_package: true
-          skip_test: false
-          dry_run: false
+        uses: actions/checkout@v3
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install Melos
+        run: dart pub global activate melos
+
+      - name: Authenticate with Pub
+        run: echo "${{ secrets.PUB_CREDENTIAL_JSON }}" > ~/.pub-cache/credentials.json
+
+      - name: Bootstrap Melos
+        run: melos bootstrap
+
+      - name: Version and Publish
+        run: |
+          melos version --yes --no-changelog
+          melos publish --no-dry-run --yes
