@@ -32,6 +32,13 @@ jobs:
         uses: dart-lang/setup-dart@v1.5.0
         with:
           sdk: stable
+
+      - name: Install Melos
+        run: dart pub global activate melos
+
+      - name: Bootstrap packages with Melos
+        run: melos bootstrap
+
       - name: Install Dependencies
         run: dart pub get
       - name: Build runner

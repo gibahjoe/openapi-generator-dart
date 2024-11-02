@@ -275,12 +275,7 @@ void main() {
         expect(args.shouldGenerateSources, isTrue);
         expect(args.updateAnnotatedFile, isTrue);
         expect(args.additionalProperties?.useEnumExtension, isTrue);
-        expect(
-            (args.additionalProperties as DioAltProperties?)?.nullSafe, isTrue);
-        expect(
-            (args.additionalProperties as DioAltProperties?)
-                ?.nullSafeArrayDefault,
-            isTrue);
+
         expect(await args.jarArgs, [
           'generate',
           '-o=${args.outputDirectory}',
@@ -336,12 +331,6 @@ void main() {
         expect(args.shouldGenerateSources, isTrue);
         expect(args.updateAnnotatedFile, isTrue);
         expect(args.additionalProperties?.useEnumExtension, isTrue);
-        expect(
-            (args.additionalProperties as DioAltProperties?)?.nullSafe, isTrue);
-        expect(
-            (args.additionalProperties as DioAltProperties?)
-                ?.nullSafeArrayDefault,
-            isTrue);
       });
     });
   });

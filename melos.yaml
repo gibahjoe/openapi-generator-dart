@@ -1,0 +1,7 @@
+name: openapi_generator_dart
+
+packages:
+  - example
+  - openapi-generator
+  - openapi-generator-annotations
+  - openapi-generator-cli

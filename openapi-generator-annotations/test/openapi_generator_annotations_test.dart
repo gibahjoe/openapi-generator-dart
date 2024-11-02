@@ -28,6 +28,7 @@ void main() {
       expect(props.cachePath, isNull);
       expect(props.projectPubspecPath, isNull);
       expect(props.debugLogging, isFalse);
+      expect(props.nameMappings, isNull);
     });
     group('NextGen', () {
       test('Sets cachePath', () {

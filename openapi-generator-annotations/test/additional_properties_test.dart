@@ -223,8 +223,6 @@ void main() {
         props.pubAuthor,
         props.pubAuthorEmail,
         props.sourceFolder,
-        props.nullSafe,
-        props.nullSafeArrayDefault,
         props.listAnyOf,
         props.pubspecDevDependencies,
         props.pubspecDependencies
@@ -266,8 +264,6 @@ void main() {
         pubDescription: 'test',
         pubAuthorEmail: 'test@test.test',
         pubAuthor: 'test',
-        nullSafe: true,
-        nullSafeArrayDefault: true,
         listAnyOf: false,
         pubspecDevDependencies: 'something',
         pubspecDependencies: 'test',
@@ -289,8 +285,6 @@ void main() {
         'sortParamsByRequiredFlag': props.sortParamsByRequiredFlag,
         'sourceFolder': props.sourceFolder,
         'wrapper': 'none',
-        'nullSafe': props.nullSafe,
-        'nullSafeArrayDefault': props.nullSafeArrayDefault,
         'listAnyOf': props.listAnyOf,
         'pubspecDevDependencies': props.pubspecDevDependencies,
         'pubspecDependencies': props.pubspecDependencies,
@@ -314,8 +308,6 @@ void main() {
       expect(actual.pubAuthor, props.pubAuthor);
       expect(actual.pubAuthorEmail, props.pubAuthorEmail);
       expect(actual.sourceFolder, props.sourceFolder);
-      expect(actual.nullSafe, props.nullSafe);
-      expect(actual.nullSafeArrayDefault, props.nullSafeArrayDefault);
       expect(actual.listAnyOf, props.listAnyOf);
       expect(actual.pubspecDevDependencies, props.pubspecDevDependencies);
       expect(actual.pubspecDependencies, props.pubspecDependencies);
