@@ -1,16 +1,16 @@
 {
-  "include-component-in-tag": true,
+  "include-component-in-tag": false,
   "bootstrap-sha": "5d21f4aa99faf94d22a4958d30c157f9430bdbf3",
   "packages": {
-    "openapi_generator": {
+    "openapi-generator": {
       "release-type": "dart",
       "component": "openapi-generator"
     },
-    "openapi_generator_annotations": {
+    "openapi-generator-annotations": {
       "release-type": "dart",
       "component": "openapi-generator-annotations"
     },
-    "openapi_generator_cli": {
+    "openapi-generator-cli": {
       "release-type": "dart",
       "component": "openapi-generator-cli"
     }

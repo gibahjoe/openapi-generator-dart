@@ -33,5 +33,5 @@ scripts:
           - '*web*'
           - '*example*'
 
-  combine_coverage:
-    run: dart pub global run combine_coverage --repo-path="."
+versioning:
+  tagFormat: "v{{version}}"
