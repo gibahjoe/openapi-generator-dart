@@ -116,7 +116,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       });
     }
 
-// Name of the package and path to the CLI script (typically just the package name if it's set up correctly)
+    // Name of the package and path to the CLI script (typically just the package name if it's set up correctly)
     ProcessResult result;
     result = await _processRunner.run(
       'dart',

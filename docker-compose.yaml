@@ -9,5 +9,5 @@ services:
       - SERVICES=S3
       - AWS_DEFAULT_REGION=us-east-1
     volumes:
-      - './test/specs/localstack:/var/lib/localstack'
-      - './test/specs/buckets.sh:/etc/localstack/init/ready.d/buckets.sh'
+      - './openapi-generator/test/specs/localstack:/var/lib/localstack'
+      - './openapi-generator/test/specs/buckets.sh:/etc/localstack/init/ready.d/buckets.sh'

@@ -35,8 +35,7 @@ Future<String> generate(String source, {String path = 'lib/myapp.dart'}) async {
     'openapi_generator|$path': '''
     import 'package:openapi_generator_annotations/src/openapi_generator_annotations_base.dart';
     $source
-    class MyApp {
-    }  
+    class MyApp {}  
     ''',
     'openapi_generator|openapi-spec.yaml': spec
   };

@@ -3,7 +3,7 @@ import 'package:openapi_generator/src/models/output_message.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('OutputMessage', () {
+  group('OutputMessage ', () {
     test('defaults', () {
       final message = OutputMessage(message: 'message');
       expect(message.message, 'message');

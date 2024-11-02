@@ -23,26 +23,32 @@ jobs:
 #       run:
 #         working-directory: ${{ matrix.work_dir }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-#       - name: Start Docker compose containers
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+      - uses: bluefireteam/melos-action@v3
+#       - name: Checkout
+#         uses: actions/checkout@v3
+      - name: Start Docker compose containers
 #         if: ${{ matrix.work_dir == 'openapi-generator' }}
-#         run: docker-compose -f "docker-compose.yaml" up -d --build
-      - name: Setup Dart
-        uses: dart-lang/setup-dart@v1.5.0
-        with:
-          sdk: stable
-      - name: Install Melos
-        run: dart pub global activate melos
-      - name: Bootstrap Melos
-        run: melos bootstrap
+        run: docker-compose -f "docker-compose.yaml" up -d --build
+#       - name: Setup Dart
+#         uses: dart-lang/setup-dart@v1
+#         with:
+#           sdk: stable
+#       - name: Setup Flutter
+#         uses: subosito/flutter-action@v3
+#         with:
+#           channel: stable
+#
+#       - name: Install Melos
+#         run: dart pub global activate melos
+#       - name: Bootstrap Melos
+#         run: melos bootstrap
       - name: Install Dependencies
         run: melos exec -- "dart pub get"
-      - name: Run Docker Compose on Specific Package
-        run: |
-          melos exec -p openapi-generator -- docker-compose -f "docker-compose.yaml" up -d --build
+
       - name: Build runner
-        run: melos exec -p openapi-generator dart run build_runner build --delete-conflicting-outputs
+        run: melos exec --scope="openapi-generator" -- dart run build_runner build --delete-conflicting-outputs
       - name: Validate formatting
         run: melos format --set-exit-if-changed
       - name: Run analyzer
@@ -97,6 +103,12 @@ jobs:
     steps:
       - name: Checkout ⬇️
         uses: actions/checkout@v3
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Build Example Project 🛠
         uses: subosito/flutter-action@v2

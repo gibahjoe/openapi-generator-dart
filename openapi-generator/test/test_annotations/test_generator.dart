@@ -12,7 +12,7 @@ class TestGenerator extends src_gen.GeneratorForAnnotation<Openapi> {
   @override
   Iterable<String> generateForAnnotatedElement(Element element,
       src_gen.ConstantReader annotation, BuildStep buildStep) sync* {
-    assert(!annotation.isNull, 'The source generator should\'nt be null');
+    assert(!annotation.isNull, "The source generator shouldn't be null");
 
     if (element is! ClassElement) {
       throw src_gen.InvalidGenerationSourceError(
@@ -42,7 +42,6 @@ class TestGenerator extends src_gen.GeneratorForAnnotation<Openapi> {
       SupportedFields(name: 'importMappings', type: Map),
       SupportedFields(name: 'reservedWordsMappings', type: Map),
       SupportedFields(name: 'inlineSchemaNameMappings', type: Map),
-      // SupportedFields(name:'inlineSchemaOptions'),
       SupportedFields(name: 'apiPackage', type: String),
       SupportedFields(name: 'fetchDependencies', type: bool),
       SupportedFields(name: 'runSourceGenOnOutput', type: bool),
