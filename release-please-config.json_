@@ -1,5 +1,7 @@
 {
-  "include-component-in-tag": false,
+  "include-component-in-tag": true,
+  v
+  "bootstrap-sha": "5d21f4aa99faf94d22a4958d30c157f9430bdbf3",
   "packages": {
     "openapi-generator": {
       "release-type": "dart",
@@ -14,6 +16,7 @@
       "component": "openapi-generator-cli"
     }
   },
+  "skip-github-release": true,
   "plugins": [
     {
       "type": "linked-versions",

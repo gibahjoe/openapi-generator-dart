@@ -19,3 +19,7 @@ jobs:
         with:
           command: manifest
           token: ${{ secrets.OG_BOT_TOKEN }}
+          release-type: dart
+          bump-minor-pre-major: false
+          bump-patch-for-minor-pre-major: false
+          version-file: "changelog-only"
