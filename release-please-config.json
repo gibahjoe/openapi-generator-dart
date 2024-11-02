@@ -1,6 +1,5 @@
 {
-  "include-component-in-tag": true,
-  v
+  "include-component-in-tag": false,
   "bootstrap-sha": "5d21f4aa99faf94d22a4958d30c157f9430bdbf3",
   "packages": {
     "openapi-generator": {
