@@ -37,7 +37,7 @@ jobs:
       - name: Bootstrap Melos
         run: melos bootstrap
       - name: Install Dependencies
-        run: dart pub get
+        run: melos exec -- "dart pub get"
       - name: Run Docker Compose on Specific Package
         run: |
           melos exec -p openapi-generator -- docker-compose -f "docker-compose.yaml" up -d --build
