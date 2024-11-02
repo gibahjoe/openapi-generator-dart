@@ -4,6 +4,30 @@
 
 * fixed spec diff tracking
 
+## [6.0.0](https://github.com/gibahjoe/openapi-generator-dart/compare/openapi-generator-cli-v5.0.3...openapi-generator-cli-v6.0.0) (2024-11-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* **cli:** removed various deprecated methods and properties such as inputSpecFile
+
+### Features
+
+* **annotation:** removed deprecated properties from annotation ([51d3683](https://github.com/gibahjoe/openapi-generator-dart/commit/51d3683bb83dc3e8f0f05d9d4913e11d3cc82b0f))
+* Bumped versions to match ([506689c](https://github.com/gibahjoe/openapi-generator-dart/commit/506689c960491962c56cbb4418fc86dafc1a4c2e))
+* Changing to a config based approach for obtaining the official openapi generator jar. ([a0f3ca2](https://github.com/gibahjoe/openapi-generator-dart/commit/a0f3ca2d24e29ff27d032a1f6dd093c195c7ff83))
+* **cli:** bumped official generator version to 7.2 ([51d3683](https://github.com/gibahjoe/openapi-generator-dart/commit/51d3683bb83dc3e8f0f05d9d4913e11d3cc82b0f))
+* **cli:** bumped official generator version to 7.7 ([d8b9de1](https://github.com/gibahjoe/openapi-generator-dart/commit/d8b9de1a948ea5958ecfe85bcf228b97e0f2a8fd))
+* **cli:** bumped unofficial generator version to 8.1 ([2fdd022](https://github.com/gibahjoe/openapi-generator-dart/commit/2fdd022bbcca07dc03bd743e378dbc10b9f0503f))
+* **generator:** moved completely to newgen ([51d3683](https://github.com/gibahjoe/openapi-generator-dart/commit/51d3683bb83dc3e8f0f05d9d4913e11d3cc82b0f))
+* updated generator versions ([4f13112](https://github.com/gibahjoe/openapi-generator-dart/commit/4f13112fc0e8cbb16c17e38bfdfee34d65473291))
+
+
+### Bug Fixes
+
+* Trigger version bump for CLI ([996f328](https://github.com/gibahjoe/openapi-generator-dart/commit/996f3281cad0bdaf58a3d0bbdc4df7dbdc7b135f))
+* updated ([5d21f4a](https://github.com/gibahjoe/openapi-generator-dart/commit/5d21f4aa99faf94d22a4958d30c157f9430bdbf3))
+
 ## [5.0.1](https://github.com/gibahjoe/openapi-generator-dart/compare/v5.0.0...v5.0.1) (2024-01-16)
 
 ### Bug Fixes
