@@ -4,13 +4,13 @@ version: 5.0.2
 homepage: https://github.com/gibahjoe/openapi-generator-dart
 
 environment:
-  sdk: '>=2.15.0 <3.0.0'
+  sdk: '>=2.15.0 <4.0.0'
 
 dependencies:
   build: '>=1.0.0 <=3.0.0'
   source_gen: '>=1.0.0 <=2.0.0'
   path: '>=1.0.0 <=2.0.0'
-  openapi_generator_annotations: '>5.0.2 <7.0.0'
+  openapi_generator_annotations: '5.0.2'
   analyzer: '>=2.0.0 <7.0.0'
   openapi_generator_cli: '>5.0.2 <7.0.0'
   yaml: ^3.1.2

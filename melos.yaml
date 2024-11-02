@@ -17,5 +17,24 @@ command:
     workspaceChangelog: true
 
 scripts:
-  coverage:
+  test:all:
+      run: |
+        melos run test --no-select && \
+        melos exec -- "dart pub global activate combine_coverage"
+        melos run combine_coverage
+      description: |
+        Run all tests available.
+  test:
+      run: |
+        melos exec -c 6 --fail-fast -- \
+          "dart run test --coverage='coverage'"
+      description: Run `flutter test` for a specific package.
+      packageFilters:
+        dirExists:
+          - test
+        ignore:
+          - '*web*'
+          - '*example*'
+
+  combine_coverage:
     run: dart pub global run combine_coverage --repo-path="."
