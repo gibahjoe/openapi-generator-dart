@@ -51,9 +51,9 @@ class Openapi {
   final String? outputDirectory;
 
   /// Defines whether the output directory should be cleaned up before generating the output.
-  /// 
+  ///
   /// e.g [''], ['lib/src']
-  final List<dynamic>? cleanSubOutputDirectory;
+  final List<String>? cleanSubOutputDirectory;
 
   /// Skips the default behavior of validating an input specification.
   ///

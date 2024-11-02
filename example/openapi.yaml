@@ -1,7 +1,7 @@
 ---
 openapi: "3.0.3"
 info:
-  title: "OpenAPI definition"
+  title: "OpenAPI definition."
   version: "v0.1"
 paths:
   /v0.1/transactions:

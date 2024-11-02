@@ -10,3 +10,7 @@ docs:
   - 'README.md'
   - 'CHANGELOG.md'
   - 'LICENSE'
+workspace:
+    - 'melos.yaml'
+    - 'pubspec.yaml'
+    - 'release-please-config.json'

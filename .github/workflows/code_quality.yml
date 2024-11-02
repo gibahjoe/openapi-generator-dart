@@ -15,48 +15,75 @@ jobs:
   ci:
     name: Dart CI Checks
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        work_dir: [ openapi-generator, openapi-generator-annotations ]
-    defaults:
-      run:
-        working-directory: ${{ matrix.work_dir }}
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         work_dir: [ openapi-generator, openapi-generator-annotations ]
+#     defaults:
+#       run:
+#         working-directory: ${{ matrix.work_dir }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Start Docker compose containers
-        if: ${{ matrix.work_dir == 'openapi-generator' }}
-        run: docker-compose -f "docker-compose.yaml" up -d --build
+#       - name: Start Docker compose containers
+#         if: ${{ matrix.work_dir == 'openapi-generator' }}
+#         run: docker-compose -f "docker-compose.yaml" up -d --build
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1.5.0
         with:
           sdk: stable
+      - name: Install Melos
+        run: dart pub global activate melos
+      - name: Bootstrap Melos
+        run: melos bootstrap
       - name: Install Dependencies
-        run: dart pub get
+        run: melos exec -- "dart pub get"
+      - name: Run Docker Compose on Specific Package
+        run: |
+          melos exec -p openapi-generator -- docker-compose -f "docker-compose.yaml" up -d --build
       - name: Build runner
-        if: ${{ matrix.work_dir == 'openapi-generator' }}
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: melos exec -p openapi-generator dart run build_runner build --delete-conflicting-outputs
       - name: Validate formatting
-        run: dart format ./ --set-exit-if-changed
+        run: melos format --set-exit-if-changed
       - name: Run analyzer
-        run: dart analyze --fatal-warnings
+        run: melos analyze --fatal-warnings
       - name: Run tests
-        run: dart run test --coverage="coverage"
+        run: melos run test:all
+
       - name: Install coverage tools
         run: dart pub global activate coverage
-      - name: format coverage
-        run: $HOME/.pub-cache/bin/format_coverage --lcov --in=coverage --out=./coverage.lcov --package=. --report-on=lib
-      - name: Upload coverage reports to Codecov
+
+      - name: Install Coverage Tools
+        run: dart pub global activate coverage combine_coverage
+
+      - name: Format Coverage for Each Package
+        run: |
+          # Find each package's coverage directory and format to lcov
+          for dir in $(find . -name "coverage" -type d); do
+            $HOME/.pub-cache/bin/format_coverage \
+              --lcov \
+              --in=$dir \
+              --out=$dir/coverage.lcov \
+              --packages=$dir/../.packages \
+              --report-on=lib
+          done
+
+      - name: Combine Coverage Reports
+        run: |
+          mkdir -p coverage # Create a root coverage folder if it doesn't exist
+          dart pub global run combine_coverage \
+            --repo-path="." \
+            --output=coverage/combined.lcov # Combines all into a single lcov file
+
+      - name: Upload Combined Coverage to Codecov
         uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/combined.lcov
+          flags: combined_coverage
+          name: Combined Code Coverage
+          fail_ci_if_error: true
         env:
-          files: ./coverage.lcov
-          verbose: true
-          flags: ${{ matrix.work_dir }}
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      - name: Stop Docker Container
-        if: ${{ matrix.work_dir == 'openapi-generator' && always() }}
-        run: docker-compose -f "docker-compose.yaml" down
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }} # Required only for private repositories
 
   build:
     name: Build example project 🛠️

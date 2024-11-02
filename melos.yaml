@@ -1,0 +1,37 @@
+name: openapi_generator_dart
+repository: https://github.com/gibahjoe/openapi-generator-dart
+
+packages:
+  - openapi-generator
+  - openapi-generator-annotations
+  - openapi-generator-cli
+
+command:
+  version:
+    # Generate commit links in package changelogs.
+    linkToCommits: true
+    # Only allow versioning to happen on main branch.
+    branch: master
+    # Additionally build a changelog at the root of the workspace.
+    workspaceChangelog: true
+
+scripts:
+  test:all:
+      run: |
+        melos run test --no-select
+      description: |
+        Run all tests available.
+  test:
+      run: |
+        melos exec -c 6 --fail-fast -- \
+          "dart run test --coverage='coverage'"
+      description: Run `flutter test` for a specific package.
+      packageFilters:
+        dirExists:
+          - test
+        ignore:
+          - '*web*'
+          - '*example*'
+
+versioning:
+  tagFormat: "v{{version}}"

@@ -17,10 +17,7 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
   reservedWordsMappings: {'const': 'final'},
   additionalProperties: DioAltProperties(
       wrapper: Wrapper.fvm,
-      useEnumExtension: true,
-      pubAuthor: 'test author',
-      nullSafe: true,
-      nullSafeArrayDefault: true),
+      useEnumExtension: true, pubAuthor: 'test author'),
   inlineSchemaNameMappings: {'200resp': 'OkResp'},
   projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
   updateAnnotatedFile: true,

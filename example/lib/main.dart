@@ -1,4 +1,4 @@
-// Openapi Generator last run: : 2024-01-16T03:54:39.346434
+// Openapi Generator last run: : 2024-10-31T23:11:13.130123
 import 'package:flutter/material.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 
@@ -8,11 +8,12 @@ void main() {
 
 @Openapi(
   additionalProperties:
-      DioProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep..'),
+      DioProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep.'),
   inputSpec:
       RemoteSpec(path: 'https://petstore3.swagger.io/api/v3/openapi.json'),
   typeMappings: {'Pet': 'ExamplePet'},
-  generatorName: Generator.dio,
+  generatorName: Generator.dioAlt,
+  updateAnnotatedFile: true,
   runSourceGenOnOutput: true,
   outputDirectory: 'api/petstore_api',
 )
@@ -112,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Text(
               '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
         ),

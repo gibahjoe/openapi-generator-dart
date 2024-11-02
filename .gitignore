@@ -16,3 +16,6 @@ doc/api/
 .DS_Store
 
 **/coverage
+
+pubspec_overrides.yaml
+!pubspec.lock

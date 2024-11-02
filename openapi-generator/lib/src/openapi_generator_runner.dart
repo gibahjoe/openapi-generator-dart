@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
@@ -117,20 +116,13 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       });
     }
 
-    var binPath = (await Isolate.resolvePackageUri(
-            Uri.parse('package:openapi_generator_cli/openapi-generator.jar')))!
-        .toFilePath(windows: Platform.isWindows);
-
-    // Include java environment variables in openApiCliCommand
-    var javaOpts = Platform.environment['JAVA_OPTS'] ?? '';
-
+// Name of the package and path to the CLI script (typically just the package name if it's set up correctly)
     ProcessResult result;
     result = await _processRunner.run(
-      'java',
+      'dart',
       [
-        if (javaOpts.isNotEmpty) javaOpts,
-        '-jar',
-        binPath,
+        'run',
+        'openapi_generator_cli:main',
         ...args,
       ],
       workingDirectory: Directory.current.path,
@@ -384,6 +376,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     );
 
     if (results.exitCode != 0) {
+      print('===> args ${await args.jarArgs}');
       return Future.error(
         OutputMessage(
           message: 'Failed to generate source code. Build Command output:',

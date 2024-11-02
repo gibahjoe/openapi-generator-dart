@@ -140,7 +140,7 @@ Check out the known issues article here [Known Issues](openapi-generator-annotat
 
 ## Contributing
 
-All contributions are welcome. Please ensure to read through our [contributing guidelines](Contributing.md) before
+All contributions are welcome. Please ensure to read through our [contributing guidelines](CONTRIBUTING.md) before
 sending your PRs.
 
 ## Features and bugs
