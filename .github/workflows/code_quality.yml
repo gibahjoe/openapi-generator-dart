@@ -15,13 +15,13 @@ jobs:
   ci:
     name: Dart CI Checks
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        work_dir: [ openapi-generator, openapi-generator-annotations ]
-    defaults:
-      run:
-        working-directory: ${{ matrix.work_dir }}
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         work_dir: [ openapi-generator, openapi-generator-annotations ]
+#     defaults:
+#       run:
+#         working-directory: ${{ matrix.work_dir }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
