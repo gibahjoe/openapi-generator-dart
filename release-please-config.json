@@ -1,6 +1,5 @@
 {
   "include-component-in-tag": false,
-  "versioning": "",
   "packages": {
     "openapi-generator": {
       "release-type": "dart",

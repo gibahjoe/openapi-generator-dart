@@ -13,3 +13,4 @@ docs:
 workspace:
     - 'melos.yaml'
     - 'pubspec.yaml'
+    - 'release-please-config.json'
