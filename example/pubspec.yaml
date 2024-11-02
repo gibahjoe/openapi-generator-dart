@@ -39,6 +39,14 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
+dependency_overrides:
+  openapi_generator:
+    path: ../openapi-generator
+  openapi_generator_annotations:
+    path: ../openapi-generator-annotations
+  openapi_generator_cli:
+    path: ../openapi-generator-cli
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

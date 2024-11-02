@@ -2,7 +2,6 @@ name: openapi_generator_dart
 repository: https://github.com/gibahjoe/openapi-generator-dart
 
 packages:
-  - example
   - openapi-generator
   - openapi-generator-annotations
   - openapi-generator-cli
@@ -19,9 +18,7 @@ command:
 scripts:
   test:all:
       run: |
-        melos run test --no-select && \
-        melos exec -- "dart pub global activate combine_coverage"
-        melos run combine_coverage
+        melos run test --no-select
       description: |
         Run all tests available.
   test:

@@ -85,52 +85,6 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }} # Required only for private repositories
 
-  code_coverage:
-    name: Collect and Upload Combined Coverage
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Dart
-        uses: dart-lang/setup-dart@v1
-
-      - name: Install Dependencies with Melos
-        run: dart pub global activate melos && melos bootstrap
-
-      - name: Run Tests with Coverage for All Packages
-        run: |
-          melos exec -- dart run test --coverage=coverage
-
-      - name: Install Coverage Tools
-        run: dart pub global activate coverage
-
-      - name: Format Coverage for Each Package
-        run: |
-          for dir in $(find . -name "coverage"); do
-            $HOME/.pub-cache/bin/format_coverage \
-              --lcov \
-              --in=$dir \
-              --out=$dir/coverage.lcov \
-              --packages=.packages \
-              --report-on=lib
-          done
-
-      - name: Combine Coverage
-        run: |
-          dart pub global activate combine_coverage
-          dart pub global run combine_coverage --repo-path="." # Adjust path to your monorepo root
-
-      - name: Upload Combined Coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage/combined.lcov # Adjust path if necessary
-          flags: combined_coverage
-          name: Combined Code Coverage
-          fail_ci_if_error: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }} # Required only for private repos
-
   build:
     name: Build example project 🛠️
     runs-on: ubuntu-latest
