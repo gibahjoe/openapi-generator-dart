@@ -11,8 +11,8 @@ permissions:
 jobs:
   release-please:
     if: >
-          github.event_name == 'push' ||
-         (github.event.pull_request.merged == true && !startsWith(github.event.pull_request.title, 'chore(release):'))
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true && !startsWith(github.event.pull_request.title, 'chore(release):'))
     runs-on: ubuntu-latest
     steps:
       - uses: google-github-actions/release-please-action@v3
