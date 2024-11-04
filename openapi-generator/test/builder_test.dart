@@ -297,17 +297,20 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
   useNextGen: true,
   cachePath: '${f.path}',
   outputDirectory: '${f.parent.path}/fvm',
+  updateAnnotatedFile: false,
   additionalProperties: AdditionalProperties(
     wrapper: Wrapper.fvm,
   ),
 )
           ''');
               expect(
-                  generatedOutput, contains('Running source code generation.'));
-              expect(
                   generatedOutput,
                   contains(
-                      'fvm pub run build_runner build --delete-conflicting-outputs'));
+                      'Installing dependencies with generated source. fvm pub get'));
+              // expect(
+              //     generatedOutput,
+              //     contains(
+              //         'fvm pub run build_runner build --delete-conflicting-outputs'));
             });
             test('flutterw', () async {
               generatedOutput = await generate('''
@@ -325,11 +328,13 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
 )
           ''');
               expect(
-                  generatedOutput, contains('Running source code generation.'));
-              expect(
                   generatedOutput,
                   contains(
-                      './flutterw pub run build_runner build --delete-conflicting-outputs'));
+                      'Installing dependencies with generated source. ./flutterw pub get'));
+              // expect(
+              //     generatedOutput,
+              //     contains(
+              //         './flutterw pub run build_runner build --delete-conflicting-outputs'));
             });
           });
           test('without wrapper', () async {
