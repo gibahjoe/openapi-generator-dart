@@ -263,26 +263,25 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
         copy.deleteSync();
         expect(hasOutput, isTrue);
       });
-      test('skip updating annotated file', () async {
-        final annotatedFile = File(
-            '.${Platform.pathSeparator}test${Platform.pathSeparator}specs${Platform.pathSeparator}output-nextgen${Platform.pathSeparator}annotated_file.dart');
-        final annotetedFileContent = '\n';
-        await annotatedFile.writeAsString(annotetedFileContent, flush: true);
 
-        generatedOutput = await generate('''
-@Openapi(
-  inputSpecFile: '$specPath',
-  inputSpec: RemoteSpec(path: '$specPath'),
-  useNextGen: true,
-  cachePath: '${f.path}',
-  updateAnnotatedFile: false,
-)
-          ''', path: annotatedFile.path);
-        expect(
-            generatedOutput,
-            contains(
-                'Skipped updating annotated file step because flag was set.'));
-        expect(annotatedFile.readAsStringSync(), equals(annotetedFileContent));
+      test('skip updating annotated file', () async {
+        // create the cached spec
+        f.writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
+        // Read the contents of the annotation we want to test
+        var annotatedFile =
+            File('$testSpecPath/skip_update_annotated_file_test_config.dart');
+        final contents = annotatedFile.readAsStringSync();
+        final copy = File(
+            './test/specs/skip_update_annotated_file_test_config_copy.dart');
+        copy.writeAsStringSync(contents, flush: true);
+
+        generatedOutput = await generateForSource(copy.path, path: copy.path);
+
+        var hasOutput = copy.readAsStringSync().contains(lastRunPlaceHolder);
+        copy.deleteSync();
+        expect(generatedOutput,
+            isNot(contains('Creating generated timestamp with ')));
+        expect(hasOutput, isFalse);
       });
       group('source gen', () {
         group('uses Flutter', () {
