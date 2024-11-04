@@ -44,8 +44,8 @@ jobs:
       - name: Install Dependencies
         run: melos exec -- "dart pub get"
 
-      - name: Build runner
-        run: melos exec --depends-on="build_runner" -- bash -c "cd \$MELOS_PACKAGE_PATH && dart run build_runner build --delete-conflicting-outputs"
+#       - name: Build runner
+#         run: melos exec --depends-on="build_runner" -- bash -c "cd \$MELOS_PACKAGE_PATH && dart run build_runner build --delete-conflicting-outputs"
       - name: Validate formatting
         run: melos format --set-exit-if-changed
       - name: Run analyzer
@@ -65,38 +65,22 @@ jobs:
         run: dart pub global activate coverage
 
       - name: Install Coverage Tools
-        run: dart pub global activate coverage combine_coverage
+        run: dart pub global activate combine_coverage
 
-      - name: Format Coverage for Each Package
-        run: |
-          # Find each package's coverage directory and format to lcov
-          for dir in $(find . -name "coverage" -type d); do
-            $HOME/.pub-cache/bin/format_coverage \
-              --lcov \
-              --in=$dir \
-              --out=$dir/coverage.lcov \
-              --packages=$dir/../.packages \
-              --report-on=lib
-          done
+      - name: format coverage
+        run: melos exec -- bash "$HOME/.pub-cache/bin/format_coverage --lcov --in=\$MELOS_PACKAGE_PATH/coverage/test --out=\$MELOS_PACKAGE_PATH/coverage/lcov.info --report-on=lib"
 
       - name: Combine Coverage Reports
-        run: |
-          mkdir -p coverage # Create a root coverage folder if it doesn't exist
-          dart pub global run combine_coverage \
-            --repo-path="." \
-            --output=coverage/combined.lcov # Combines all into a single lcov file
+        run: dart pub global run combine_coverage --repo-path="."
 
-      - name: Upload Combined Coverage to Codecov
+      - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage/combined.lcov
-          flags: combined_coverage
-          name: Combined Code Coverage
-          fail_ci_if_error: true
         env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }} # Required only for private repositories
+          files: ./coverage/lcov.info
+          verbose: true
+
       - name: Stop Docker Container
-        run: docker-compose -f "docker-compose.yaml" down
+        run: melos exec --scope="openapi_generator" -- bash -c "cd \$MELOS_PACKAGE_PATH && docker-compose -f "docker-compose.yaml" down"
 
   build:
     name: Build example project 🛠️

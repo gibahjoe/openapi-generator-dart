@@ -8,7 +8,7 @@ import 'package:openapi_generator/src/process_runner.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:test_process/test_process.dart';
 
-final String pkgName = 'pkg';
+final String pkgName = 'openapi_generator';
 
 final Builder builder = LibraryBuilder(
     OpenapiGenerator(ProcessRunnerForTests()),
@@ -20,6 +20,44 @@ final testSpecPath =
 ///
 /// [path] available so an override for the adds generated comment test can
 /// compare the output.
+Future<String> generateForSource(String annotatedFilePath,
+    {String path = 'lib/myapp.dart'}) async {
+  final spec = File('${testSpecPath}openapi.test.yaml').readAsStringSync();
+  final annotatedContent = File(annotatedFilePath).readAsStringSync();
+  var srcs = <String, String>{
+    'openapi_generator|$path': annotatedContent,
+    'openapi_generator|openapi-spec.yaml': spec
+  };
+
+  // Capture any message from generation; if there is one, return that instead of
+  // the generated output.
+  String? logMessage;
+  void captureLog(dynamic logRecord) {
+    if (logRecord is OutputMessage) {
+      logMessage =
+          '${logMessage ?? ''}\n${logRecord.level} ${logRecord.message} \n ${logRecord.additionalContext} \n ${logRecord.stackTrace}';
+    } else {
+      logMessage =
+          '${logMessage ?? ''}\n${logRecord.message ?? ''}\n${logRecord.error ?? ''}\n${logRecord.stackTrace ?? ''}';
+    }
+  }
+
+  var writer = InMemoryAssetWriter();
+  await testBuilder(builder, srcs,
+      reader: await PackageAssetReader.currentIsolate(),
+      rootPackage: pkgName,
+      writer: writer,
+      onLog: captureLog);
+  return logMessage ??
+      String.fromCharCodes(
+          writer.assets[AssetId(pkgName, 'lib/value.g.dart')] ?? []);
+}
+
+/// Runs an in memory test variant of the generator with the given [source].
+///
+/// [path] available so an override for the adds generated comment test can
+/// compare the output.
+@Deprecated('Use generateForSource instead')
 Future<String> generate(String source, {String path = 'lib/myapp.dart'}) async {
   final spec = File('${testSpecPath}openapi.test.yaml').readAsStringSync();
   var srcs = <String, String>{
