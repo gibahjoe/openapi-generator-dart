@@ -69,21 +69,29 @@ String constructJarUrl(String version) {
 }
 
 /// Downloads a JAR file to the specified output path if it doesn't already exist
-Future<void> downloadJar(String url, String outputPath) async {
+Future<void> downloadJar(
+  String url,
+  String outputPath, {
+  http.Client? client, // Injected HTTP client for testing
+  void Function(String message) log =
+      _logOutput, // Optional log function for testing
+}) async {
   outputPath = resolvePath(outputPath);
   final file = File(outputPath);
+  client ??=
+      http.Client(); // Use the injected client or default to a new client
+
   if (!await file.exists()) {
-    _logOutput('Downloading $url...');
+    log('Downloading $url...');
 
     final request = http.Request('GET', Uri.parse(url));
-    final response = await request.send();
+    final response = await client.send(request);
 
     if (response.statusCode == 200) {
       final contentLength = response.contentLength ?? 0;
       final output = file.openWrite();
       var downloadedBytes = 0;
 
-      // Listen to the stream and write to the file in smaller chunks
       await response.stream.listen(
         (chunk) {
           downloadedBytes += chunk.length;
@@ -92,15 +100,15 @@ Future<void> downloadJar(String url, String outputPath) async {
           // Display progress if content length is known
           if (contentLength != 0) {
             final progress = (downloadedBytes / contentLength) * 100;
-            stdout.write('\rProgress: ${progress.toStringAsFixed(2)}%');
+            log('\rProgress: ${progress.toStringAsFixed(2)}%');
           }
         },
         onDone: () async {
           await output.close();
-          print('\nDownloaded to $outputPath\n');
+          log('\nDownloaded to $outputPath\n');
         },
         onError: (e) {
-          print('\nDownload failed: $e\n');
+          log('\nDownload failed: $e\n');
         },
         cancelOnError: true,
       ).asFuture();
@@ -109,13 +117,13 @@ Future<void> downloadJar(String url, String outputPath) async {
           'Failed to download $url. Status code: ${response.statusCode}');
     }
   } else {
-    print('[info] $outputPath found. No need to download');
+    log('[info] $outputPath found. No need to download');
   }
 }
 
 /// Executes the OpenAPI Generator using all JARs in the classpath
-Future<void> executeWithClasspath(
-    List<String> jarPaths, List<String> arguments) async {
+Future<void> executeWithClasspath(List<String> jarPaths, List<String> arguments,
+    [ProcessRunner process = const ProcessRunner()]) async {
   final javaOpts = Platform.environment['JAVA_OPTS'] ?? '';
   final classpath = jarPaths.join(Platform.isWindows ? ';' : ':');
   final commands = [
@@ -129,14 +137,31 @@ Future<void> executeWithClasspath(
     commands.insert(0, javaOpts);
   }
 
-  final result = await Process.run('java', commands);
+  final result =
+      await process.run('java', commands, runInShell: Platform.isWindows);
   print(result.stdout);
   print(result.stderr);
 }
 
-/// Main function handling config loading, JAR downloading, and command execution
 Future<void> main(List<String> arguments) async {
-  exitCode = 0; // presume success
+  await runMain(
+    arguments: arguments,
+    loadConfig: loadOrCreateConfig,
+    downloadJar: downloadJar,
+    executeWithClasspath: executeWithClasspath,
+    log: _logOutput,
+  );
+}
+
+Future<void> runMain({
+  required List<String> arguments,
+  required Future<Map<String, dynamic>> Function(String) loadConfig,
+  required Future<void> Function(String, String) downloadJar,
+  required Future<void> Function(List<String>, List<String>)
+      executeWithClasspath,
+  required void Function(String) log,
+}) async {
+  exitCode = 0;
 
   // Determine config path from arguments or default to 'openapi_generator_config.json'
   final configArgIndex = arguments.indexOf('--config');
@@ -145,22 +170,21 @@ Future<void> main(List<String> arguments) async {
           ? arguments[configArgIndex + 1]
           : 'openapi_generator_config.json';
 
-  print('Using config file: $configFilePath');
+  log('Using config file: $configFilePath');
 
-  final config = await loadOrCreateConfig(configFilePath);
-  final String version = (config[ConfigKeys.openapiGeneratorVersion] ??
-      ConfigDefaults.openapiGeneratorVersion);
-  final String additionalCommands = config[ConfigKeys.additionalCommands] ??
-      ConfigDefaults.additionalCommands;
-  final String? overrideUrl = config[ConfigKeys.downloadUrlOverride];
-  final cachePath = resolvePath(
-      config[ConfigKeys.jarCachePath] ?? ConfigDefaults.jarCacheDir);
-
-  final customGeneratorUrls = List<String>.from(
-      config[ConfigKeys.customGeneratorUrls] ??
-          ConfigDefaults.customGeneratorUrls);
   try {
-    // Load or create configuration
+    final config = await loadConfig(configFilePath);
+    final version = config[ConfigKeys.openapiGeneratorVersion] ??
+        ConfigDefaults.openapiGeneratorVersion;
+    final additionalCommands = config[ConfigKeys.additionalCommands] ??
+        ConfigDefaults.additionalCommands;
+    final overrideUrl = config[ConfigKeys.downloadUrlOverride];
+    final cachePath = resolvePath(
+        config[ConfigKeys.jarCachePath] ?? ConfigDefaults.jarCacheDir);
+
+    final customGeneratorUrls = List<String>.from(
+        config[ConfigKeys.customGeneratorUrls] ??
+            ConfigDefaults.customGeneratorUrls);
 
     // Ensure the cache directory exists
     await Directory(cachePath).create(recursive: true);
@@ -173,15 +197,14 @@ Future<void> main(List<String> arguments) async {
     await downloadJar(overrideUrl ?? constructJarUrl(version), openapiJarPath);
 
     // Download each custom generator JAR if it doesn't exist and store in `customJarPaths`
-    for (var i = 0; i < customGeneratorUrls.length; i++) {
-      final customJarUrl = customGeneratorUrls[i];
+    for (var customJarUrl in customGeneratorUrls) {
       final originalFileName = customJarUrl.split('/').last;
       final customJarPath = '$cachePath/custom-$originalFileName';
       await downloadJar(customJarUrl, customJarPath);
       customJarPaths.add(customJarPath);
     }
 
-    // Combine all JAR paths (OpenAPI Generator + custom generators) for the classpath
+    // Combine all JAR paths for the classpath
     final jarPaths = [openapiJarPath, ...customJarPaths];
 
     // Prepare additional arguments, excluding the --config flag and its value
@@ -190,19 +213,30 @@ Future<void> main(List<String> arguments) async {
       ...arguments.where((arg) => arg != '--config' && arg != configFilePath),
     ];
 
-    // Execute using all JARs in the classpath
+    // Execute with classpath
     await executeWithClasspath(
-        jarPaths,
-        filteredArguments
-            .map(
-              (e) => e.trim(),
-            )
-            .where(
-              (element) => element.isNotEmpty,
-            )
-            .toList());
+      jarPaths,
+      filteredArguments
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList(),
+    );
   } catch (e) {
-    _logOutput('Error: $e');
+    log('Error: $e');
     exitCode = 1;
+  }
+}
+
+class ProcessRunner {
+  const ProcessRunner();
+
+  Future<ProcessResult> run(String executable, List<String> arguments,
+      {Map<String, String>? environment,
+      String? workingDirectory,
+      bool runInShell = false}) {
+    return Process.run(executable, arguments,
+        environment: environment,
+        workingDirectory: workingDirectory,
+        runInShell: runInShell);
   }
 }
