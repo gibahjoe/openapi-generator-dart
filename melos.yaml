@@ -24,7 +24,7 @@ scripts:
   test:
       run: |
         melos exec -c 6 --fail-fast -- \
-          "dart run test --coverage='coverage'"
+          "dart run test --chain-stack-traces --coverage='coverage'"
       description: Run `flutter test` for a specific package.
       packageFilters:
         dirExists:

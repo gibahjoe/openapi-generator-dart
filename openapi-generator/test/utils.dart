@@ -25,12 +25,14 @@ final testSpecPath = path.join(Directory.current.path, 'test', 'specs/');
 Future<String> generateForSource(String annotatedFilePath,
     {String path = 'lib/myapp.dart',
     String? openapiSpecFilePath,
+    String Function(String annotatedFileContent)? preProcessor,
     Map<String, String>? additionalSources}) async {
   final spec = File(openapiSpecFilePath ?? '${testSpecPath}openapi.test.yaml')
       .readAsStringSync();
   final annotatedContent = File(annotatedFilePath).readAsStringSync();
   var srcs = <String, String>{
-    'openapi_generator|$path': annotatedContent,
+    'openapi_generator|$path':
+        preProcessor?.call(annotatedContent) ?? annotatedContent,
     'openapi_generator|openapi-spec.yaml': spec,
     if (additionalSources?.isNotEmpty == true) ...additionalSources!,
   };

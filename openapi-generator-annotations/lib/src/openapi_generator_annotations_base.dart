@@ -84,9 +84,11 @@ class Openapi {
   ///   --type-mappings
   final Map<String, String>? typeMappings;
 
-  ///  sets mappings between OpenAPI spec properties name and generated code
-  ///  var/param/model in the format of OpenAPIName=generatedName.
-  ///  For example: update=updatable,_=underscore.
+  /// a map to store the mapping between property name and the name provided by the user
+  ///
+  ///  specifies mappings between the property name and the new name in the format
+  ///  of property_a=firstProperty,property_b=secondProperty.
+  ///  [HTTP](https://openapi-generator.tech/docs/customization/#name-mapping)
 
   ///   --name-mappings
   final Map<String, String>? nameMappings;
