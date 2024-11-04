@@ -1,4 +1,3 @@
-// Openapi Generator last run: : 2024-10-31T23:11:13.130123
 import 'package:flutter/material.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 
@@ -13,7 +12,7 @@ void main() {
       RemoteSpec(path: 'https://petstore3.swagger.io/api/v3/openapi.json'),
   typeMappings: {'Pet': 'ExamplePet'},
   generatorName: Generator.dioAlt,
-  updateAnnotatedFile: true,
+  updateAnnotatedFile: false,
   runSourceGenOnOutput: true,
   outputDirectory: 'api/petstore_api',
 )
