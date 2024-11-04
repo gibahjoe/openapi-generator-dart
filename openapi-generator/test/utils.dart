@@ -5,6 +5,7 @@ import 'package:build_test/build_test.dart';
 import 'package:openapi_generator/src/models/output_message.dart';
 import 'package:openapi_generator/src/openapi_generator_runner.dart';
 import 'package:openapi_generator/src/process_runner.dart';
+import 'package:path/path.dart' as path;
 import 'package:source_gen/source_gen.dart';
 import 'package:test_process/test_process.dart';
 
@@ -13,20 +14,25 @@ final String pkgName = 'openapi_generator';
 final Builder builder = LibraryBuilder(
     OpenapiGenerator(ProcessRunnerForTests()),
     generatedExtension: '.openapi_generator');
-final testSpecPath =
-    '${Directory.current.path}${Platform.pathSeparator}test${Platform.pathSeparator}specs${Platform.pathSeparator}';
+final testSpecPath = path.join(Directory.current.path, 'test', 'specs/');
 
 /// Runs an in memory test variant of the generator with the given [source].
 ///
 /// [path] available so an override for the adds generated comment test can
 /// compare the output.
+///
+///
 Future<String> generateForSource(String annotatedFilePath,
-    {String path = 'lib/myapp.dart'}) async {
-  final spec = File('${testSpecPath}openapi.test.yaml').readAsStringSync();
+    {String path = 'lib/myapp.dart',
+    String? openapiSpecFilePath,
+    Map<String, String>? additionalSources}) async {
+  final spec = File(openapiSpecFilePath ?? '${testSpecPath}openapi.test.yaml')
+      .readAsStringSync();
   final annotatedContent = File(annotatedFilePath).readAsStringSync();
   var srcs = <String, String>{
     'openapi_generator|$path': annotatedContent,
-    'openapi_generator|openapi-spec.yaml': spec
+    'openapi_generator|openapi-spec.yaml': spec,
+    if (additionalSources?.isNotEmpty == true) ...additionalSources!,
   };
 
   // Capture any message from generation; if there is one, return that instead of

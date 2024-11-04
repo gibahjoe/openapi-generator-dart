@@ -23,6 +23,18 @@ body:
       required: true
   - type: textarea
     attributes:
+      label: Minimal openapi specification
+      description: Please provide a minimal specification that reproduces the error.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Annotation used
+      description: Please provide the @Openapi annotation you used that reproduces the error.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
       label: Expected behavior
       description: Provide a clear and concise description of what you expected to happen.
     validations:
