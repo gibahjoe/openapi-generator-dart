@@ -165,8 +165,6 @@ class InputSpec {
   const InputSpec.yaml({bool shortExtension = false})
       : this(path: 'openapi.y${shortExtension ? '' : 'a'}ml');
 
-  Map<String, dynamic> toJsonMap() => {'path': path};
-
   InputSpec.fromMap(Map<String, dynamic> map) : this(path: map['path']);
 }
 
@@ -545,6 +543,12 @@ class DioAltProperties extends AdditionalProperties {
 
   /// Anything in this will be split on a command added to the dependencies section of your generated code.
   /// pubspec-dependencies
+  ///
+  /// this allows a user to specify additional dependencies required for this artifact, it spits
+  /// the comma separated list into a proper list, removing empty ones and makes it available in the appropriate
+  /// vendor-prefix to allow the mustache template to pick it up.
+  ///
+  /// dependencies should be comma separated
   final String? pubspecDependencies;
 
   /// pubspec-dev-dependencies
@@ -668,8 +672,10 @@ class EnumTransformer {
   static DioSerializationLibrary? dioSerializationLibrary(String? name) {
     switch (name) {
       case 'json_serializable':
+      case 'jsonSerializable':
         return DioSerializationLibrary.jsonSerializable;
       case 'built_value':
+      case 'builtValue':
         return DioSerializationLibrary.builtValue;
     }
     return null;

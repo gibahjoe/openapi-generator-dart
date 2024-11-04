@@ -225,6 +225,12 @@ void main() {
         expect(args.additionalProperties?.useEnumExtension, isTrue);
         expect((args.additionalProperties as DioProperties?)?.nullableFields,
             isTrue);
+        expect((args.additionalProperties as DioProperties).dateLibrary,
+            DioDateLibrary.core);
+        expect(
+            (args.additionalProperties as DioProperties).serializationLibrary,
+            DioSerializationLibrary.jsonSerializable);
+
         expect(await args.jarArgs, [
           'generate',
           '-o=${args.outputDirectory}',
@@ -275,6 +281,16 @@ void main() {
         expect(args.shouldGenerateSources, isTrue);
         expect(args.updateAnnotatedFile, isTrue);
         expect(args.additionalProperties?.useEnumExtension, isTrue);
+        expect(
+            (args.additionalProperties as DioAltProperties).pubspecDependencies,
+            'path: 1.0.0');
+        expect(
+            (args.additionalProperties as DioAltProperties)
+                .pubspecDevDependencies,
+            'pedantic: 1.0.0');
+        expect((await args.jarArgs).last, contains('path: 1.0.0'));
+        expect((await args.jarArgs).last, contains('pedantic: 1.0.0'));
+        expect(args.additionalProperties.runtimeType, DioAltProperties);
 
         expect(await args.jarArgs, [
           'generate',
@@ -290,8 +306,9 @@ void main() {
             '--import-mappings=${args.importMappings!.entries.fold('', foldStringMap())}',
           if (args.typeMappings?.isNotEmpty ?? false)
             '--type-mappings=${args.typeMappings!.entries.fold('', foldStringMap())}',
-          if (args.additionalProperties != null)
-            '--additional-properties=${args.additionalProperties!.toMap().entries.fold('', foldStringMap(keyModifier: convertToPropertyKey))}'
+          if (args.additionalProperties != null) ...[
+            '--additional-properties=${(args.additionalProperties as DioAltProperties).toMap().entries.fold('', foldStringMap(keyModifier: convertToPropertyKey))}'
+          ]
         ]);
       });
       test(

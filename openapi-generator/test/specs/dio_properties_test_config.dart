@@ -18,6 +18,8 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
       wrapper: Wrapper.fvm,
       useEnumExtension: true,
       pubAuthor: 'test author',
+      dateLibrary: DioDateLibrary.core,
+      serializationLibrary: DioSerializationLibrary.jsonSerializable,
       nullableFields: true),
   inlineSchemaNameMappings: {'200resp': 'OkResp'},
   projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
