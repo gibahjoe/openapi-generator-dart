@@ -57,7 +57,7 @@ jobs:
           sudo apt-get install -y docker-compose
       - name: Start Docker compose containers
 #         if: ${{ matrix.work_dir == 'openapi-generator' }}
-        run: docker-compose -f "docker-compose.yaml" up -d --build
+        run:  melos exec --scope="openapi_generator" -- bash -c "cd \$MELOS_PACKAGE_PATH && docker-compose -f docker-compose.yaml up -d --build"
       - name: Run tests
         run: melos run test:all
 
