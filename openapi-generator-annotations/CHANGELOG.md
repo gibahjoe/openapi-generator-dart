@@ -4,6 +4,24 @@
 
 * fixed spec diff tracking
 
+## [5.1.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v5.0.3...v5.1.0) (2024-11-04)
+
+
+### Features
+
+* add --name-mappings param support for generator ([f5c6aed](https://github.com/gibahjoe/openapi-generator-dart/commit/f5c6aed0408de33c8f273f6e21aacb42a34cbbc1))
+* **annotations:** fixed issue with DioSerializationLibrary and updated tests ([f2be6b6](https://github.com/gibahjoe/openapi-generator-dart/commit/f2be6b6e98010b3de8426e41940c57058c390b89)), closes [#152](https://github.com/gibahjoe/openapi-generator-dart/issues/152)
+* Changing to a config based approach for obtaining the official openapi generator jar. ([a0f3ca2](https://github.com/gibahjoe/openapi-generator-dart/commit/a0f3ca2d24e29ff27d032a1f6dd093c195c7ff83))
+* **cli:** remove unsupported flags for DioAltProperties ([72a509b](https://github.com/gibahjoe/openapi-generator-dart/commit/72a509b6323ef7519e7917148f07932f7901ad44))
+* updateAnnotatedFile property to OpenApi annotation ([e7bfa94](https://github.com/gibahjoe/openapi-generator-dart/commit/e7bfa947a9a9610509bd52f0cec08a5689495015))
+
+
+### Bug Fixes
+
+* removed unsupported field ([b26af4b](https://github.com/gibahjoe/openapi-generator-dart/commit/b26af4b99bd49c28208a28083fb4a9a3cca43d8a))
+* removed unsupported field ([b26af4b](https://github.com/gibahjoe/openapi-generator-dart/commit/b26af4b99bd49c28208a28083fb4a9a3cca43d8a))
+* removed unsupported field ([b26af4b](https://github.com/gibahjoe/openapi-generator-dart/commit/b26af4b99bd49c28208a28083fb4a9a3cca43d8a))
+
 ## [5.0.1](https://github.com/gibahjoe/openapi-generator-dart/compare/v5.0.0...v5.0.1) (2024-01-16)
 
 ### Bug Fixes

@@ -4,6 +4,16 @@
 
 * fixed spec diff tracking
 
+## [5.1.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v5.0.3...v5.1.0) (2024-11-04)
+
+
+### Features
+
+* Changing to a config based approach for obtaining the official openapi generator jar. ([a0f3ca2](https://github.com/gibahjoe/openapi-generator-dart/commit/a0f3ca2d24e29ff27d032a1f6dd093c195c7ff83))
+* **cli:** bumped official generator version to 7.7 ([d8b9de1](https://github.com/gibahjoe/openapi-generator-dart/commit/d8b9de1a948ea5958ecfe85bcf228b97e0f2a8fd))
+* **cli:** bumped unofficial generator version to 8.1 ([2fdd022](https://github.com/gibahjoe/openapi-generator-dart/commit/2fdd022bbcca07dc03bd743e378dbc10b9f0503f))
+* **cli:** removed jar binary from library and made the jar downloadable by auto generated config ([ecb0e8a](https://github.com/gibahjoe/openapi-generator-dart/commit/ecb0e8a73ade46d9975b47a4c188c228795b8801)), closes [#153](https://github.com/gibahjoe/openapi-generator-dart/issues/153)
+
 ## [5.0.1](https://github.com/gibahjoe/openapi-generator-dart/compare/v5.0.0...v5.0.1) (2024-01-16)
 
 ### Bug Fixes
