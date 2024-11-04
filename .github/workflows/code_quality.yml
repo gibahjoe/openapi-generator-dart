@@ -45,7 +45,7 @@ jobs:
         run: melos exec -- "dart pub get"
 
       - name: Build runner
-        run: melos exec --scope=openapi-generator -- dart run build_runner build --delete-conflicting-outputs
+        run: melos exec --depends-on="build_runner" -- bash -c "cd \$MELOS_PACKAGE_PATH && dart run build_runner build --delete-conflicting-outputs"
       - name: Validate formatting
         run: melos format --set-exit-if-changed
       - name: Run analyzer
