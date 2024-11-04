@@ -28,9 +28,6 @@ jobs:
       - uses: bluefireteam/melos-action@v3
 #       - name: Checkout
 #         uses: actions/checkout@v3
-      - name: Start Docker compose containers
-#         if: ${{ matrix.work_dir == 'openapi-generator' }}
-        run: docker-compose -f "docker-compose.yaml" up -d --build
 #       - name: Setup Dart
 #         uses: dart-lang/setup-dart@v1
 #         with:
@@ -53,6 +50,14 @@ jobs:
         run: melos format --set-exit-if-changed
       - name: Run analyzer
         run: melos analyze --fatal-warnings
+
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+      - name: Start Docker compose containers
+#         if: ${{ matrix.work_dir == 'openapi-generator' }}
+        run: docker-compose -f "docker-compose.yaml" up -d --build
       - name: Run tests
         run: melos run test:all
 
@@ -90,6 +95,8 @@ jobs:
           fail_ci_if_error: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }} # Required only for private repositories
+      - name: Stop Docker Container
+        run: docker-compose -f "docker-compose.yaml" down
 
   build:
     name: Build example project 🛠️
