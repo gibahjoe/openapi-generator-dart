@@ -170,4 +170,5 @@ example/.dart_tool
 # Generated test output
 test/specs/test-cached.json
 test/specs/localstack/**
+test/specs/output-nextgen/**
 **/*.mocks.dart
