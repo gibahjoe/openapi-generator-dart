@@ -23,7 +23,6 @@ void main() {
     // });
     group('#137', () {
       var parentFolder = path.join(testSpecPath, 'issue', '137');
-      var workingDirectory = path.join(parentFolder, 'output');
       setUpAll(
         () {
           var workingDirectory = path.join(parentFolder, 'output');
@@ -34,7 +33,7 @@ void main() {
           () async {
         var annotatedFile =
             File('$parentFolder/github_issue_137_test_config.dart');
-        var annotatedFileContents = annotatedFile.readAsStringSync();
+        // var annotatedFileContents = annotatedFile.readAsStringSync();
         var inputSpecFile = File('$parentFolder/github_issue_#137.yaml');
         // final annotations = (await resolveSource(
         //     annotatedFileContents,
@@ -45,7 +44,7 @@ void main() {
         //     .map((e) => ConstantReader(e.computeConstantValue()!))
         //     .first;
         // final args = GeneratorArguments(annotations: annotations);
-        var generatedOutput = await generateForSource(annotatedFile.path,
+        await generateForSource(annotatedFile.path,
             openapiSpecFilePath: inputSpecFile.path);
 
         var workingDirectory = path.join(parentFolder, 'output');
@@ -73,7 +72,7 @@ void main() {
           () async {
         var annotatedFile =
             File('$parentFolder/github_issue_135_dart_test_config.dart');
-        var annotatedFileContents = annotatedFile.readAsStringSync();
+        // var annotatedFileContents = annotatedFile.readAsStringSync();
         var inputSpecFile = File('$parentFolder/github_issue_#135.json');
 
         var generatedOutput = await generateForSource(annotatedFile.path,
@@ -98,7 +97,7 @@ void main() {
         () async {
           var annotatedFile =
               File('$parentFolder/github_issue_135_dio_test_config.dart');
-          var annotatedFileContents = annotatedFile.readAsStringSync();
+          // var annotatedFileContents = annotatedFile.readAsStringSync();
           var inputSpecFile = File('$parentFolder/github_issue_#135.json');
 
           var generatedOutput = await generateForSource(annotatedFile.path,

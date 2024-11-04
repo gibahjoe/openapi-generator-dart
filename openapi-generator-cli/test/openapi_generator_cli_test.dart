@@ -72,8 +72,6 @@ void main() {
     await file.writeAsString('existing file content');
     final mockClient = MockClient((request) async {
       fail('HTTP client should not be called when file exists');
-      return http.Response.bytes(
-          List<int>.filled(1024, 1), 200); // 1 KB of dummy data
     });
     http.Client client = mockClient;
     await downloadJar(constructJarUrl('test'), jarFilePath, client: client);
@@ -84,12 +82,6 @@ void main() {
 
   test('executeWithClasspath runs the process with all JARs in the classpath',
       () async {
-    // Mock the HTTP client to avoid real network calls
-    final mockClient = MockClient((request) async {
-      return http.Response.bytes(
-          List<int>.filled(1024, 1), 200); // 1 KB of dummy data
-    });
-
     final jarPaths = [jarFilePath, customJarFilePath];
     final args = <String>[];
     final javaOpts = Platform.environment['JAVA_OPTS'] ?? '';

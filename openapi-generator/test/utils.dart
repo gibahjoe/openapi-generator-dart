@@ -63,6 +63,7 @@ Future<String> generateForSource(String annotatedFilePath,
 ///
 /// [path] available so an override for the adds generated comment test can
 /// compare the output.
+///
 @Deprecated('Use generateForSource instead')
 Future<String> generate(String source, {String path = 'lib/myapp.dart'}) async {
   final spec = File('${testSpecPath}openapi.test.yaml').readAsStringSync();
