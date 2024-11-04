@@ -74,10 +74,13 @@ jobs:
         run: dart pub global run combine_coverage --repo-path="."
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
-        env:
-          files: ./coverage/lcov.info
-          verbose: true
+        uses: codecov/codecov-action@v4
+        with:
+            directory: ./coverage/
+            fail_ci_if_error: true
+#             flags: unittests
+            token: ${{ secrets.CODECOV_TOKEN }}
+            verbose: true
 
       - name: Stop Docker Container
         run: melos exec --scope="openapi_generator" -- bash -c "cd \$MELOS_PACKAGE_PATH && docker-compose -f "docker-compose.yaml" down"
