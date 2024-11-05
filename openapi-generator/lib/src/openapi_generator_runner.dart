@@ -192,32 +192,41 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         await runOpenApiJar(arguments: args);
         await fetchDependencies(baseCommand: baseCommand, args: args);
         await generateSources(baseCommand: baseCommand, args: args);
-        if (!args.hasLocalCache) {
+        if (args.disableCache) {
           logOutputMessage(
             log: log,
             communication: OutputMessage(
-              message: 'No local cache found. Creating one.',
-              level: Level.CONFIG,
+              message: 'Cache disabled. Skipping cache update.',
             ),
           );
         } else {
+          if (!args.hasLocalCache) {
+            logOutputMessage(
+              log: log,
+              communication: OutputMessage(
+                message: 'No local cache found. Creating one.',
+                level: Level.CONFIG,
+              ),
+            );
+          } else {
+            logOutputMessage(
+              log: log,
+              communication: OutputMessage(
+                message: 'Local cache found. Overwriting existing one.',
+                level: Level.CONFIG,
+              ),
+            );
+          }
+          await cacheSpec(
+              outputLocation: args.cachePath,
+              spec: await loadSpec(specConfig: args.inputSpec));
           logOutputMessage(
             log: log,
             communication: OutputMessage(
-              message: 'Local cache found. Overwriting existing one.',
-              level: Level.CONFIG,
+              message: 'Successfully cached spec changes.',
             ),
           );
         }
-        await cacheSpec(
-            outputLocation: args.cachePath,
-            spec: await loadSpec(specConfig: args.inputSpec));
-        logOutputMessage(
-          log: log,
-          communication: OutputMessage(
-            message: 'Successfully cached spec changes.',
-          ),
-        );
       }
     } catch (e, st) {
       logOutputMessage(

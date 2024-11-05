@@ -129,6 +129,10 @@ class Openapi {
   /// Defaults to true
   final bool updateAnnotatedFile;
 
+  /// Whether to disable caching the spec file. Defaults to `true` if the
+  /// [inputSpec] is not a [RemoteSpec].
+  final bool disableCache;
+
   const Openapi({
     this.additionalProperties,
     this.skipSpecValidation = false,
@@ -150,7 +154,8 @@ class Openapi {
     this.projectPubspecPath,
     this.debugLogging = false,
     this.updateAnnotatedFile = true,
-  });
+    bool? disableCache,
+  }) : disableCache = disableCache ?? inputSpec is! RemoteSpec;
 }
 
 /// Provides the input spec file to be used.
