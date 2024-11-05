@@ -195,6 +195,88 @@ void main() {
         },
       );
     });
+
+    group('#115', () {
+      var issueNumber = '115';
+      var parentFolder = path.join(testSpecPath, 'issue', issueNumber);
+      var workingDirectory = path.join(parentFolder, 'output');
+      setUpAll(
+        () {
+          var workingDirectory = path.join(parentFolder, 'output');
+          cleanup(workingDirectory);
+        },
+      );
+      test(
+          '[dart] test that json parsing does not return wrong Set when uniqueItems is enabled',
+          () async {
+        var annotatedFile = File(
+            '$parentFolder/github_issue_${issueNumber}_dart_test_config.dart');
+        // var annotatedFileContents = annotatedFile.readAsStringSync();
+        var inputSpecFile =
+            File('$parentFolder/github_issue_#$issueNumber.json');
+
+        var generatedOutput = await generateForSource(
+          annotatedFile.path,
+          openapiSpecFilePath: inputSpecFile.path,
+          preProcessor: (annotatedFileContent) =>
+              annotatedFileContent.replaceAll('{{issueNumber}}', issueNumber),
+        );
+
+        expect(generatedOutput,
+            contains('Skipping source gen because generator does not need it.'),
+            reason: generatedOutput);
+        expect(generatedOutput, contains('Successfully formatted code.'),
+            reason: generatedOutput);
+        var analyzeResult = await Process.run(
+          'dart',
+          ['analyze', '--fatal-warnings'],
+          workingDirectory: workingDirectory,
+        );
+        expect(analyzeResult.exitCode, 0,
+            reason: '${analyzeResult.stdout}\n\n${analyzeResult.stderr}');
+        cleanup(workingDirectory);
+      });
+
+      test(
+        '[dio] test that json parsing does not return wrong Set when uniqueItems is enabled',
+        () async {
+          var annotatedFile = File(
+              '$parentFolder/github_issue_${issueNumber}_dio_test_config.dart');
+          // var annotatedFileContents = annotatedFile.readAsStringSync();
+          var inputSpecFile =
+              File('$parentFolder/github_issue_#$issueNumber.json');
+
+          var generatedOutput = await generateForSource(
+            annotatedFile.path,
+            openapiSpecFilePath: inputSpecFile.path,
+            preProcessor: (annotatedFileContent) =>
+                annotatedFileContent.replaceAll('{{issueNumber}}', issueNumber),
+          );
+
+          expect(
+              generatedOutput,
+              contains(
+                  'pub run build_runner build --delete-conflicting-outputs'),
+              reason: generatedOutput);
+          expect(generatedOutput, contains('Successfully formatted code.'),
+              reason: generatedOutput);
+          var workingDirectory = path.join(parentFolder, 'output');
+          await Process.run(
+            'dart',
+            ['fix', '--apply'],
+            workingDirectory: workingDirectory,
+          );
+          var analyzeResult = await Process.run(
+            'dart',
+            ['analyze', '--no-fatal-warnings'],
+            workingDirectory: workingDirectory,
+          );
+          expect(analyzeResult.exitCode, 0,
+              reason: '${analyzeResult.stdout}\n\n ${analyzeResult.stderr}');
+          cleanup(workingDirectory);
+        },
+      );
+    });
   });
 }
 
