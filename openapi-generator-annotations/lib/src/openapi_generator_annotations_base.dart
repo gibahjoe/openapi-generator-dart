@@ -125,13 +125,34 @@ class Openapi {
   /// Include in depth logging output from run commands.
   final bool debugLogging;
 
-  /// If set to true, the annotated file will be added or updated comment lines as of the last run date on the top of the file.
-  /// Defaults to true
-  final bool updateAnnotatedFile;
+  /// If `true`, the annotated file will be modified after code generation completes.
+  ///
+  /// This is a workaround to ensure this library runs every time you execute the `build_runner` command.
+  ///
+  /// **Why modify the file?**
+  ///
+  /// `build_runner` only processes files that have changed since the last run. By modifying the file, you
+  /// force `build_runner` to recognize it as changed and re-run the generation process.
+  ///
+  /// Note: Setting this to `true` can lead to merge conflicts in team environments,
+  /// as each developer may end up modifying the annotated file.
+  ///
+  /// This setting is different from [skipIfSpecIsUnchanged], which only regenerates
+  /// the client SDK if it detects changes in the OpenAPI specification.
+  ///
+  /// Defaults to [false].
+  final bool forceAlwaysRun;
 
-  /// Whether to disable caching the spec file. Defaults to `true` if the
-  /// [inputSpec] is not a [RemoteSpec].
-  final bool disableCache;
+  /// Skips execution if the OpenAPI specification file is older than the output folder.
+  ///
+  /// For remote specifications, the file will be downloaded and cached locally.
+  /// The cache is then compared to the remote file to detect any changes.
+  ///
+  /// **Default behavior:**
+  /// - If [inputSpec] is a [RemoteSpec], this is set to `true`, meaning execution will be skipped if no changes are detected.
+  /// - For all other cases, this is set to `false`.
+
+  final bool skipIfSpecIsUnchanged;
 
   const Openapi({
     this.additionalProperties,
@@ -153,9 +174,79 @@ class Openapi {
     this.cachePath,
     this.projectPubspecPath,
     this.debugLogging = false,
-    this.updateAnnotatedFile = true,
-    bool? disableCache,
-  }) : disableCache = disableCache ?? inputSpec is! RemoteSpec;
+    this.forceAlwaysRun = true,
+    bool? skipIfSpecIsUnchanged,
+  }) : skipIfSpecIsUnchanged = skipIfSpecIsUnchanged ?? inputSpec is RemoteSpec;
+
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+    buffer.writeln('@Openapi(');
+    if (additionalProperties != null) {
+      buffer.writeln('  additionalProperties: $additionalProperties,');
+    }
+    if (apiPackage != null) {
+      buffer.writeln('  apiPackage: "$apiPackage",');
+    }
+    buffer.writeln('  inputSpec: $inputSpec,');
+    if (templateDirectory != null) {
+      buffer.writeln('  templateDirectory: "$templateDirectory",');
+    }
+    buffer.writeln('  generatorName: $generatorName,');
+    if (outputDirectory != null) {
+      buffer.writeln('  outputDirectory: "$outputDirectory",');
+    }
+    if (cleanSubOutputDirectory != null) {
+      buffer.writeln(
+          '  cleanSubOutputDirectory: [${cleanSubOutputDirectory!.join(", ")}],');
+    }
+    if (skipSpecValidation != null) {
+      buffer.writeln('  skipSpecValidation: $skipSpecValidation,');
+    }
+    if (reservedWordsMappings != null) {
+      buffer.writeln(
+          '  reservedWordsMappings: ${reservedWordsMappings.toString()},');
+    }
+    if (fetchDependencies != null) {
+      buffer.writeln('  fetchDependencies: $fetchDependencies,');
+    }
+    if (runSourceGenOnOutput != null) {
+      buffer.writeln('  runSourceGenOnOutput: $runSourceGenOnOutput,');
+    }
+    if (typeMappings != null) {
+      buffer.writeln('  typeMappings: ${_formatMap(typeMappings!)},');
+    }
+    if (nameMappings != null) {
+      buffer.writeln('  nameMappings: ${_formatMap(nameMappings!)},');
+    }
+    if (importMappings != null) {
+      buffer.writeln('  importMappings: ${_formatMap(importMappings!)},');
+    }
+    if (inlineSchemaNameMappings != null) {
+      buffer.writeln(
+          '  inlineSchemaNameMappings: ${_formatMap(inlineSchemaNameMappings!)},');
+    }
+    if (cachePath != null) {
+      buffer.writeln('  cachePath: "$cachePath",');
+    }
+    if (projectPubspecPath != null) {
+      buffer.writeln('  projectPubspecPath: "$projectPubspecPath",');
+    }
+    buffer.writeln('  debugLogging: $debugLogging,');
+    buffer.writeln('  forceAlwaysRun: $forceAlwaysRun,');
+    buffer.writeln('  skipIfSpecIsUnchanged: $skipIfSpecIsUnchanged,');
+    buffer.write(')');
+    return buffer.toString();
+  }
+}
+
+String _formatMap(Map<String, String> map) {
+  final buffer = StringBuffer();
+  buffer.write('{');
+  buffer.writeAll(
+      map.entries.map((entry) => "'${entry.key}':'${entry.value}'"), ', ');
+  buffer.write('}');
+  return buffer.toString();
 }
 
 /// Provides the input spec file to be used.
@@ -173,6 +264,15 @@ class InputSpec {
       : this(path: 'openapi.y${shortExtension ? '' : 'a'}ml');
 
   InputSpec.fromMap(Map<String, dynamic> map) : this(path: map['path']);
+
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+    buffer.writeln('InputSpec(');
+    buffer.writeln('  path: "$path"');
+    buffer.write(')');
+    return buffer.toString();
+  }
 }
 
 /// Provides the location for the remote specification.
@@ -201,6 +301,16 @@ class RemoteSpec extends InputSpec {
       : headerDelegate =
             map['headerDelegate'] ?? const RemoteSpecHeaderDelegate(),
         super.fromMap(map);
+
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+    buffer.writeln('RemoteSpec(');
+    buffer.writeln('  path: "$path",');
+    buffer.writeln('  headerDelegate: $headerDelegate');
+    buffer.write(')');
+    return buffer.toString();
+  }
 }
 
 /// Default [RemoteSpecHeaderDelegate] used when retrieving a remote OAS spec.
@@ -210,6 +320,9 @@ class RemoteSpecHeaderDelegate {
   Map<String, String>? header() => null;
 
   RemoteSpecHeaderDelegate.fromMap(Map<String, dynamic> map) : this();
+
+  @override
+  String toString() => 'RemoteSpecHeaderDelegate()';
 }
 
 /// Indicates whether or not the spec file live within AWS.
@@ -434,6 +547,42 @@ class AdditionalProperties {
         if (sourceFolder != null) 'sourceFolder': sourceFolder,
         'wrapper': EnumTransformer.wrapperName(wrapper)
       };
+
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+    buffer.writeln('AdditionalProperties(');
+    if (allowUnicodeIdentifiers != null)
+      buffer.writeln('  allowUnicodeIdentifiers: $allowUnicodeIdentifiers,');
+    if (ensureUniqueParams != null)
+      buffer.writeln('  ensureUniqueParams: $ensureUniqueParams,');
+    if (prependFormOrBodyParameters != null)
+      buffer.writeln(
+          '  prependFormOrBodyParameters: $prependFormOrBodyParameters,');
+    if (pubAuthor != null) buffer.writeln('  pubAuthor: "$pubAuthor",');
+    if (pubAuthorEmail != null)
+      buffer.writeln('  pubAuthorEmail: "$pubAuthorEmail",');
+    if (pubDescription != null)
+      buffer.writeln('  pubDescription: "$pubDescription",');
+    if (pubHomepage != null) buffer.writeln('  pubHomepage: "$pubHomepage",');
+    if (pubName != null) buffer.writeln('  pubName: "$pubName",');
+    if (pubVersion != null) buffer.writeln('  pubVersion: "$pubVersion",');
+    if (sortModelPropertiesByRequiredFlag != null)
+      buffer.writeln(
+          '  sortModelPropertiesByRequiredFlag: $sortModelPropertiesByRequiredFlag,');
+    if (sortParamsByRequiredFlag != null)
+      buffer.writeln('  sortParamsByRequiredFlag: $sortParamsByRequiredFlag,');
+    if (sourceFolder != null)
+      buffer.writeln('  sourceFolder: "$sourceFolder",');
+    if (useEnumExtension != null)
+      buffer.writeln('  useEnumExtension: $useEnumExtension,');
+    buffer.writeln('  enumUnknownDefaultCase: $enumUnknownDefaultCase,');
+    buffer.writeln('  wrapper: $wrapper,');
+    buffer
+        .writeln('  legacyDiscriminatorBehavior: $legacyDiscriminatorBehavior');
+    buffer.write(')');
+    return buffer.toString();
+  }
 }
 
 /// Allows you to customize how inline schemas are handled or named
@@ -479,6 +628,22 @@ class InlineSchemaOptions {
         'refactorAllofInlineSchemas': refactorAllofInlineSchemas,
         'resolveInlineEnums': resolveInlineEnums,
       };
+
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+    buffer.writeln('InlineSchemaOptions(');
+    if (arrayItemSuffix != null)
+      buffer.writeln('  arrayItemSuffix: "$arrayItemSuffix",');
+    if (mapItemSuffix != null)
+      buffer.writeln('  mapItemSuffix: "$mapItemSuffix",');
+    buffer.writeln('  skipSchemaReuse: $skipSchemaReuse,');
+    buffer
+        .writeln('  refactorAllofInlineSchemas: $refactorAllofInlineSchemas,');
+    buffer.writeln('  resolveInlineEnums: $resolveInlineEnums');
+    buffer.write(')');
+    return buffer.toString();
+  }
 }
 
 class DioProperties extends AdditionalProperties {
@@ -542,6 +707,23 @@ class DioProperties extends AdditionalProperties {
         'serializationLibrary':
             EnumTransformer.dioSerializationLibraryName(serializationLibrary!),
     });
+
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+    buffer.writeln('DioProperties(');
+    buffer.writeln(super
+        .toString()
+        .replaceAll(RegExp(r'AdditionalProperties\(|\)$'), '')
+        .replaceAll('\n', '\n  ')); // Indent base class fields
+    if (dateLibrary != null) buffer.writeln('  dateLibrary: $dateLibrary,');
+    if (nullableFields != null)
+      buffer.writeln('  nullableFields: $nullableFields,');
+    if (serializationLibrary != null)
+      buffer.writeln('  serializationLibrary: $serializationLibrary,');
+    buffer.write(')');
+    return buffer.toString();
+  }
 }
 
 class DioAltProperties extends AdditionalProperties {
@@ -613,6 +795,28 @@ class DioAltProperties extends AdditionalProperties {
       if (pubspecDevDependencies != null)
         'pubspecDevDependencies': pubspecDevDependencies,
     });
+
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+    buffer.writeln('DioAltProperties(');
+
+    // Indent the fields from AdditionalProperties
+    buffer.writeln(super
+        .toString()
+        .replaceAll(RegExp(r'AdditionalProperties\(|\)$'), '')
+        .replaceAll('\n', '\n  '));
+
+    // Add DioAltProperties-specific fields
+    if (listAnyOf != null) buffer.writeln('  listAnyOf: $listAnyOf,');
+    if (pubspecDependencies != null)
+      buffer.writeln('  pubspecDependencies: "$pubspecDependencies",');
+    if (pubspecDevDependencies != null)
+      buffer.writeln('  pubspecDevDependencies: "$pubspecDevDependencies",');
+
+    buffer.write(')');
+    return buffer.toString();
+  }
 }
 
 enum DioDateLibrary {

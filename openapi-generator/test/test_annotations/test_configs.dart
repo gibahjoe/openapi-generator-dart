@@ -6,6 +6,8 @@ import 'package:source_gen_test/annotations.dart';
 @ShouldGenerate(r'''
 const fetchDependencies = true;
 
+const forceAlwaysRun = true;
+
 const generatorName = 'dio';
 
 const inputSpec = '';
@@ -13,8 +15,6 @@ const inputSpec = '';
 const runSourceGenOnOutput = true;
 
 const skipSpecValidation = false;
-
-const updateAnnotatedFile = true;
 ''')
 @Openapi(inputSpec: InputSpec(path: ''), generatorName: Generator.dio)
 class TestClassDefault {}
@@ -24,6 +24,8 @@ const additionalProperties = wrapper = 'flutterw';
 
 const fetchDependencies = true;
 
+const forceAlwaysRun = true;
+
 const generatorName = 'dart';
 
 const inputSpec = '';
@@ -31,8 +33,6 @@ const inputSpec = '';
 const runSourceGenOnOutput = true;
 
 const skipSpecValidation = false;
-
-const updateAnnotatedFile = true;
 ''')
 @Openapi(
   inputSpec: InputSpec(path: ''),
@@ -46,6 +46,8 @@ const additionalProperties = wrapper = 'flutterw', nullableFields = 'true';
 
 const fetchDependencies = true;
 
+const forceAlwaysRun = true;
+
 const generatorName = 'dart';
 
 const inputSpec = '';
@@ -53,8 +55,6 @@ const inputSpec = '';
 const runSourceGenOnOutput = true;
 
 const skipSpecValidation = false;
-
-const updateAnnotatedFile = true;
 ''')
 @Openapi(
   inputSpec: InputSpec(path: ''),

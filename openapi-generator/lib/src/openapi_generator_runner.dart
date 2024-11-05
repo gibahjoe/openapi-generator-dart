@@ -80,7 +80,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
 
   /// Runs the OpenAPI compiler with the given [args].
   Future<void> runOpenApiJar({required GeneratorArguments arguments}) async {
-    final args = await arguments.jarArgs;
+    final args = arguments.jarArgs;
     logOutputMessage(
       log: log,
       communication: OutputMessage(
@@ -135,7 +135,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     if (result.exitCode != 0) {
       return Future.error(
         OutputMessage(
-          message: 'Codegen Failed. Generator output:',
+          message: 'Client SDK generation failed. Generator output:',
           level: Level.SEVERE,
           additionalContext: result.stderr,
           stackTrace: StackTrace.current,
@@ -169,76 +169,30 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         log: log,
         communication: OutputMessage(
           message:
-              'Using a remote specification, a cache will still be create but may be outdated.',
+              'Using a remote specification, a cache will still be created but may be outdated.',
           level: Level.WARNING,
         ),
       );
     }
     try {
-      if (!await hasDiff(args: args)) {
+      if (!await hasDiff(args: args) && args.skipIfSpecIsUnchanged) {
         logOutputMessage(
           log: log,
           communication: OutputMessage(
             message: 'No diff between versions, not running generator.',
           ),
         );
-      } else {
-        logOutputMessage(
-          log: log,
-          communication: OutputMessage(
-            message: 'Dirty Spec found. Running generation.',
-          ),
-        );
-        await runOpenApiJar(arguments: args);
-        await fetchDependencies(baseCommand: baseCommand, args: args);
-        await generateSources(baseCommand: baseCommand, args: args);
-        if (args.disableCache) {
-          logOutputMessage(
-            log: log,
-            communication: OutputMessage(
-              message: 'Cache disabled. Skipping cache update.',
-            ),
-          );
-        } else {
-          if (!args.hasLocalCache) {
-            logOutputMessage(
-              log: log,
-              communication: OutputMessage(
-                message: 'No local cache found. Creating one.',
-                level: Level.CONFIG,
-              ),
-            );
-          } else {
-            logOutputMessage(
-              log: log,
-              communication: OutputMessage(
-                message: 'Local cache found. Overwriting existing one.',
-                level: Level.CONFIG,
-              ),
-            );
-          }
-          await cacheSpec(
-              outputLocation: args.cachePath,
-              spec: await loadSpec(specConfig: args.inputSpec));
-          logOutputMessage(
-            log: log,
-            communication: OutputMessage(
-              message: 'Successfully cached spec changes.',
-            ),
-          );
-        }
+        return '';
       }
-    } catch (e, st) {
       logOutputMessage(
         log: log,
         communication: OutputMessage(
-          message: 'Failed to generate content.',
-          additionalContext: e,
-          stackTrace: st,
-          level: Level.SEVERE,
+          message: 'Dirty Spec found. Running generation.',
         ),
       );
-    } finally {
+      await runOpenApiJar(arguments: args);
+      await fetchDependencies(baseCommand: baseCommand, args: args);
+      await generateSources(baseCommand: baseCommand, args: args);
       await formatCode(args: args).then(
         (_) {},
         onError: (e, st) => logOutputMessage(
@@ -251,7 +205,55 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           ),
         ),
       );
-      if (args.updateAnnotatedFile) {
+      if (!args.skipIfSpecIsUnchanged) {
+        logOutputMessage(
+          log: log,
+          communication: OutputMessage(
+            message:
+                'Skip spec cache because [skipIfSpecIsUnchanged] is set to false',
+          ),
+        );
+        return '';
+      } else {
+        if (!args.hasLocalCache) {
+          logOutputMessage(
+            log: log,
+            communication: OutputMessage(
+              message: 'No local cache found. Creating one.',
+              level: Level.CONFIG,
+            ),
+          );
+        } else {
+          logOutputMessage(
+            log: log,
+            communication: OutputMessage(
+              message: 'Local cache found. Overwriting existing one.',
+              level: Level.CONFIG,
+            ),
+          );
+        }
+        await cacheSpec(
+            outputLocation: args.cachePath,
+            spec: await loadSpec(specConfig: args.inputSpec));
+        logOutputMessage(
+          log: log,
+          communication: OutputMessage(
+            message: 'Successfully cached spec changes.',
+          ),
+        );
+      }
+    } catch (e, st) {
+      logOutputMessage(
+        log: log,
+        communication: OutputMessage(
+          message: 'Failed to generate content.',
+          additionalContext: e,
+          stackTrace: st,
+          level: Level.SEVERE,
+        ),
+      );
+    } finally {
+      if (args.forceAlwaysRun) {
         await updateAnnotatedFile(annotatedPath: annotatedPath).then(
           (_) => logOutputMessage(
             log: log,
@@ -275,7 +277,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           log: log,
           communication: OutputMessage(
             message:
-                'Skipped updating annotated file step because flag was set.',
+                'Skipped updating annotated file step because [forceAlwaysRun] was set to [${args.forceAlwaysRun}].',
             level: Level.WARNING,
           ),
         );
@@ -329,31 +331,33 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           level: Level.WARNING,
         ),
       );
-    } else if (!args.shouldGenerateSources) {
+      return;
+    }
+    if (!args.shouldGenerateSources) {
       logOutputMessage(
         log: log,
         communication: OutputMessage(
           message: 'Skipping source gen because generator does not need it.',
         ),
       );
-    } else {
-      return await runSourceGen(baseCommand: baseCommand, args: args).then(
-        (_) => logOutputMessage(
-          log: log,
-          communication: OutputMessage(
-            message: 'Sources generated successfully.',
-          ),
-        ),
-        onError: (e, st) => Future.error(
-          OutputMessage(
-            message: 'Could not complete source generation',
-            additionalContext: e,
-            stackTrace: st,
-            level: Level.SEVERE,
-          ),
-        ),
-      );
+      return;
     }
+    return await runSourceGen(baseCommand: baseCommand, args: args).then(
+      (_) => logOutputMessage(
+        log: log,
+        communication: OutputMessage(
+          message: 'Sources generated successfully.',
+        ),
+      ),
+      onError: (e, st) => Future.error(
+        OutputMessage(
+          message: 'Could not complete source generation',
+          additionalContext: e,
+          stackTrace: st,
+          level: Level.SEVERE,
+        ),
+      ),
+    );
   }
 
   /// Runs build_runner on the newly generated library in [args.outputDirectory].
@@ -418,49 +422,48 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           level: Level.WARNING,
         ),
       );
-    } else {
-      final command = Command(
-          executable: baseCommand,
-          arguments: ['pub', 'get'],
-          wrapper: args.wrapper);
+      return;
+    }
+    final command = Command(
+        executable: baseCommand,
+        arguments: ['pub', 'get'],
+        wrapper: args.wrapper);
 
-      logOutputMessage(
-        log: log,
-        communication: OutputMessage(
-          message:
-              'Installing dependencies with generated source. ${command.executable} ${command.arguments.join(' ')}',
+    logOutputMessage(
+      log: log,
+      communication: OutputMessage(
+        message:
+            'Installing dependencies with generated source. [${command.executable} ${command.arguments.join(' ')}] in dir [${args.outputDirectory}]',
+      ),
+    );
+
+    ProcessResult results;
+    results = await _processRunner.run(
+      command.executable,
+      command.arguments,
+      runInShell: Platform.isWindows,
+      workingDirectory: args.outputDirectory,
+    );
+
+    if (results.exitCode != 0) {
+      return Future.error(
+        OutputMessage(
+          message: 'Install within generated sources failed.',
+          level: Level.SEVERE,
+          additionalContext: results.stderr,
+          stackTrace: StackTrace.current,
         ),
       );
-
-      ProcessResult results;
-      results = await _processRunner.run(
-        command.executable,
-        command.arguments,
-        runInShell: Platform.isWindows,
-        workingDirectory: args.outputDirectory,
-      );
-
-      if (results.exitCode != 0) {
-        return Future.error(
-          OutputMessage(
-            message: 'Install within generated sources failed.',
-            level: Level.SEVERE,
-            additionalContext: results.stderr,
-            stackTrace: StackTrace.current,
-          ),
-        );
-      } else {
-        logOutputMessage(
-          log: log,
-          communication: OutputMessage(
-            message: [
-              if (args.isDebug) results.stdout,
-              'Install completed successfully.',
-            ].join('\n'),
-          ),
-        );
-      }
     }
+    logOutputMessage(
+      log: log,
+      communication: OutputMessage(
+        message: [
+          if (args.isDebug) results.stdout,
+          'Install completed successfully.',
+        ].join('\n'),
+      ),
+    );
   }
 
   /// Update the currently cached spec with the [updatedSpec].

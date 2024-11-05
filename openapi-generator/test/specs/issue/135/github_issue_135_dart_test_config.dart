@@ -4,7 +4,7 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
     inputSpec: InputSpec(
       path: './test/specs/issue/135/github_issue_#135.json',
     ),
-    updateAnnotatedFile: false,
+    forceAlwaysRun: false,
     additionalProperties:
         AdditionalProperties(pubName: 'salad_api_client', pubAuthor: 'Google'),
     generatorName: Generator.dart,

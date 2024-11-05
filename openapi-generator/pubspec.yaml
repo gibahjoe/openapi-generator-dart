@@ -24,4 +24,5 @@ dev_dependencies:
   source_gen_test:
   test_process:
   pedantic:
+  build_runner:
   coverage: ^1.6.3

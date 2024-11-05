@@ -19,6 +19,6 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
       wrapper: Wrapper.fvm, useEnumExtension: true, pubAuthor: 'test author'),
   inlineSchemaNameMappings: {'200resp': 'OkResp'},
   projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
-  updateAnnotatedFile: true,
+  forceAlwaysRun: true,
 )
 class DioAltPropertiesTestConfig {}

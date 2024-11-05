@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:openapi_generator/src/extensions/type_methods.dart';
@@ -22,7 +21,7 @@ class GeneratorArguments {
   final String cachePath;
 
   /// Informs the generator to disable the cache.
-  final bool disableCache;
+  final bool skipIfSpecIsUnchanged;
 
   final bool isDebug;
 
@@ -59,7 +58,7 @@ class GeneratorArguments {
   /// so that it is executed when next build runner is run
   ///
   /// Default: true
-  final bool updateAnnotatedFile;
+  final bool forceAlwaysRun;
 
   /// Provides an OAS spec file.
   ///
@@ -122,8 +121,8 @@ class GeneratorArguments {
             annotations.readPropertyOrDefault('runSourceGenOnOutput', true),
         shouldFetchDependencies =
             annotations.readPropertyOrDefault('fetchDependencies', true),
-        updateAnnotatedFile =
-            annotations.readPropertyOrDefault('updateAnnotatedFile', true),
+        forceAlwaysRun =
+            annotations.readPropertyOrDefault('forceAlwaysRun', false),
         outputDirectory = annotations.readPropertyOrNull('outputDirectory'),
         cleanSubOutputDirectory =
             annotations.readPropertyOrNull('cleanSubOutputDirectory'),
@@ -135,7 +134,8 @@ class GeneratorArguments {
         isDebug = annotations.readPropertyOrDefault('debugLogging', false),
         inputSpec =
             annotations.readPropertyOrDefault('inputSpec', InputSpec.json()),
-        disableCache = annotations.readPropertyOrDefault('disableCache', false);
+        skipIfSpecIsUnchanged =
+            annotations.readPropertyOrDefault('skipIfSpecIsUnchanged', false);
 
   /// The stringified name of the [Generator].
   String get generatorName => generator == Generator.dart
@@ -144,7 +144,7 @@ class GeneratorArguments {
           ? 'dart-dio'
           : 'dart2-api';
 
-  /// Informs the generator to generate source based on the [generator].
+  /// Determines if `build_runner` may be needed to run on the generated client SDK
   ///
   /// This is only false in the case where [generator] is set to [Generator.dart]
   /// as that version of the [Generator] uses the 'dart:http' library as the
@@ -175,7 +175,7 @@ class GeneratorArguments {
   }
 
   /// The arguments to be passed to generator jar file.
-  FutureOr<List<String>> get jarArgs async => [
+  List<String> get jarArgs => [
         'generate',
         if (outputDirectory?.isNotEmpty ?? false) '-o=$outputDirectory',
         '-i=$inputFileOrFetch',

@@ -2,15 +2,16 @@ targets:
   $default:
     builders:
       openapi_generator:
-        enabled: true
+        generate_for:
+          - test/utils.dart
 
-builders:
-  openapi_generator:
-    target: ":openapi_generator"
-    import: "package:openapi_generator/src/builder.dart"
-    builder_factories: ["openapiGenerator"]
-    build_extensions: {".dart": [".g.part"]}
-    auto_apply: dependents
-    build_to: cache
-    applies_builders: ["source_gen|combining_builder"]
-    runs_before: ["source_gen|combining_builder"]
+# builders:
+#   openapi_generator:
+#     target: ":openapi_generator"
+#     import: "package:openapi_generator/src/builder.dart"
+#     builder_factories: ["openapiGenerator"]
+#     build_extensions: {".dart": [".g.part"]}
+#     auto_apply: dependents
+#     build_to: cache
+#     applies_builders: ["source_gen|combining_builder"]
+#     runs_before: ["source_gen|combining_builder"]

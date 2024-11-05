@@ -58,12 +58,16 @@ void main() {
     });
     http.Client client = mockClient;
 
+    var jarFile = File(jarFilePath);
+    expect(jarFile.existsSync(), isFalse);
     await downloadJar(constructJarUrl('test'), jarFilePath, client: client);
 
     // Verify the file was downloaded
-    final jarFile = File(jarFilePath);
     expect(await jarFile.exists(), isTrue);
+    printOnFailure('Downloaded Jar content');
+    printOnFailure(jarFile.readAsStringSync());
     expect(await jarFile.length(), greaterThan(0));
+    jarFile.deleteSync();
   });
 
   test('downloadJar does not download if file already exists', () async {
@@ -78,6 +82,7 @@ void main() {
     // Verify that the file content was not overwritten
     final content = await file.readAsString();
     expect(content, equals('existing file content'));
+    file.deleteSync();
   });
 
   test('executeWithClasspath runs the process with all JARs in the classpath',

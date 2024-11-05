@@ -6,7 +6,7 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
           'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml',
     ),
     generatorName: Generator.dio,
-    updateAnnotatedFile: false,
+    forceAlwaysRun: false,
     cachePath: './test/specs/output-nextgen/expected-args/cache.json',
     outputDirectory: './test/specs/output-nextgen/expected-args')
 class TestClassConfig {}

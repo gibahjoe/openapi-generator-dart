@@ -47,7 +47,7 @@ class TestGenerator extends src_gen.GeneratorForAnnotation<Openapi> {
       SupportedFields(name: 'runSourceGenOnOutput', type: bool),
       SupportedFields(name: 'cachePath', type: String),
       SupportedFields(name: 'projectPubspecPath', type: String),
-      SupportedFields(name: 'updateAnnotatedFile', type: bool),
+      SupportedFields(name: 'forceAlwaysRun', type: bool),
     ]..sort((a, b) => a.name.compareTo(b.name));
     for (final field in fields) {
       final v = annotation.read(field.name);

@@ -52,12 +52,12 @@ void main() {
             debugLogging: true);
         expect(api.debugLogging, isTrue);
       });
-      test('Sets updateAnnotatedFile', () {
+      test('Sets forceAlwaysRun', () {
         final api = Openapi(
             inputSpec: InputSpec.json(),
             generatorName: Generator.dart,
-            updateAnnotatedFile: false);
-        expect(api.updateAnnotatedFile, isFalse);
+            forceAlwaysRun: false);
+        expect(api.forceAlwaysRun, isFalse);
       });
       group('InputSpec', () {
         group('local spec', () {

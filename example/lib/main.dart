@@ -12,7 +12,7 @@ void main() {
       RemoteSpec(path: 'https://petstore3.swagger.io/api/v3/openapi.json'),
   typeMappings: {'Pet': 'ExamplePet'},
   generatorName: Generator.dioAlt,
-  updateAnnotatedFile: false,
+  forceAlwaysRun: false,
   runSourceGenOnOutput: true,
   outputDirectory: 'api/petstore_api',
 )
