@@ -13,7 +13,7 @@ void main() {
         generatorName: Generator.dart,
       );
       expect(props.additionalProperties, isNull);
-      expect(props.skipSpecValidation, false);
+      expect(props.skipSpecValidation, isFalse);
       expect(props.inputSpec.path, InputSpec.json().path);
       expect(props.templateDirectory, isNull);
       expect(props.generatorName, Generator.dart);
@@ -23,12 +23,13 @@ void main() {
       expect(props.reservedWordsMappings, isNull);
       expect(props.inlineSchemaNameMappings, isNull);
       expect(props.apiPackage, isNull);
-      expect(props.fetchDependencies, true);
-      expect(props.runSourceGenOnOutput, true);
+      expect(props.fetchDependencies, isTrue);
+      expect(props.runSourceGenOnOutput, isTrue);
       expect(props.cachePath, isNull);
       expect(props.projectPubspecPath, isNull);
       expect(props.debugLogging, isFalse);
       expect(props.nameMappings, isNull);
+      expect(props.skipIfSpecIsUnchanged, isTrue);
     });
     group('NextGen', () {
       test('Sets cachePath', () {

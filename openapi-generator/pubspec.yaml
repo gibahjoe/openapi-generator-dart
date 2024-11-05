@@ -10,9 +10,11 @@ dependencies:
   build: '>=1.0.0 <=3.0.0'
   source_gen: '>=1.0.0 <=2.0.0'
   path: '>=1.0.0 <=2.0.0'
-  openapi_generator_annotations: '5.0.2'
+  openapi_generator_annotations: ^6.0.0
   analyzer: '>=2.0.0 <7.0.0'
-  openapi_generator_cli: '>5.0.2 <7.0.0'
+  openapi_generator_cli: ^6.0.0
+  crypto: '>=3.0.6 <=4.0.0'
+  meta: '>=1.16.0 <=2.0.0'
   yaml: ^3.1.2
   http: '>=0.13.1 <=2.0.0'
   logging: '>=1.0.0 <=2.0.0'

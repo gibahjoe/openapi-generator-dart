@@ -143,15 +143,14 @@ class Openapi {
   /// Defaults to [false].
   final bool forceAlwaysRun;
 
-  /// Skips execution if the OpenAPI specification file is older than the output folder.
+  /// Skips execution if the OpenAPI specification file is different from a cached copy.
   ///
   /// For remote specifications, the file will be downloaded and cached locally.
   /// The cache is then compared to the remote file to detect any changes.
   ///
-  /// **Default behavior:**
-  /// - If [inputSpec] is a [RemoteSpec], this is set to `true`, meaning execution will be skipped if no changes are detected.
-  /// - For all other cases, this is set to `false`.
-
+  /// If set to false, a cached copy of the OpenAPI specification file is not kept.
+  ///
+  /// Defaults to [true].
   final bool skipIfSpecIsUnchanged;
 
   const Openapi({
@@ -175,8 +174,8 @@ class Openapi {
     this.projectPubspecPath,
     this.debugLogging = false,
     this.forceAlwaysRun = true,
-    bool? skipIfSpecIsUnchanged,
-  }) : skipIfSpecIsUnchanged = skipIfSpecIsUnchanged ?? inputSpec is RemoteSpec;
+    this.skipIfSpecIsUnchanged = true,
+  });
 
   @override
   String toString() {

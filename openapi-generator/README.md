@@ -11,7 +11,7 @@ To be used together with [openapi-generator-annotations](https://pub.dev/package
 
 1. **Java**: You must have java installed on your system for this library to work. if you are a developer, chances aare
    you already. Walking you through how to install Java is beyond the scope of this project.
-2. **Internet**: _duh!!!_  Just to download the openapi jar initially. Once it is cached, you are good to go.
+2. **Internet Connection**: _duh!!!_  Just to download the openapi jar initially. Once it is cached, you are good to go.
 
 ## Usage
 
@@ -31,16 +31,20 @@ dev_dependencies:
   openapi_generator: ^latest
 ```
 
-Annotate a dart class with @Openapi() annotation
+Annotate any dart class with @Openapi() annotation
 
 ```dart
 @Openapi(
-    additionalProperties:
-    AdditionalProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep'),
-    inputSpecFile: 'example/openapi-spec.yaml',
-    generatorName: Generator.dart,
-    outputDirectory: 'api/petstore_api')
-class Example extends OpenapiGeneratorConfig {}
+   additionalProperties:
+   DioProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep..'),
+   inputSpec:
+   RemoteSpec(path: 'https://petstore3.swagger.io/api/v3/openapi.json'),
+   typeMappings: {'Pet': 'ExamplePet'},
+   generatorName: Generator.dio,
+   runSourceGenOnOutput: true,
+   outputDirectory: 'api/petstore_api',
+)
+class Example {}
 ```
 
 Run command below to generate open api client sdk from spec file specified in annotation.
@@ -51,39 +55,51 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 The api sdk will be generated in the folder specified in the annotation. See examples for more details
 
-## Next Generation
-
-As of version 5.0 of this library, there is some new functionality that has been added to the generator. This version
+As of version 6.0 of this library, there is some new functionality that has been added to the generator. This version
 will have the ability to:
 
-- cache changes in the openapi spec
-- Rerun when there ares difference in the cached copy and current copy
-- Pull from a remote source and cache that.
-    - **Note**: This means that your cache could be potentially stale. But in that case this flow will still pull the
-      latest and run.
-    - While this is a possible usage, if you are actively developing your spec it is preferred you provide a local copy.
-- Skip generation based off:
-    - Flags
-    - No difference between the cache and local
-- And all the functionality provided previously.
+- `skipIfSpecUnchanged`: Set to `false` if you want the library to generate the client SDK each time, even without
+  changes in the OpenAPI spec. Defaults to `true`.
+- `forceAlwaysRun` (**Breaking Change**): Forces `build_runner` to detect changes by marking the annotated file. May
+  cause merge conflicts in team environments, so it defaults to `false`.
 
-Your original workflow stay the same but there is a slight difference in the annotations.
+## Usage (pre 5.0.0 versions)
 
-New:
+Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generator_annotations) as a dependency in the
+dependencies section of your pubspec.yaml file :
+
+```yaml
+dependencies:
+   openapi_generator_annotations: ^latest
+```
+
+Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev dependencies section of your pubspec.yaml
+file:
+
+```yaml
+dev_dependencies:
+   openapi_generator: ^latest
+```
+
+Annotate any dart class with @Openapi() annotation
 
 ```dart
 @Openapi(
-  additionalProperties:
-  DioProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep..'),
-  inputSpec:
-  RemoteSpec(path: 'https://petstore3.swagger.io/api/v3/openapi.json'),
-  typeMappings: {'Pet': 'ExamplePet'},
-  generatorName: Generator.dio,
-  runSourceGenOnOutput: true,
-  outputDirectory: 'api/petstore_api',
-)
-class Example {}
+        additionalProperties:
+        AdditionalProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep'),
+        inputSpecFile: 'example/openapi-spec.yaml',
+        generatorName: Generator.dart,
+        outputDirectory: 'api/petstore_api')
+class Example extends OpenapiGeneratorConfig {}
 ```
+
+Run command below to generate open api client sdk from spec file specified in annotation.
+
+```cmd
+flutter pub run build_runner build --delete-conflicting-outputs
+```
+
+The api sdk will be generated in the folder specified in the annotation. See examples for more details
 
 ## Known Issues
 
