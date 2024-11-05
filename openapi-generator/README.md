@@ -7,6 +7,12 @@ flutter/dart projects. (see example)
 
 To be used together with [openapi-generator-annotations](https://pub.dev/packages/openapi_generator_annotations)
 
+## Requirements
+
+1. **Java**: You must have java installed on your system for this library to work. if you are a developer, chances aare
+   you already. Walking you through how to install Java is beyond the scope of this project.
+2. **Internet**: _duh!!!_  Just to download the openapi jar initially. Once it is cached, you are good to go.
+
 ## Usage
 
 Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generator_annotations) as a dependency in the
@@ -14,7 +20,7 @@ dependencies section of your pubspec.yaml file :
 
 ```yaml
 dependencies:
-  openapi_generator_annotations: ^4.11.0
+  openapi_generator_annotations: ^latest
 ```
 
 Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev dependencies section of your pubspec.yaml
@@ -22,7 +28,7 @@ file:
 
 ```yaml
 dev_dependencies:
-  openapi_generator: ^4.11.0
+  openapi_generator: ^latest
 ```
 
 Annotate a dart class with @Openapi() annotation
@@ -94,7 +100,7 @@ in generatedsource/pubspec.yaml add the following
 
 ```yaml
 dependency_overrides:
-  analyzer: 1.0.0
+  analyzer: <-- preferred version -->
 ```
 
 Then in generatedsources/.openapi-generator-ignore, add the below so that the pubspec is not overwritten next time you
@@ -125,7 +131,7 @@ Dart's reserved names, you should edit the OpenAPI documentation to fix the issu
 If correcting the OpenAPI documentation is not possible or you don't have access to it, you can manually fix the
 generated code.
 
-Here are the steps to do this:
+Here are the steps to take to do this:
 
 1. Identify the files with the bad code and manually correct them.
 2. Add the manually edited files to the `.openapi-generator-ignore` file. This ensures that your changes are not
