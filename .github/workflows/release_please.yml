@@ -1,10 +1,6 @@
-name: release-please
+name: 'release-please 🙏'
 on:
   push:
-    branches:
-      - master
-  pull_request:
-    types: [closed]
     branches:
       - master
   workflow_dispatch:
@@ -17,7 +13,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: google-github-actions/release-please-action@v3
+      - uses: google-github-actions/release-please-action@v4
         with:
           command: manifest
           token: ${{ secrets.OG_BOT_TOKEN }}
