@@ -11,9 +11,9 @@ void main() {
   inputSpec:
       RemoteSpec(path: 'https://petstore3.swagger.io/api/v3/openapi.json'),
   typeMappings: {'Pet': 'ExamplePet'},
-  generatorName: Generator.dioAlt,
-  forceAlwaysRun: false,
+  generatorName: Generator.dio,
   runSourceGenOnOutput: true,
+  skipIfSpecIsUnchanged: false,
   outputDirectory: 'api/petstore_api',
 )
 class MyApp extends StatelessWidget {
