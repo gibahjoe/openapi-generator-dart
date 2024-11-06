@@ -15,7 +15,6 @@ permissions:
 
 jobs:
   release-please:
-    if: github.event_name != 'pull_request' || (github.event.pull_request.merged && github.event.pull_request.head.ref !~ 'release-please/.*')
     runs-on: ubuntu-latest
     steps:
       - uses: google-github-actions/release-please-action@v3
