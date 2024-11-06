@@ -14,9 +14,6 @@
       "component": "openapi-generator-cli"
     }
   },
-  "bump-minor-pre-major": false,
-  "bump-patch-for-minor-pre-major": false,
-  "skip-github-release": true,
   "plugins": [
     {
       "type": "linked-versions",

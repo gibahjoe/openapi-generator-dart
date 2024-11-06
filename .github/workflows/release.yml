@@ -1,4 +1,4 @@
-name: Stable release 🕊️📦
+name: Stable release 🕊️📦✅
 
 on:
   release:
@@ -10,15 +10,16 @@ on:
 jobs:
   test:
     uses: gibahjoe/openapi-generator-dart/.github/workflows/code_quality.yml@master
+    secrets: inherit
   publish:
     name: Publish Packages with Melos
     runs-on: ubuntu-latest
     needs: [test]
     steps:
       - uses: actions/checkout@v4
-      - uses: dart-lang/setup-dart@v1
+      - uses: subosito/flutter-action@v2
       - uses: bluefireteam/melos-action@v3
-      - name: Authenticate with Pub
-        run: echo "${{ secrets.PUB_CREDENTIAL_JSON }}" > ~/.pub-cache/credentials.json
+      - uses: dart-lang/setup-dart@v1
+
       - name: Publish
         run: melos publish --no-dry-run --yes
