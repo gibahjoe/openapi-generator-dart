@@ -4,6 +4,33 @@
 
 * fixed spec diff tracking
 
+## [6.0.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v5.0.3...v6.0.0) (2024-11-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* `forceAlwaysRun` is used to represent if the library should run  everytime `build_runner` is executed. This is done by modifying the annotated file after `build_runner` completes. Previous versions of this library did not have this flag but they had the equivalent of `true`. However, this now defaults to `false`. To keep previous behavior, set this flag to `true`.
+
+### Features
+
+* add --name-mappings param support for generator ([f5c6aed](https://github.com/gibahjoe/openapi-generator-dart/commit/f5c6aed0408de33c8f273f6e21aacb42a34cbbc1))
+* added fields `skipIfSpecUnchanged` and `forceAlwaysRun` ([d5555dd](https://github.com/gibahjoe/openapi-generator-dart/commit/d5555dda4281091102342ade5c0103c9757ac3c4))
+* annotated file updating made optional by argument ([c108469](https://github.com/gibahjoe/openapi-generator-dart/commit/c108469787da68794dce7ca595387539e009eb50))
+* **annotations:** fixed issue with DioSerializationLibrary and updated tests ([c9a179a](https://github.com/gibahjoe/openapi-generator-dart/commit/c9a179ab8271e439c246b47c6fdd43ac272a1137)), closes [#152](https://github.com/gibahjoe/openapi-generator-dart/issues/152)
+* Changing to a config based approach for obtaining the official openapi generator jar. ([05d61f7](https://github.com/gibahjoe/openapi-generator-dart/commit/05d61f7f323479af971dbfc3c07377cc57ce6792))
+
+
+### Bug Fixes
+
+* **annotations:** added doc for --name-mappings and moved some things around ([f2d6c04](https://github.com/gibahjoe/openapi-generator-dart/commit/f2d6c045ab36f4dd5a313b8a7850f38cd98ed0ba)), closes [#114](https://github.com/gibahjoe/openapi-generator-dart/issues/114)
+* dart format ([af19a8e](https://github.com/gibahjoe/openapi-generator-dart/commit/af19a8e6f85f6c6b0b144acc3e6e5762641974ae))
+* fixed ci ([fe64d7a](https://github.com/gibahjoe/openapi-generator-dart/commit/fe64d7a294ce417d8cec91ee5da4a905e9eb30cc))
+* fixed failing tests ([f1c0a1c](https://github.com/gibahjoe/openapi-generator-dart/commit/f1c0a1c8b5f17771ae29dc3f8f11c196c8f8248b))
+* fixes some tests ([79c9ce7](https://github.com/gibahjoe/openapi-generator-dart/commit/79c9ce77fb6627797299eb9f1fd3f545b176863f))
+* removed unsupported field ([27eb1af](https://github.com/gibahjoe/openapi-generator-dart/commit/27eb1af9abcd7338dd06e8c52f13f9713111ecd0))
+* removed unsupported field ([27eb1af](https://github.com/gibahjoe/openapi-generator-dart/commit/27eb1af9abcd7338dd06e8c52f13f9713111ecd0))
+* removed unsupported field ([27eb1af](https://github.com/gibahjoe/openapi-generator-dart/commit/27eb1af9abcd7338dd06e8c52f13f9713111ecd0))
+
 ## [5.0.1](https://github.com/gibahjoe/openapi-generator-dart/compare/v5.0.0...v5.0.1) (2024-01-16)
 
 ### Bug Fixes
