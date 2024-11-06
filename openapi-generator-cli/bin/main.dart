@@ -209,8 +209,8 @@ Future<void> runMain({
 
     // Prepare additional arguments, excluding the --config flag and its value
     final filteredArguments = <String>[
-      ...additionalCommands.split(' '),
       ...arguments.where((arg) => arg != '--config' && arg != configFilePath),
+      additionalCommands,
     ];
 
     // Execute with classpath

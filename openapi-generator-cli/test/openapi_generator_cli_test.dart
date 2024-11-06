@@ -203,6 +203,50 @@ void main() {
     expect(exitCode, equals(1));
     expect(logBuffer.toString(), contains('Error: FileSystemException'));
   });
+
+  // New Test: Check execution of additional commands from config
+  test(
+      'additional commands in config are appended to end of generation command.',
+      () async {
+    final mockCommands = 'validate generate';
+    final configData = {
+      ConfigKeys.openapiGeneratorVersion: '5.0.0',
+      ConfigKeys.additionalCommands: mockCommands,
+      ConfigKeys.jarCachePath: '.dart_tool/openapi_generator_cache',
+    };
+
+    var executedCommands = <String>[];
+    Future<void> mockExecuteWithClasspath(
+        List<String> jarPaths, List<String> args) async {
+      executedCommands.addAll(args);
+    }
+
+    await runMain(
+      arguments: ['gen'],
+      loadConfig: (p0) async => configData,
+      downloadJar: (p0, p1) async {},
+      executeWithClasspath: mockExecuteWithClasspath,
+      log: (p0) => print(p0),
+    );
+
+    // Verify commands executed from config
+    expect(executedCommands, equals(['gen', 'validate generate']));
+  });
+
+  test('ProcessRunner run method executes and prints out dart version',
+      () async {
+    // Define the expected input arguments
+    const executable = 'dart';
+    final arguments = ['--version'];
+
+    // Create an instance of ProcessRunner
+    final processRunner = ProcessRunner();
+
+    // Execute the run method and verify the result
+    final result = await processRunner.run(executable, arguments);
+    expect(result.stdout, contains('Dart SDK version'));
+    expect(result.exitCode, equals(0));
+  });
 }
 
 class TestProcessRunner extends ProcessRunner {
