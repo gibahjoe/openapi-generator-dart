@@ -4,6 +4,21 @@
 
 * fixed spec diff tracking
 
+## [6.0.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v5.0.3...v6.0.0) (2024-11-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* `forceAlwaysRun` is used to represent if the library should run  everytime `build_runner` is executed. This is done by modifying the annotated file after `build_runner` completes. Previous versions of this library did not have this flag but they had the equivalent of `true`. However, this now defaults to `false`. To keep previous behavior, set this flag to `true`.
+
+### Features
+
+* added fields `skipIfSpecUnchanged` and `forceAlwaysRun` ([d5555dd](https://github.com/gibahjoe/openapi-generator-dart/commit/d5555dda4281091102342ade5c0103c9757ac3c4))
+* Changing to a config based approach for obtaining the official openapi generator jar. ([05d61f7](https://github.com/gibahjoe/openapi-generator-dart/commit/05d61f7f323479af971dbfc3c07377cc57ce6792))
+* **cli:** bumped official generator version to 7.7 ([d8b9de1](https://github.com/gibahjoe/openapi-generator-dart/commit/d8b9de1a948ea5958ecfe85bcf228b97e0f2a8fd))
+* **cli:** bumped unofficial generator version to 8.1 ([2fdd022](https://github.com/gibahjoe/openapi-generator-dart/commit/2fdd022bbcca07dc03bd743e378dbc10b9f0503f))
+* **cli:** removed jar binary from library and made the jar downloadable by auto generated config ([8131e8e](https://github.com/gibahjoe/openapi-generator-dart/commit/8131e8eedcd3d9ba853b5b45fafd9f4c6c0fe1d7)), closes [#153](https://github.com/gibahjoe/openapi-generator-dart/issues/153)
+
 ## [5.0.1](https://github.com/gibahjoe/openapi-generator-dart/compare/v5.0.0...v5.0.1) (2024-01-16)
 
 ### Bug Fixes
