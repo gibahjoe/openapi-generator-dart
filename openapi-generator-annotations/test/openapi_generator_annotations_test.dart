@@ -29,6 +29,7 @@ void main() {
       expect(props.projectPubspecPath, isNull);
       expect(props.debugLogging, isFalse);
       expect(props.nameMappings, isNull);
+      expect(props.enumNameMappings, isNull);
       expect(props.skipIfSpecIsUnchanged, isTrue);
     });
     group('NextGen', () {
@@ -314,6 +315,16 @@ void main() {
             );
             expect(openapi.toString().replaceAll('\n', ''),
                 contains('nameMappings: {\'name\':\'customName\'}'));
+          });
+
+          test('should include enumNameMappings when set', () {
+            final openapi = Openapi(
+              enumNameMappings: {'name': 'customName'},
+              inputSpec: InputSpec(path: 'example_path'),
+              generatorName: Generator.dart,
+            );
+            expect(openapi.toString().replaceAll('\n', ''),
+                contains('enumNameMappings: {\'name\':\'customName\'}'));
           });
 
           test('should include importMappings when set', () {

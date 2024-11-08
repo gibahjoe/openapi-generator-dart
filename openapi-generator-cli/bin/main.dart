@@ -60,7 +60,6 @@ Future<Map<String, dynamic>> loadOrCreateConfig(String configPath) async {
 
 void _logOutput(String message) {
   stdout.writeln(message);
-  print(message);
 }
 
 /// Constructs the default OpenAPI Generator JAR file download URL based on the version

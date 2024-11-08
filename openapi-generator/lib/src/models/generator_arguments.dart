@@ -86,6 +86,8 @@ class GeneratorArguments {
   /// Defines mappings between OpenAPI spec var/param/model and generated code.
   final Map<String, String>? nameMappings;
 
+  final Map<String, String>? enumNameMappings;
+
   /// Adds reserved words mappings.
   ///
   /// Supported by [Generator.dio] & [Generator.dioAlt] generators.
@@ -106,6 +108,7 @@ class GeneratorArguments {
             annotations.readPropertyOrDefault('generatorName', Generator.dart),
         typeMappings = annotations.readPropertyOrNull('typeMappings'),
         nameMappings = annotations.readPropertyOrNull('nameMappings'),
+        enumNameMappings = annotations.readPropertyOrNull('enumNameMappings'),
         importMappings = annotations.readPropertyOrNull('importMappings'),
         reservedWordsMappings =
             annotations.readPropertyOrNull('reservedWordsMappings'),
@@ -192,6 +195,8 @@ class GeneratorArguments {
           '--type-mappings=${typeMappings!.entries.fold('', foldStringMap())}',
         if (nameMappings?.isNotEmpty ?? false)
           '--name-mappings=${nameMappings!.entries.fold('', foldStringMap())}',
+        if (enumNameMappings?.isNotEmpty ?? false)
+          '--enum-name-mappings=${enumNameMappings!.entries.fold('', foldStringMap())}',
         if (inlineSchemaOptions != null)
           '--inline-schema-options=${inlineSchemaOptions!.toMap().entries.fold('', foldStringMap(keyModifier: convertToPropertyKey))}',
         if (additionalProperties != null)

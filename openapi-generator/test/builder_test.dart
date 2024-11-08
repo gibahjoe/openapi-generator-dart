@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -38,39 +37,57 @@ void main() {
     });
 
     test('to generate command with import and type mappings', () async {
-      final annotations = await getReaderForAnnotation('''
-@Openapi(
-          inputSpec: InputSpec(path: '../openapi-spec.yaml'),
-          typeMappings: {'int-or-string':'IntOrString'},
-          importMappings: {'IntOrString':'./int_or_string.dart'},
-          generatorName: Generator.dio,
-          outputDirectory: '${testSpecPath}output',
-          )
-          ''');
-      final args = GeneratorArguments(annotations: annotations);
+      final annotations = Openapi(
+        inputSpec: InputSpec(path: '../openapi-spec.yaml'),
+        typeMappings: {'int-or-string': 'IntOrString'},
+        importMappings: {'IntOrString': './int_or_string.dart'},
+        generatorName: Generator.dio,
+        outputDirectory: '${testSpecPath}output',
+      );
+      final args = await getArguments(annotations);
       expect(
-          (await args.jarArgs).join(' '),
+          args.jarArgs.join(' '),
           contains(
               'generate -o=${testSpecPath}output -i=../openapi-spec.yaml -g=dart-dio --import-mappings=IntOrString=./int_or_string.dart --type-mappings=int-or-string=IntOrString'));
     });
 
     test('to generate command with inline schema mappings', () async {
-      final annotations = await getReaderForAnnotation('''
-@Openapi(
-          inputSpec: InputSpec(path: '../openapi-spec.yaml'),
-          typeMappings: {'int-or-string':'IntOrString'},
-          inlineSchemaNameMappings: {'inline_object_2':'SomethingMapped','inline_object_4':'nothing_new'},
-          generatorName: Generator.dio,
-          outputDirectory: '${testSpecPath}output',
-          )
-          ''');
-      final args = GeneratorArguments(annotations: annotations);
+      final annotation = Openapi(
+        inputSpec: InputSpec(path: '../openapi-spec.yaml'),
+        typeMappings: {'int-or-string': 'IntOrString'},
+        inlineSchemaNameMappings: {
+          'inline_object_2': 'SomethingMapped',
+          'inline_object_4': 'nothing_new'
+        },
+        generatorName: Generator.dio,
+        outputDirectory: '${testSpecPath}output',
+      );
+      final args = await getArguments(annotation);
       expect(
-          (await args.jarArgs).join(' '),
+          args.jarArgs.join(' '),
           equals('''
               generate -o=${testSpecPath}output -i=../openapi-spec.yaml -g=dart-dio --inline-schema-name-mappings=inline_object_2=SomethingMapped,inline_object_4=nothing_new --type-mappings=int-or-string=IntOrString
               '''
               .trim()));
+    });
+
+    test('to generate command with enum name mappings', () async {
+      final annotation = Openapi(
+        inputSpec: InputSpec(path: '../openapi-spec.yaml'),
+        typeMappings: {'int-or-string': 'IntOrString'},
+        inlineSchemaNameMappings: {
+          'inline_object_2': 'SomethingMapped',
+          'inline_object_4': 'nothing_new'
+        },
+        enumNameMappings: {'name': 'name_', 'inline_object_4': 'nothing_new'},
+        generatorName: Generator.dio,
+        outputDirectory: '${testSpecPath}output',
+      );
+      final args = await getArguments(annotation);
+      expect(
+          args.jarArgs,
+          contains(
+              '--enum-name-mappings=name=name_,inline_object_4=nothing_new'));
     });
   });
 
@@ -110,18 +127,16 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
 
     test('to generate command with import and type mappings for dioAlt',
         () async {
-      var annots = await getReaderForAnnotation('''
-       @Openapi(
-            inputSpec: InputSpec(path:'../openapi-spec.yaml'),
-            typeMappings: {'int-or-string':'IntOrString'},
-            importMappings: {'IntOrString':'./int_or_string.dart'},
-            generatorName: Generator.dioAlt,
-            outputDirectory: '${testSpecPath}output',
-            )
-      ''');
-      var args = GeneratorArguments(annotations: annots);
+      var annot = Openapi(
+        inputSpec: InputSpec(path: '../openapi-spec.yaml'),
+        typeMappings: {'int-or-string': 'IntOrString'},
+        importMappings: {'IntOrString': './int_or_string.dart'},
+        generatorName: Generator.dioAlt,
+        outputDirectory: '${testSpecPath}output',
+      );
+      var args = await getArguments(annot);
       expect(
-          (await args.jarArgs).join(' '),
+          args.jarArgs.join(' '),
           equals(
               'generate -o=${testSpecPath}output -i=../openapi-spec.yaml -g=dart2-api --import-mappings=IntOrString=./int_or_string.dart --type-mappings=int-or-string=IntOrString'));
     });
@@ -586,20 +601,4 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
       });
     });
   });
-}
-
-Future<ConstantReader> getReaderForAnnotation(String annotationDef) async {
-  final annotations = (await resolveSource('''
-library test_lib;
-import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
-
-$annotationDef
-class TestClassConfig {}
-                    ''',
-          (resolver) async => (await resolver.findLibraryByName('test_lib'))!))
-      .getClass('TestClassConfig')!
-      .metadata
-      .map((e) => ConstantReader(e.computeConstantValue()!))
-      .first;
-  return annotations;
 }

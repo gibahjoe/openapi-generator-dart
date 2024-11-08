@@ -93,6 +93,13 @@ class Openapi {
   ///   --name-mappings
   final Map<String, String>? nameMappings;
 
+  ///  Specifies mappings between the enum name and the new name in the
+  ///  format of enum_name=AnotherName,enum_name2=OtherName2. You can also
+  ///  have multiple occurrences of this option.
+
+  ///  --enum-name-mappings
+  final Map<String, String>? enumNameMappings;
+
   /// specifies mappings between a given class and the import that should
   /// be used for that class in the format of type=import,type=import. You
   /// can also have multiple occurrences of this option.
@@ -163,6 +170,7 @@ class Openapi {
     this.cleanSubOutputDirectory,
     this.typeMappings,
     this.nameMappings,
+    this.enumNameMappings,
     this.importMappings,
     this.reservedWordsMappings,
     this.inlineSchemaNameMappings,
@@ -197,7 +205,7 @@ class Openapi {
     }
     if (cleanSubOutputDirectory != null) {
       buffer.writeln(
-          '  cleanSubOutputDirectory: [${cleanSubOutputDirectory!.join(", ")}],');
+          '  cleanSubOutputDirectory: ["${cleanSubOutputDirectory!.join('", "')}"],');
     }
     if (skipSpecValidation != null) {
       buffer.writeln('  skipSpecValidation: $skipSpecValidation,');
@@ -217,6 +225,9 @@ class Openapi {
     }
     if (nameMappings != null) {
       buffer.writeln('  nameMappings: ${_formatMap(nameMappings!)},');
+    }
+    if (enumNameMappings != null) {
+      buffer.writeln('  enumNameMappings: ${_formatMap(enumNameMappings!)},');
     }
     if (importMappings != null) {
       buffer.writeln('  importMappings: ${_formatMap(importMappings!)},');

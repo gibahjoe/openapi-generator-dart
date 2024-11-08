@@ -392,7 +392,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     );
 
     if (results.exitCode != 0) {
-      print('===> args ${await args.jarArgs}');
+      print('===> args ${args.jarArgs}');
       return Future.error(
         OutputMessage(
           message: 'Failed to generate source code. Build Command output:',

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:openapi_generator/src/process_runner.dart';
+import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
@@ -25,6 +26,53 @@ void main() {
     //     f.deleteSync();
     //   }
     // });
+
+    group('#91', () {
+      var issueNumber = '91';
+      var parentFolder = path.join(testSpecPath, 'issue', issueNumber);
+      var workingDirectory = path.join(parentFolder, 'output');
+      setUpAll(
+        () {
+          var workingDirectory = path.join(parentFolder, 'output');
+          cleanup(workingDirectory);
+        },
+      );
+      test(
+          '[dart] Test that broken code is not generated for OPENAPI tictactoe example',
+          () async {
+        var inputSpecFile =
+            File('$parentFolder/github_issue_#$issueNumber.json');
+        var generatedOutput = await generateFromAnnotation(
+          Openapi(
+              additionalProperties: AdditionalProperties(
+                  pubName: 'tictactoe_api',
+                  pubAuthor: 'Jon Doe',
+                  pubAuthorEmail: 'me@example.com'),
+              inputSpec: InputSpec(path: inputSpecFile.path),
+              generatorName: Generator.dart,
+              cleanSubOutputDirectory: [
+                './test/specs/issue/$issueNumber/output'
+              ],
+              cachePath: './test/specs/issue/$issueNumber/output/cache.json',
+              outputDirectory: './test/specs/issue/$issueNumber/output'),
+          process: processRunner,
+        );
+
+        expect(generatedOutput,
+            contains('Skipping source gen because generator does not need it.'),
+            reason: generatedOutput);
+        expect(generatedOutput, contains('Successfully formatted code.'),
+            reason: generatedOutput);
+        var analyzeResult = await Process.run(
+          'dart',
+          ['analyze'],
+          workingDirectory: workingDirectory,
+        );
+        expect(analyzeResult.exitCode, 0,
+            reason: '${analyzeResult.stdout}\n\n${analyzeResult.stderr}');
+        cleanup(workingDirectory);
+      });
+    });
 
     group('#114', () {
       var issueNumber = '114';

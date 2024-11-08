@@ -10,6 +10,7 @@ import 'package:openapi_generator/src/process_runner.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 import 'package:path/path.dart' as path;
 import 'package:source_gen/source_gen.dart';
+import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
 @GenerateNiceMocks([MockSpec<ProcessRunner>()])
@@ -72,8 +73,13 @@ Future<String> generateFromPath(
 }
 
 Future<String> generateFromAnnotation(Openapi openapi,
-    {MockProcessRunner? process, String path = 'lib/myapp.dart'}) {
-  return generateFromSource(openapi.toString(), process: process, path: path);
+    {ProcessRunner? process, String path = 'lib/myapp.dart'}) {
+  expect(openapi.inputSpec is RemoteSpec, isFalse,
+      reason: 'Please use a local spec for tests.');
+  return generateFromSource(openapi.toString(),
+      process: process,
+      openapiSpecFilePath: openapi.inputSpec.path,
+      path: path);
 }
 
 /// Runs an in memory test variant of the generator with the given [source].
@@ -81,9 +87,12 @@ Future<String> generateFromAnnotation(Openapi openapi,
 /// [path] available so an override for the adds generated comment test can
 /// compare the output.
 Future<String> generateFromSource(String source,
-    {MockProcessRunner? process, String path = 'lib/myapp.dart'}) async {
+    {ProcessRunner? process,
+    String path = 'lib/myapp.dart',
+    String? openapiSpecFilePath}) async {
   process ??= MockProcessRunner();
-  final spec = File('${testSpecPath}openapi.test.yaml').readAsStringSync();
+  final spec = File(openapiSpecFilePath ?? '${testSpecPath}openapi.test.yaml')
+      .readAsStringSync();
   var sources = <String, String>{
     'openapi_generator|$path': '''
     import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
@@ -93,7 +102,7 @@ Future<String> generateFromSource(String source,
     ''',
     'openapi_generator|openapi-spec.yaml': spec
   };
-
+  printOnFailure('Generator sources =>\n${sources}');
   // Capture any message from generation; if there is one, return that instead of
   // the generated output.
   String? logMessage;
