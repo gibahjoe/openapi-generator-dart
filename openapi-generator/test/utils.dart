@@ -74,11 +74,13 @@ Future<String> generateFromPath(
 
 Future<String> generateFromAnnotation(Openapi openapi,
     {ProcessRunner? process, String path = 'lib/myapp.dart'}) {
-  expect(openapi.inputSpec is RemoteSpec, isFalse,
-      reason: 'Please use a local spec for tests.');
+  String? specPath = null;
+  if (openapi.inputSpec is! RemoteSpec) {
+    specPath = openapi.inputSpec.path;
+  }
   return generateFromSource(openapi.toString(),
       process: process,
-      openapiSpecFilePath: openapi.inputSpec.path,
+      openapiSpecFilePath: specPath,
       path: path);
 }
 

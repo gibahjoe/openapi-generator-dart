@@ -257,7 +257,7 @@ void main() {
               generatorName: Generator.dart,
             );
             expect(openapi.toString(),
-                contains('cleanSubOutputDirectory: [lib/src]'));
+                contains('cleanSubOutputDirectory: ["lib/src"]'));
           });
 
           test('should include skipSpecValidation when set', () {
