@@ -21,11 +21,14 @@ class Command {
     required String executable,
     required List<String> arguments,
   }) : this._(
-          executable == 'dart' || wrapper == Wrapper.none
+          wrapper == Wrapper.none
               ? executable
               : wrapper == Wrapper.flutterw
                   ? './flutterw'
                   : 'fvm',
-          arguments,
+          [
+            if (wrapper == Wrapper.fvm) executable,
+            ...arguments,
+          ],
         );
 }
