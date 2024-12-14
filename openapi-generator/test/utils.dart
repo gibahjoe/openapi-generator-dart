@@ -79,9 +79,7 @@ Future<String> generateFromAnnotation(Openapi openapi,
     specPath = openapi.inputSpec.path;
   }
   return generateFromSource(openapi.toString(),
-      process: process,
-      openapiSpecFilePath: specPath,
-      path: path);
+      process: process, openapiSpecFilePath: specPath, path: path);
 }
 
 /// Runs an in memory test variant of the generator with the given [source].
