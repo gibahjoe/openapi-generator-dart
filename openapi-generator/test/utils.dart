@@ -197,3 +197,21 @@ void cleanup(String path) async {
     print('Folder does not exist.');
   }
 }
+
+// Test Expectations
+void expectSourceGenSkipped(String generatedOutput) {
+  return expect(generatedOutput,
+      contains('Skipping source gen because generator does not need it.'),
+      reason: generatedOutput);
+}
+
+void expectCodeFormattedSuccessfully(String generatedOutput) {
+  expect(generatedOutput, contains('Successfully formatted code.'),
+      reason: generatedOutput);
+}
+
+void expectSourceGenRun(String generatedOutput) {
+  return expect(generatedOutput,
+      contains('pub run build_runner build --delete-conflicting-outputs'),
+      reason: generatedOutput);
+}

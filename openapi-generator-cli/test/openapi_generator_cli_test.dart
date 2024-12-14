@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:openapi_generator_cli/src/models.dart';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 

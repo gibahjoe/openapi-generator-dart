@@ -12,6 +12,7 @@ import 'package:openapi_generator/src/process_runner.dart';
 import 'package:openapi_generator/src/utils.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart'
     as annots;
+import 'package:path/path.dart' as path;
 import 'package:source_gen/source_gen.dart';
 
 import 'models/command.dart';
@@ -131,7 +132,21 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       workingDirectory: Directory.current.path,
       runInShell: Platform.isWindows,
     );
-
+    var outputDir = path.isRelative(arguments.outputDirectory!)
+        ? path.normalize(
+            path.join(Directory.current.path, arguments.outputDirectory!))
+        : path.normalize(arguments.outputDirectory!);
+    var outputFolderExists = Directory(outputDir).existsSync();
+    if (!outputFolderExists) {
+      logOutputMessage(
+        log: log,
+        communication: OutputMessage(
+          message: [
+            '\n::::::::::::::::::::::::\n::     Seems the code may not have been generated. If you do not find more info in the logs, set debugLogging to true on your annotation and try again.\n::::::::::::::::::::::::',
+          ].join('\n'),
+        ),
+      );
+    }
     if (result.exitCode != 0) {
       return Future.error(
         OutputMessage(

@@ -9,6 +9,8 @@ environment:
 dependencies:
   http: '>=1.2.2 <=2.0.0'
   path: '>=1.9.0 <=2.0.0'
+  args: '>=2.6.0 <3.0.0'
+  cli_launcher: ^0.3.1
 
 dev_dependencies:
   pedantic:

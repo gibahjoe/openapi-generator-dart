@@ -1,0 +1,15 @@
+openapi: 3.0.3
+info:
+  version: '1.0'
+  title: Test
+paths:
+  /test:
+    get:
+      operationId: test
+      responses:
+        '200':
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: "./test.yml"

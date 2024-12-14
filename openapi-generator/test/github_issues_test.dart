@@ -10,9 +10,11 @@ import 'utils.dart';
 
 /// We test the build runner by mocking the specs and then checking the output
 /// content for the expected generate command.
+///
+/// we do not use mock process runner for github issues because we want to test
+/// that generated code compiles.
+/// If you do not want to generate the actual code, then you can initialise [MockProcessRunner] in the test
 void main() {
-  // we do not use mock process runner for github issues because we want to test
-  // that generated code compiles
   var processRunner = ProcessRunner();
   group('Github Issues', () {
     // setUpAll(() {
@@ -58,11 +60,8 @@ void main() {
           process: processRunner,
         );
 
-        expect(generatedOutput,
-            contains('Skipping source gen because generator does not need it.'),
-            reason: generatedOutput);
-        expect(generatedOutput, contains('Successfully formatted code.'),
-            reason: generatedOutput);
+        expectSourceGenSkipped(generatedOutput);
+        expectCodeFormattedSuccessfully(generatedOutput);
         var analyzeResult = await Process.run(
           'dart',
           ['analyze'],
@@ -101,11 +100,9 @@ void main() {
               annotatedFileContent.replaceAll('{{issueNumber}}', issueNumber),
         );
 
-        expect(generatedOutput,
-            contains('Skipping source gen because generator does not need it.'),
-            reason: generatedOutput);
-        expect(generatedOutput, contains('Successfully formatted code.'),
-            reason: generatedOutput);
+        expectSourceGenSkipped(generatedOutput);
+        expectCodeFormattedSuccessfully(generatedOutput);
+
         var analyzeResult = await Process.run(
           'dart',
           ['analyze', '--no-fatal-warnings'],
@@ -133,13 +130,8 @@ void main() {
                 annotatedFileContent.replaceAll('{{issueNumber}}', issueNumber),
           );
 
-          expect(
-              generatedOutput,
-              contains(
-                  'pub run build_runner build --delete-conflicting-outputs'),
-              reason: generatedOutput);
-          expect(generatedOutput, contains('Successfully formatted code.'),
-              reason: generatedOutput);
+          expectSourceGenRun(generatedOutput);
+          expectCodeFormattedSuccessfully(generatedOutput);
           var workingDirectory = path.join(parentFolder, 'output');
           var analyzeResult = await Process.run(
             'dart',
@@ -180,11 +172,8 @@ void main() {
               annotatedFileContent.replaceAll('{{issueNumber}}', issueNumber),
         );
 
-        expect(generatedOutput,
-            contains('Skipping source gen because generator does not need it.'),
-            reason: generatedOutput);
-        expect(generatedOutput, contains('Successfully formatted code.'),
-            reason: generatedOutput);
+        expectSourceGenSkipped(generatedOutput);
+        expectCodeFormattedSuccessfully(generatedOutput);
         var analyzeResult = await Process.run(
           'dart',
           ['analyze', '--fatal-warnings'],
@@ -212,13 +201,8 @@ void main() {
                 annotatedFileContent.replaceAll('{{issueNumber}}', issueNumber),
           );
 
-          expect(
-              generatedOutput,
-              contains(
-                  'pub run build_runner build --delete-conflicting-outputs'),
-              reason: generatedOutput);
-          expect(generatedOutput, contains('Successfully formatted code.'),
-              reason: generatedOutput);
+          expectSourceGenRun(generatedOutput);
+          expectCodeFormattedSuccessfully(generatedOutput);
           var workingDirectory = path.join(parentFolder, 'output');
           await Process.run(
             'dart',
@@ -257,11 +241,8 @@ void main() {
         var generatedOutput = await generateFromPath(annotatedFile.path,
             process: processRunner, openapiSpecFilePath: inputSpecFile.path);
 
-        expect(generatedOutput,
-            contains('Skipping source gen because generator does not need it.'),
-            reason: generatedOutput);
-        expect(generatedOutput, contains('Successfully formatted code.'),
-            reason: generatedOutput);
+        expectSourceGenSkipped(generatedOutput);
+        expectCodeFormattedSuccessfully(generatedOutput);
         var analyzeResult = await Process.run(
           'dart',
           ['analyze', '--no-fatal-warnings'],
@@ -282,8 +263,7 @@ void main() {
           var generatedOutput = await generateFromPath(annotatedFile.path,
               process: processRunner, openapiSpecFilePath: inputSpecFile.path);
 
-          expect(generatedOutput, contains('Successfully formatted code.'),
-              reason: generatedOutput);
+          expectCodeFormattedSuccessfully(generatedOutput);
           var workingDirectory = path.join(parentFolder, 'output');
           var analyzeResult = await Process.run(
             'dart',
@@ -332,6 +312,91 @@ void main() {
         expect(analyzeResult.exitCode, 0, reason: '${analyzeResult.stdout}');
         cleanup(workingDirectory);
       }, skip: true);
+    });
+
+    group('#164', () {
+      var issueNumber = '164';
+      var parentFolder = path.join(testSpecPath, 'issue', issueNumber);
+      var workingDirectory = path.join(parentFolder, 'output');
+      setUpAll(
+        () {
+          var workingDirectory = path.join(parentFolder, 'output');
+          cleanup(workingDirectory);
+        },
+      );
+      test('[dio] Test that generation does not fail', () async {
+        var generatedOutput = await generateFromAnnotation(
+          Openapi(
+              additionalProperties: DioProperties(
+                  pubName: 'petstore_api', pubAuthor: 'Johnny_dep'),
+              inputSpec: RemoteSpec(
+                  path: 'https://petstore3.swagger.io/api/v3/openapi.json'),
+              typeMappings: {'Pet': 'ExamplePet'},
+              generatorName: Generator.dio,
+              runSourceGenOnOutput: true,
+              skipIfSpecIsUnchanged: false,
+              cleanSubOutputDirectory: [
+                './test/specs/issue/$issueNumber/output'
+              ],
+              outputDirectory: './test/specs/issue/$issueNumber/output'),
+          process: processRunner,
+        );
+
+        expectSourceGenRun(generatedOutput);
+        expectCodeFormattedSuccessfully(generatedOutput);
+        var analyzeResult = await Process.run(
+          'dart',
+          ['analyze', '--no-fatal-warnings'],
+          workingDirectory: workingDirectory,
+        );
+        expect(analyzeResult.exitCode, 0,
+            reason: '${analyzeResult.stdout}\n\n${analyzeResult.stderr}');
+        cleanup(workingDirectory);
+      });
+    });
+
+    group('#167', () {
+      var issueNumber = '167';
+      var parentFolder = path.join(testSpecPath, 'issue', issueNumber);
+      var workingDirectory = path.join(parentFolder, 'output');
+      setUpAll(
+        () {
+          var workingDirectory = path.join(parentFolder, 'output');
+          cleanup(workingDirectory);
+        },
+      );
+      test('[dio] Test that generation does not fail', () async {
+        var generatedOutput = await generateFromAnnotation(
+          Openapi(
+              additionalProperties: DioAltProperties(
+                pubName: 'issue_api',
+              ),
+              inputSpec: InputSpec(
+                  path:
+                      './test/specs/issue/$issueNumber/github_issue_#167.yaml'),
+              generatorName: Generator.dio,
+              runSourceGenOnOutput: true,
+              typeMappings: {'Pet': 'ExamplePet', 'Test': 'ExampleTest'},
+              skipIfSpecIsUnchanged: false,
+              cleanSubOutputDirectory: [
+                './test/specs/issue/$issueNumber/output'
+              ],
+              outputDirectory: './test/specs/issue/$issueNumber/output'),
+          process: processRunner,
+        );
+
+        expectSourceGenRun(generatedOutput);
+        expectCodeFormattedSuccessfully(generatedOutput);
+        var analyzeResult = await Process.run(
+          'dart',
+          ['analyze', '--no-fatal-warnings'],
+          workingDirectory: workingDirectory,
+        );
+        expect(analyzeResult.exitCode, 0,
+            reason: '${analyzeResult.stdout}\n\n${analyzeResult.stderr}');
+
+        cleanup(workingDirectory);
+      });
     });
   });
 }

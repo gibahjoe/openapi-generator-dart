@@ -23,6 +23,9 @@
       <excludeFolder url="file://$MODULE_DIR$/test/specs/issue/115/output/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/test/specs/issue/115/output/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/test/specs/issue/115/output/build" />
+      <excludeFolder url="file://$MODULE_DIR$/test/specs/issue/167/output/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/test/specs/issue/167/output/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/test/specs/issue/167/output/build" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Dart SDK" level="project" />
