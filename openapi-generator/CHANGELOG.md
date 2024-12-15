@@ -4,6 +4,13 @@
 
 * fixed spec diff tracking
 
+## [6.1.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v6.0.0...v6.1.0) (2024-12-15)
+
+
+### Features
+
+* added `--enum-name-mappings` support ([328c9da](https://github.com/gibahjoe/openapi-generator-dart/commit/328c9da3294719210e11f961baa89d9a1c708ac8))
+
 ## [6.0.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v5.0.3...v6.0.0) (2024-11-06)
 
 
