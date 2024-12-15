@@ -3,23 +3,38 @@ name: Stable release 🕊️📦✅
 on:
   release:
     types:
-      - released
-      - prereleased
-  workflow_dispatch:
+      - released # Trigger on stable releases
+      - prereleased # Trigger on pre-releases (optional)
+  workflow_dispatch: # Allow manual triggering
 
 jobs:
   test:
     uses: gibahjoe/openapi-generator-dart/.github/workflows/code_quality.yml@master
-    secrets: inherit
-  publish:
-    name: Publish Packages with Melos
-    runs-on: ubuntu-latest
-    needs: [test]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-      - uses: bluefireteam/melos-action@v3
-      - uses: dart-lang/setup-dart@v1
+    secrets: inherit # Reuse repository secrets
 
-      - name: Publish
-        run: melos publish --no-dry-run --yes
+  publish_annotations:
+    name: Publish Annotations Package
+    needs: [test]
+    permissions:
+      id-token: write # Required for authentication using OIDC
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      working-directory: openapi-generator-annotations
+
+  publish_cli:
+    name: Publish CLI Package
+    needs: [test]
+    permissions:
+      id-token: write # Required for authentication using OIDC
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      working-directory: openapi-generator-cli
+
+  publish_generator:
+    name: Publish Generator Package
+    needs: [publish_cli, publish_annotations]
+    permissions:
+      id-token: write # Required for authentication using OIDC
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      working-directory: openapi-generator
