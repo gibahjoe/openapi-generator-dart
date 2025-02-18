@@ -9,7 +9,7 @@ import 'package:source_gen/source_gen.dart' show ConstantReader, TypeChecker;
 extension TypeMethods on ConstantReader {
   /// Returns `true` if `this` represents a constant expression
   /// with type `dynamic`.
-  bool get isDynamic => objectValue.type?.isDynamic ?? false;
+  bool get isDynamic => objectValue.type is DynamicType;
 
   /// Returns `true` is `this` represents a constant expression with
   /// type exactly `Iterable`.
