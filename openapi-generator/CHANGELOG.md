@@ -4,6 +4,13 @@
 
 * fixed spec diff tracking
 
+## [6.1.1](https://github.com/gibahjoe/openapi-generator-dart/compare/v6.1.0...v6.1.1) (2025-03-07)
+
+
+### Bug Fixes
+
+* add support for remote specs without extensions. Closes [#176](https://github.com/gibahjoe/openapi-generator-dart/issues/176) ([c08164d](https://github.com/gibahjoe/openapi-generator-dart/commit/c08164d7db64725ceddd250ab7e18fd8926b9ff7))
+
 ## [6.1.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v6.0.0...v6.1.0) (2024-12-15)
 
 
