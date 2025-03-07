@@ -27,9 +27,10 @@ final _supportedRegexes = [jsonRegex, yamlRegex];
 /// It also throws an error when the specification doesn't exist on disk.
 ///
 /// WARNING: THIS DOESN'T VALIDATE THE SPECIFICATION CONTENT
-FutureOr<Map<String, dynamic>> loadSpec({required InputSpec specConfig,
-  bool isCached = false,
-  http.Client? client}) async {
+FutureOr<Map<String, dynamic>> loadSpec(
+    {required InputSpec specConfig,
+    bool isCached = false,
+    http.Client? client}) async {
   client ??= http.Client();
   print('loadSpec - ' + specConfig.path);
   // If the spec file doesn't match any of the currently supported spec formats
