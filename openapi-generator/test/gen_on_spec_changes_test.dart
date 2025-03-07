@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:logging/logging.dart';
 import 'package:openapi_generator/src/gen_on_spec_changes.dart';
 import 'package:openapi_generator/src/models/output_message.dart';
@@ -31,6 +32,40 @@ void main() {
         } catch (e, _) {
           expect((e as OutputMessage).message, 'Invalid spec file format.');
         }
+      });
+
+      test('fails when local file has unsupported extension', () async {
+        final specFuture =
+            loadSpec(specConfig: InputSpec(path: './invalid.spec'));
+        await expectLater(
+            specFuture,
+            throwsA(isA<OutputMessage>().having((e) => e.message, 'message',
+                contains('Invalid spec file format'))));
+      });
+      test('supports json remote spec without extension', () async {
+        final url =
+            Uri.parse('https://example.com/api'); // Mock remote spec URL
+        final mockResponse = http.Response('{}', 200,
+            headers: {'content-type': 'application/json'});
+
+        // Mock HTTP HEAD request
+        final client = MockClient((request) async => mockResponse);
+        final specFuture = loadSpec(
+            specConfig: RemoteSpec(path: url.toString()), client: client);
+        await expectLater(specFuture, completion(isNot(throwsA(anything))));
+      });
+      test('supports remote yaml spec without extension', () async {
+        final url =
+            Uri.parse('https://example.com/api-yaml'); // Mock remote spec URL
+        final mockResponse = http.Response('key: value', 200,
+            headers: {'content-type': 'application/x-yaml'});
+
+        // Mock HTTP HEAD request
+        final client = MockClient((request) async => mockResponse);
+        final specFuture = loadSpec(
+            specConfig: RemoteSpec(path: url.toString()), client: client);
+
+        await expectLater(specFuture, completion(isNot(throwsA(anything))));
       });
       test('throws an error for missing config file', () async {
         try {
@@ -113,6 +148,43 @@ void main() {
             expect(errorMessage.message,
                 'Unable to request remote spec. Ensure it is public or use a local copy instead.');
           }
+        });
+
+        test('fails when HEAD request returns non-200 status', () async {
+          final url = Uri.parse('https://example.com/api-invalid');
+          final mockResponse = http.Response('', 404);
+          final client = MockClient((request) async => mockResponse);
+          final specFuture = loadSpec(
+              specConfig: RemoteSpec(path: url.toString()), client: client);
+          await expectLater(
+              specFuture,
+              throwsA(isA<OutputMessage>().having((e) => e.message, 'message',
+                  contains('Failed to fetch headers'))));
+        });
+
+        test('fails when Content-Type is missing', () async {
+          final url = Uri.parse('https://example.com/api-no-content-type');
+          final mockResponse = http.Response('', 200, headers: {});
+          final client = MockClient((request) async => mockResponse);
+          final specFuture = loadSpec(
+              specConfig: RemoteSpec(path: url.toString()), client: client);
+          await expectLater(
+              specFuture,
+              throwsA(isA<OutputMessage>().having((e) => e.message, 'message',
+                  contains('Invalid remote spec file format'))));
+        });
+
+        test('fails when Content-Type is not JSON or YAML', () async {
+          final url = Uri.parse('https://example.com/api-invalid-type');
+          final mockResponse =
+              http.Response('', 200, headers: {'content-type': 'text/plain'});
+          final client = MockClient((request) async => mockResponse);
+          final specFuture = loadSpec(
+              specConfig: RemoteSpec(path: url.toString()), client: client);
+          await expectLater(
+              specFuture,
+              throwsA(isA<OutputMessage>().having((e) => e.message, 'message',
+                  contains('Invalid remote spec file format'))));
         });
       });
     });

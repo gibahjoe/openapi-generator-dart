@@ -118,7 +118,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
           .first;
       final args = GeneratorArguments(annotations: annotations);
       expect(
-          (await args.jarArgs).join(' '),
+          args.jarArgs.join(' '),
           contains('''
               generate -o=api/petstore_api -i=../openapi-spec.yaml -g=dart-dio --type-mappings=Pet=ExamplePet --additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,enumUnknownDefaultCase=false,prependFormOrBodyParameters=false,pubAuthor=Johnny dep...,pubName=petstore_api,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=none
           '''

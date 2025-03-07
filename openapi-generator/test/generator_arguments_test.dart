@@ -60,7 +60,7 @@ void main() {
             Directory.current.path + '${Platform.pathSeparator}openapi.json');
         f.createSync();
         f.writeAsStringSync('');
-        expect(await args.jarArgs, [
+        expect(args.jarArgs, [
           'generate',
           '-i=${args.inputFileOrFetch}',
           '-g=${args.generatorName}',
@@ -172,7 +172,7 @@ void main() {
         expect(args.forceAlwaysRun, isTrue);
         expect(args.additionalProperties?.useEnumExtension, isTrue);
         expect(args.additionalProperties?.pubAuthor, 'test author');
-        expect(await args.jarArgs, [
+        expect(args.jarArgs, [
           'generate',
           '-o=${args.outputDirectory}',
           '-i=${args.inputFileOrFetch}',
@@ -230,7 +230,7 @@ void main() {
             (args.additionalProperties as DioProperties).serializationLibrary,
             DioSerializationLibrary.jsonSerializable);
 
-        expect(await args.jarArgs, [
+        expect(args.jarArgs, [
           'generate',
           '-o=${args.outputDirectory}',
           '-i=${args.inputFileOrFetch}',
@@ -287,11 +287,11 @@ void main() {
             (args.additionalProperties as DioAltProperties)
                 .pubspecDevDependencies,
             'pedantic: 1.0.0');
-        expect((await args.jarArgs).last, contains('path: 1.0.0'));
-        expect((await args.jarArgs).last, contains('pedantic: 1.0.0'));
+        expect((args.jarArgs).last, contains('path: 1.0.0'));
+        expect((args.jarArgs).last, contains('pedantic: 1.0.0'));
         expect(args.additionalProperties.runtimeType, DioAltProperties);
 
-        expect(await args.jarArgs, [
+        expect(args.jarArgs, [
           'generate',
           '-o=${args.outputDirectory}',
           '-i=${args.inputFileOrFetch}',

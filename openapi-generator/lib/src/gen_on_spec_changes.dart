@@ -27,20 +27,45 @@ final _supportedRegexes = [jsonRegex, yamlRegex];
 /// It also throws an error when the specification doesn't exist on disk.
 ///
 /// WARNING: THIS DOESN'T VALIDATE THE SPECIFICATION CONTENT
-FutureOr<Map<String, dynamic>> loadSpec(
-    {required InputSpec specConfig, bool isCached = false}) async {
+FutureOr<Map<String, dynamic>> loadSpec({required InputSpec specConfig,
+  bool isCached = false,
+  http.Client? client}) async {
+  client ??= http.Client();
   print('loadSpec - ' + specConfig.path);
   // If the spec file doesn't match any of the currently supported spec formats
   // reject the request.
   if (!_supportedRegexes
       .any((fileEnding) => fileEnding.hasMatch(specConfig.path))) {
-    return Future.error(
-      OutputMessage(
+    if (specConfig is RemoteSpec) {
+      final resp = await client.head(specConfig.url);
+      if (resp.statusCode != 200) {
+        return Future.error(OutputMessage(
+          message:
+              'Failed to fetch headers for remote spec. Status code: ${resp.statusCode}',
+          level: Level.SEVERE,
+          stackTrace: StackTrace.current,
+        ));
+      }
+
+      var contentType = resp.headers['content-type'] ?? "unknown";
+      if (!(contentType.contains('application/json') ||
+          contentType.contains('yaml') ||
+          contentType.contains('text/yaml') ||
+          contentType.contains('application/x-yaml'))) {
+        return Future.error(OutputMessage(
+          message:
+              'Invalid remote spec file format. Expected JSON or YAML but got $contentType.',
+          level: Level.SEVERE,
+          stackTrace: StackTrace.current,
+        ));
+      }
+    } else {
+      return Future.error(OutputMessage(
         message: 'Invalid spec file format.',
         level: Level.SEVERE,
         stackTrace: StackTrace.current,
-      ),
-    );
+      ));
+    }
   }
 
   if (!(specConfig is RemoteSpec)) {
@@ -78,7 +103,7 @@ FutureOr<Map<String, dynamic>> loadSpec(
       headers = specConfig.headerDelegate.header();
     }
 
-    final resp = await http.get(specConfig.url, headers: headers);
+    final resp = await client.get(specConfig.url, headers: headers);
     if (resp.statusCode == 200) {
       if (yamlRegex.hasMatch(specConfig.path)) {
         return convertYamlMapToDartMap(yamlMap: loadYaml(resp.body));
