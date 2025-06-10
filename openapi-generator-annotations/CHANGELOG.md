@@ -4,6 +4,14 @@
 
 * fixed spec diff tracking
 
+## [6.1.1](https://github.com/gibahjoe/openapi-generator-dart/compare/v6.1.0...v6.1.1) (2025-06-10)
+
+
+### Bug Fixes
+
+* Update deprecation message for skipSpecDepMessage and improve link in bug report template ([0892b56](https://github.com/gibahjoe/openapi-generator-dart/commit/0892b560650022e5aad55adc4eb68c8955f707ba))
+* update README for clarity and formatting; adjust generator arguments and caching logic ([2c85976](https://github.com/gibahjoe/openapi-generator-dart/commit/2c8597617eb90b1635404bae5ea2c20311d202bd))
+
 ## [6.1.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v6.0.0...v6.1.0) (2024-12-15)
 
 
