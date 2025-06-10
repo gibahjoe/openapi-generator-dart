@@ -6,8 +6,9 @@ import 'package:meta/meta.dart';
 
 const skipSpecDepMessage =
     'This will be removed in next major release. This generator will always run'
-    'if changes are detected on local spec file. see -  Use `forceAlwaysRun` '
+    'if changes are detected on local spec file. see https://github.com/gibahjoe/openapi-generator-dart#deprecation--breaking-change-notice -  Use `forceAlwaysRun` '
     'to always run the generator regardless of spec changes.';
+
 class Openapi {
   /// Additional properties to pass to the compiler (CSV)
   ///
@@ -187,8 +188,7 @@ class Openapi {
     this.projectPubspecPath,
     this.debugLogging = false,
     this.forceAlwaysRun = false,
-    @Deprecated(skipSpecDepMessage)
-    this.skipIfSpecIsUnchanged = true,
+    @Deprecated(skipSpecDepMessage) this.skipIfSpecIsUnchanged = true,
   });
 
   @override

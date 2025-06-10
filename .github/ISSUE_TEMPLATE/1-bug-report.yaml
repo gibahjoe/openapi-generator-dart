@@ -17,7 +17,7 @@ body:
         This library wraps the [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator) to provide Dart/Flutter codegen.  
         Some issues may come from the underlying generator, not from this library.
         If the issue you are experiencing is related to the generated code, then you need to open an issue on the [OpenAPI Generator repo](https://github.com/OpenAPITools/openapi-generator/issues).
-        [Click here to learn more](https://github.com/gibahjoe/openapi-generator-dart#note)
+        [Click here to learn more](https://github.com/gibahjoe/openapi-generator-dart#advanced-configuration)
         
   - type: dropdown
     attributes:
