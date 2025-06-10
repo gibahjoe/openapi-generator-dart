@@ -57,9 +57,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
             : 'dart';
 
         return generatorV2(
-            args: args,
-            baseCommand: baseCommand,
-            annotatedPath: buildStep.inputId.path);
+            args: args, baseCommand: baseCommand, buildStep: buildStep);
       }
     } catch (e, st) {
       late OutputMessage communication;
@@ -178,7 +176,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   FutureOr<String> generatorV2(
       {required GeneratorArguments args,
       required String baseCommand,
-      required String annotatedPath}) async {
+      required BuildStep buildStep}) async {
+    final annotatedPath = buildStep.inputId.path;
     if (args.isRemote) {
       logOutputMessage(
         log: log,
@@ -190,6 +189,16 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       );
     }
     try {
+      // Notify build_runner of dependency on inputSpec
+      if (args.inputSpec is! annots.RemoteSpec &&
+          !path.isAbsolute(args.inputSpec.path)) {
+        final maybeAssetId =
+            AssetId(buildStep.inputId.package, args.inputSpec.path);
+        // Check if asset can be read.  If so, build_runner will mark the asset
+        // as a dependency and re-run the builder when it is modified.
+        await buildStep.canRead(maybeAssetId);
+      }
+
       if (!await hasDiff(args: args) && args.skipIfSpecIsUnchanged) {
         logOutputMessage(
           log: log,
