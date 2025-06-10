@@ -145,8 +145,19 @@ sending your PRs.
 
 ## Features and bugs
 
+###Note:
+
+Some issues may originate from the base OpenAPI Generator library rather than this Dart/Flutter wrapper. This library provides Dart-specific configuration and tools, but the actual code generation is handled by the underlying OpenAPI Generator.
+
+If you encounter problems with the generated code (such as incorrect imports, unexpected code structure, or type mismatches), these are often caused by the base generator, not this wrapper. You may be able to resolve some of these issues by customizing the @Openapi() annotation options:
+	•	template: Allows you to specify a custom code generation template, helping fix issues related to the structure or style of the generated code.
+	•	importMappings: Lets you map OpenAPI model names to custom Dart imports, which helps fix problems with incorrect or missing import statements in the generated code.
+	•	typeMappings: Allows you to map OpenAPI schema types to your own Dart types, which is useful for resolving issues where generated classes don’t match your project’s types or when you need to substitute types for better compatibility.
+
+If the issue is specifically with the generated code, please open your issue in the original OpenAPI Generator repository.
+
+If you’re unsure where the problem comes from, feel free to open an issue here—we’ll help point you in the right direction.
+
 Please file feature requests and bugs at the [issue tracker][tracker].
 
 [tracker]: https://github.com/gibahjoe/openapi-generator-dart/issues
-
-<a href="https://www.buymeacoffee.com/gibahjoe" target="_blank"><img src="https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>

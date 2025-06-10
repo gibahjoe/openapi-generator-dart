@@ -9,6 +9,32 @@ body:
         Thank you for taking the time to fill out this bug report!
         Please note that contributor time is limited, and we might not get back to you immediately.
         Also make sure to check if [an existing issue](https://github.com/gibahjoe/openapi-generator-dart/issues) matches yours.
+  
+  - type: markdown
+    attributes:
+      value: |
+        **Please read before submitting:**  
+        This library wraps the [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator) to provide Dart/Flutter codegen.  
+        Some issues may come from the underlying generator, not from this library.
+        If the issue you are experiencing is related to the generated code, then you need to open an issue on the [OpenAPI Generator repo](https://github.com/OpenAPITools/openapi-generator/issues).
+        [Click here to learn more](https://github.com/gibahjoe/openapi-generator-dart#note)
+        
+  - type: dropdown
+    attributes:
+      label: Is your issue related to the code that was generated?
+      options:
+        - No, my issue is with the openapi-generator-dart wrapper/config
+        - Yes, my issue is with the generated code (e.g. code errors, structure)
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        > **If your issue is with the generated code, please [open it on the base OpenAPI Generator repo](https://github.com/OpenAPITools/openapi-generator/issues) instead.**
+        >
+        > Issues with generated code are usually caused by the underlying OpenAPI Generator tool, not this wrapper.
+
   - type: textarea
     attributes:
       label: Description of the bug
