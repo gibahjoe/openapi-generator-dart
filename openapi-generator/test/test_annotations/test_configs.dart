@@ -6,7 +6,7 @@ import 'package:source_gen_test/annotations.dart';
 @ShouldGenerate(r'''
 const fetchDependencies = true;
 
-const forceAlwaysRun = true;
+const forceAlwaysRun = false;
 
 const generatorName = 'dio';
 
@@ -24,7 +24,7 @@ const additionalProperties = wrapper = 'flutterw';
 
 const fetchDependencies = true;
 
-const forceAlwaysRun = true;
+const forceAlwaysRun = false;
 
 const generatorName = 'dart';
 
@@ -46,7 +46,7 @@ const additionalProperties = wrapper = 'flutterw', nullableFields = 'true';
 
 const fetchDependencies = true;
 
-const forceAlwaysRun = true;
+const forceAlwaysRun = false;
 
 const generatorName = 'dart';
 

@@ -253,7 +253,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
             .called(1);
       });
 
-      test('adds generated comment', () async {
+      test('does not add generated comment by default', () async {
         openapiSpecCache
             .writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
         var annotationFilePath =
@@ -269,18 +269,8 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
 
         var hasGeneratedComment =
             copy.readAsLinesSync().first.contains(lastRunPlaceHolder);
-        expect(hasGeneratedComment, isTrue);
-        var generatedComment = copy.readAsLinesSync().first;
-
-        // Rerun generator to make sure the generated comment is updated.
-        await generateFromPath(copy.path, path: copy.path);
-
-        hasGeneratedComment =
-            copy.readAsLinesSync().first.contains(lastRunPlaceHolder);
-        var secondRunGeneratedComment = copy.readAsLinesSync().first;
+        expect(hasGeneratedComment, isFalse);
         copy.deleteSync();
-        expect(hasGeneratedComment, isTrue);
-        expect(generatedComment, isNot(equals(secondRunGeneratedComment)));
       });
 
       test('skip updating annotated file', () async {
