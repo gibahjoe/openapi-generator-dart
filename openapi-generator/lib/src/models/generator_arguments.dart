@@ -21,6 +21,7 @@ class GeneratorArguments {
   final String cachePath;
 
   /// Informs the generator to disable the cache.
+  @Deprecated(skipSpecDepMessage)
   final bool skipIfSpecIsUnchanged;
 
   final bool isDebug;

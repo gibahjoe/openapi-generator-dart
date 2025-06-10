@@ -140,8 +140,9 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         log: log,
         communication: OutputMessage(
           message: [
-            '\n::::::::::::::::::::::::\n::     Seems the code may not have been generated. If you do not find more info in the logs, set debugLogging to true on your annotation and try again.\n::::::::::::::::::::::::',
+            '\n\n::::::::::::::::::::::::\n::     Seems the code may not have been generated. If you do not find more info in the logs, set debugLogging to true on your annotation and try again.\n::::::::::::::::::::::::',
           ].join('\n'),
+          level: Level.WARNING,
         ),
       );
     }
@@ -190,30 +191,42 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     }
     try {
       // Notify build_runner of dependency on inputSpec
+      var builderCanReadSpec = false;
       if (args.inputSpec is! annots.RemoteSpec &&
           !path.isAbsolute(args.inputSpec.path)) {
         final maybeAssetId =
             AssetId(buildStep.inputId.package, args.inputSpec.path);
         // Check if asset can be read.  If so, build_runner will mark the asset
         // as a dependency and re-run the builder when it is modified.
-        await buildStep.canRead(maybeAssetId);
+        builderCanReadSpec = await buildStep.canRead(maybeAssetId);
+        if (!builderCanReadSpec) {
+          logOutputMessage(
+            log: log,
+            communication: OutputMessage(
+              message: [
+                ':: Looks like you havent added the spec file [${args.inputSpec.path}] to your build.yaml.',
+                ':: This is needed for this package to monitor changes to the spec file.',
+                ':: Find out more here: https://dart.dev/tools/build_system#reading-files',
+                '\n',
+              ].join('\n'),
+              level: Level.WARNING,
+            ),
+          );
+        }
       }
 
-      if (!await hasDiff(args: args) && args.skipIfSpecIsUnchanged) {
-        logOutputMessage(
-          log: log,
-          communication: OutputMessage(
-            message: 'No diff between versions, not running generator.',
-          ),
-        );
-        return '';
+      if (!builderCanReadSpec) {
+        if (args.skipIfSpecIsUnchanged && !await hasDiff(args: args)) {
+          logOutputMessage(
+            log: log,
+            communication: OutputMessage(
+              message: 'No diff between versions, not running generator.',
+            ),
+          );
+          return '';
+        }
       }
-      logOutputMessage(
-        log: log,
-        communication: OutputMessage(
-          message: 'Dirty Spec found. Running generation.',
-        ),
-      );
+
       await runOpenApiJar(arguments: args);
       await fetchDependencies(baseCommand: baseCommand, args: args);
       await generateSources(baseCommand: baseCommand, args: args);
@@ -229,42 +242,44 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           ),
         ),
       );
-      if (!args.skipIfSpecIsUnchanged) {
-        logOutputMessage(
-          log: log,
-          communication: OutputMessage(
-            message:
-                'Skip spec cache because [skipIfSpecIsUnchanged] is set to false',
-          ),
-        );
-        return '';
-      } else {
-        if (!args.hasLocalCache) {
+      if (!builderCanReadSpec) {
+        if (!args.skipIfSpecIsUnchanged) {
           logOutputMessage(
             log: log,
             communication: OutputMessage(
-              message: 'No local cache found. Creating one.',
-              level: Level.CONFIG,
+              message:
+                  'Skip spec cache because [skipIfSpecIsUnchanged] is set to false',
             ),
           );
+          return '';
         } else {
+          if (!args.hasLocalCache) {
+            logOutputMessage(
+              log: log,
+              communication: OutputMessage(
+                message: 'No local cache found. Creating one.',
+                level: Level.CONFIG,
+              ),
+            );
+          } else {
+            logOutputMessage(
+              log: log,
+              communication: OutputMessage(
+                message: 'Local cache found. Overwriting existing one.',
+                level: Level.CONFIG,
+              ),
+            );
+          }
+          await cacheSpec(
+              outputLocation: args.cachePath,
+              spec: await loadSpec(specConfig: args.inputSpec));
           logOutputMessage(
             log: log,
             communication: OutputMessage(
-              message: 'Local cache found. Overwriting existing one.',
-              level: Level.CONFIG,
+              message: 'Successfully cached spec changes.',
             ),
           );
         }
-        await cacheSpec(
-            outputLocation: args.cachePath,
-            spec: await loadSpec(specConfig: args.inputSpec));
-        logOutputMessage(
-          log: log,
-          communication: OutputMessage(
-            message: 'Successfully cached spec changes.',
-          ),
-        );
       }
     } catch (e, st) {
       logOutputMessage(

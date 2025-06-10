@@ -1,6 +1,6 @@
 /// Default configuration values
 class ConfigDefaults {
-  static const openapiGeneratorVersion = '7.9.0';
+  static const openapiGeneratorVersion = '7.13.0';
   static const additionalCommands = '';
   static const downloadUrlOverride = null;
   static const jarCacheDir = '.dart_tool/openapi_generator_cache';

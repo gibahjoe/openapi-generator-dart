@@ -4,6 +4,10 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:meta/meta.dart';
 
+const skipSpecDepMessage =
+    'This will be removed in next major release. This generator will always run'
+    'if changes are detected on local spec file. see -  Use `forceAlwaysRun` '
+    'to always run the generator regardless of spec changes.';
 class Openapi {
   /// Additional properties to pass to the compiler (CSV)
   ///
@@ -157,7 +161,8 @@ class Openapi {
   ///
   /// If set to false, a cached copy of the OpenAPI specification file is not kept.
   ///
-  /// Defaults to [true].
+  /// Defaults to [false].
+  @Deprecated(skipSpecDepMessage)
   final bool skipIfSpecIsUnchanged;
 
   const Openapi({
@@ -181,7 +186,8 @@ class Openapi {
     this.cachePath,
     this.projectPubspecPath,
     this.debugLogging = false,
-    this.forceAlwaysRun = true,
+    this.forceAlwaysRun = false,
+    @Deprecated(skipSpecDepMessage)
     this.skipIfSpecIsUnchanged = true,
   });
 
