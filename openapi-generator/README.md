@@ -1,190 +1,210 @@
+# openapi-generator-dart
+
 [![pub package](https://img.shields.io/pub/v/openapi_generator.svg)](https://pub.dev/packages/openapi_generator)
+[![Pub Likes](https://img.shields.io/pub/likes/openapi_generator?)](https://pub.dev/packages/openapi_generator)
+[![Pub Points](https://img.shields.io/pub/points/openapi_generator)](https://pub.dev/packages/openapi_generator)
+[![Pub Popularity](https://img.shields.io/pub/popularity/openapi_generator)](https://pub.dev/packages/openapi_generator)
+[![GitHub Repo stars](https://img.shields.io/github/stars/gibahjoe/openapi-generator-dart)](https://github.com/gibahjoe/openapi-generator-dart)
+[![codecov](https://codecov.io/gh/gibahjoe/openapi-generator-dart/graph/badge.svg?token=MF8SDQJMGP)](https://codecov.io/gh/gibahjoe/openapi-generator-dart)
 
-This library is the dart/flutter implementation of openapi client sdk code generation.
+> **Like this library?** Give us a star or a like!
 
-With this library, you can generate openapi client sdk libraries from your openapi specification right in your
-flutter/dart projects. (see example)
+---
 
-To be used together with [openapi-generator-annotations](https://pub.dev/packages/openapi_generator_annotations)
+## ⚠️ Java Requirement
 
-## Requirements
+> **Java is required to use this library.**  
+> The OpenAPI Generator CLI is a Java application.  
+> Please ensure you have Java (version 8 or higher) installed and available in your system PATH.  
+> You can check your Java installation with:
+>
+> ```sh
+> java -version
+> ```
+>
+> If you do not have Java installed, download it from [Adoptium](https://adoptium.net/) or [Oracle](https://www.oracle.com/java/technologies/downloads/).
 
-1. **Java**: You must have java installed on your system for this library to work. if you are a developer, chances aare
-   you already. Walking you through how to install Java is beyond the scope of this project.
-2. **Internet Connection**: _duh!!!_  Just to download the openapi jar initially. Once it is cached, you are good to go.
+---
 
-## Usage
+## ⚠️ Deprecation & Breaking Change Notice
 
-Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generator_annotations) as a dependency in the
-dependencies section of your pubspec.yaml file :
+### `skipIfSpecIsUnchanged` is Deprecated
+
+- The `skipIfSpecIsUnchanged` option is now **deprecated** and will be removed in the next major release.
+- **Local OpenAPI specs** are now automatically watched for changes.  
+  - If your spec file is in the `lib/` folder, this works out of the box.
+  - If your spec file is outside `lib/`, you must update or add a `build.yaml` to include your spec file as a source.  
+    Example:
+    ```yaml
+    targets:
+      $default:
+        sources:
+          - $package$
+          - lib/**
+          - openapi.yaml # or your spec file path
+    ```
+- **Remote specs:**  
+  Use the `forceAlwaysRun` (defaults to false) option to ensure the generator always runs.  
+  - This option is ignored for local specs.
+  - When enabled, it modifies the annotated file to force regeneration. This might cause issues such as merge conflicts
+
+---
+
+## Overview
+
+This repository provides Dart/Flutter libraries for generating OpenAPI client SDKs directly from your OpenAPI specification. Inspired by [Openapi Generator Cli (npm)](https://www.npmjs.com/package/@openapitools/openapi-generator-cli), it enables seamless integration into Dart and Flutter projects.
+
+### Libraries
+
+| Library                       | Description                                                                                                                      | Latest Version                                                                                                               |
+|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| openapi-generator             | Dev dependency for generating OpenAPI client SDK via Dart source gen ([usage](https://pub.dev/packages/openapi_generator))        | [![pub package](https://img.shields.io/pub/v/openapi_generator.svg)](https://pub.dev/packages/openapi_generator)             |
+| openapi-generator-annotations | Annotations for configuring OpenAPI client SDK generation ([usage](https://pub.dev/packages/openapi_generator_annotations))        | [![pub package](https://img.shields.io/pub/v/openapi_generator_annotations.svg)](https://pub.dev/packages/openapi_generator_annotations) |
+| openapi-generator-cli         | CLI wrapper for OpenAPI code generation ([usage](https://pub.dev/packages/openapi_generator_cli))                                 | [![pub package](https://img.shields.io/pub/v/openapi_generator_cli.svg)](https://pub.dev/packages/openapi_generator_cli)     |
+
+---
+
+## Quick Start
+
+### 1. Add Dependencies
+
+Add the annotations package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  openapi_generator_annotations: ^latest
+  openapi_generator_annotations: ^<latest-version>
 ```
 
-Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev dependencies section of your pubspec.yaml
-file:
+Add the generator as a dev dependency:
 
 ```yaml
 dev_dependencies:
-  openapi_generator: ^latest
+  openapi_generator: ^<latest-version>
 ```
 
-Annotate any dart class with @Openapi() annotation
+> **Beta Features:**  
+> For beta features, use the `beta` branch:
+>
+> ```yaml
+> dependencies:
+>   openapi_generator_annotations:
+>     git:
+>       url: https://github.com/gibahjoe/openapi-generator-dart.git
+>       ref: beta
+>       path: openapi-generator-annotations
+>
+> dev_dependencies:
+>   openapi_generator:
+>     git:
+>       url: https://github.com/gibahjoe/openapi-generator-dart.git
+>       ref: beta
+>       path: openapi-generator
+> ```
+
+### 2. Annotate Your Dart Class
+
+Annotate a Dart class with `@Openapi()` to configure code generation:
 
 ```dart
+import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
+
 @Openapi(
-   additionalProperties:
-   DioProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep..'),
-   inputSpec:
-   RemoteSpec(path: 'https://petstore3.swagger.io/api/v3/openapi.json'),
-   typeMappings: {'Pet': 'ExamplePet'},
-   generatorName: Generator.dio,
-   runSourceGenOnOutput: true,
-   outputDirectory: 'api/petstore_api',
+  additionalProperties: DioProperties(pubName: 'petstore_api', pubAuthor: 'Johnny Depp'),
+  inputSpec: RemoteSpec(path: 'https://petstore3.swagger.io/api/v3/openapi.json'),
+  typeMappings: {'Pet': 'ExamplePet'},
+  generatorName: Generator.dio,
+  runSourceGenOnOutput: true,
+  outputDirectory: 'api/petstore_api',
 )
 class Example {}
 ```
 
-Run command below to generate open api client sdk from spec file specified in annotation.
+### 3. Generate the SDK
 
-```cmd
+Run the build command:
+
+```sh
+dart run build_runner build --delete-conflicting-outputs
+# or, for Flutter projects:
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
 
-The api sdk will be generated in the folder specified in the annotation. See examples for more details
+The generated SDK will appear in the specified output directory.
 
-As of version 6.0 of this library, there is some new functionality that has been added to the generator. This version
-will have the ability to:
+---
 
-- `skipIfSpecUnchanged`: Set to `false` if you want the library to generate the client SDK each time, even without
-  changes in the OpenAPI spec. Defaults to `true`.
-- `forceAlwaysRun` (**Breaking Change**): Forces `build_runner` to detect changes by marking the annotated file. May
-  cause merge conflicts in team environments, so it defaults to `false`.
+## Next Generation Features (v5.0+)
 
-## Usage (pre 5.0.0 versions)
+- **Spec Caching:** Automatically caches your OpenAPI spec for faster incremental builds.
+- **Remote Spec Support:** Pulls and caches remote specs; always fetches the latest version unless using a local copy.
+- **Smart Generation:** Skips code generation if there are no changes in the spec or based on flags.
+- **All previous features remain available.**
 
-Include [openapi-generator-annotations](https://pub.dev/packages/openapi_generator_annotations) as a dependency in the
-dependencies section of your pubspec.yaml file :
-
-```yaml
-dependencies:
-   openapi_generator_annotations: ^latest
-```
-
-Add [openapi-generator](https://pub.dev/packages/openapi_generator) in the dev dependencies section of your pubspec.yaml
-file:
-
-```yaml
-dev_dependencies:
-   openapi_generator: ^latest
-```
-
-Annotate any dart class with @Openapi() annotation
+**Example:**
 
 ```dart
 @Openapi(
-        additionalProperties:
-        AdditionalProperties(pubName: 'petstore_api', pubAuthor: 'Johnny dep'),
-        inputSpecFile: 'example/openapi-spec.yaml',
-        generatorName: Generator.dart,
-        outputDirectory: 'api/petstore_api')
-class Example extends OpenapiGeneratorConfig {}
+  additionalProperties: DioProperties(pubName: 'petstore_api', pubAuthor: 'Johnny Depp'),
+  inputSpec: RemoteSpec(path: 'https://petstore3.swagger.io/api/v3/openapi.json'),
+  typeMappings: {'Pet': 'ExamplePet'},
+  generatorName: Generator.dio,
+  runSourceGenOnOutput: true,
+  outputDirectory: 'api/petstore_api',
+)
+class Example {}
 ```
 
-Run command below to generate open api client sdk from spec file specified in annotation.
+---
 
-```cmd
-flutter pub run build_runner build --delete-conflicting-outputs
+## Advanced Configuration
+
+If you are having issues with the generated code, this is not an problem with this package and creating an issue here will not help solve it. Its best to [create the issue in the base OpenApi library](https://github.com/OpenAPITools/openapi-generator/issues) since this package is a wrapper around that library for ease of use with Flutter/dart.
+
+Below are some advanced configurations you may try.
+
+- **Custom Templates:**  
+  Use the `templateDirectory` parameter to specify a custom code generation template.
+
+- **Type & Import Mappings:**  
+  Use `typeMappings` and `importMappings` to control how OpenAPI types and models are mapped in Dart.
+
+- **Reserved Words:**  
+  Use `reservedWordsMappings` to avoid conflicts with Dart reserved words.
+
+**Example:**
+
+```dart
+@Openapi(
+  additionalProperties: DioProperties(pubName: 'custom_api', pubAuthor: 'Jane Doe'),
+  inputSpec: InputSpec(path: 'openapi-spec.yaml'),
+  generatorName: Generator.dio,
+  templateDirectory: 'templates/dart',
+  typeMappings: {'date': 'DateTime'},
+  importMappings: {'DateTime': 'package:my_project/date_time.dart'},
+  reservedWordsMappings: {'class': 'clazz'},
+  outputDirectory: 'api/custom_api',
+)
+class CustomApi {}
 ```
 
-The api sdk will be generated in the folder specified in the annotation. See examples for more details
+---
 
-## Known Issues
+## Troubleshooting
 
-### Dependency issues/conflicts
+### Common Issues
 
-This is not an issue with this library but with flutter/dart in general. If you are having issues with dependencies,
-what
-you can do is make use of dependency overrides. This is added to the pubspec.yaml of the generated package and then the
-pubspec
-must be added to the .openapi-generator-ignore of the generated package.
-For example, let's assume you want to override the analyzer package for the generated source
+- **Dependency Conflicts:**  
+  Use `dependency_overrides` in the generated package's `pubspec.yaml` and add `pubspec.yaml` to `.openapi-generator-ignore` to prevent overwrites.
 
-in generatedsource/pubspec.yaml add the following
+- **Incorrect Generated Code:**  
+  - Fix your OpenAPI spec (preferred).
+  - Manually edit the generated code and add the files to `.openapi-generator-ignore` to prevent them from being overwritten.
 
-```yaml
-dependency_overrides:
-  analyzer: <-- preferred version -->
-```
-
-Then in generatedsources/.openapi-generator-ignore, add the below so that the pubspec is not overwritten next time you
-run source gen
-
-```.gitignore
-pubspec.yaml
-```
-
-The above steps are useful when you have issues with dependency conflicts, clashes. You can even use it to upgrade the
-library packages in the generated source.
-
-### Resolving Issues with Generated Code
-
-This library is a wrapper around [openapi generator](https://github.com/OpenAPITools/openapi-generator) to enable
-seamless (kind of) integration into dart's build system.
-The underlying generator itself is not 100% perfect mainly because it is multipurpose built and sometimes generates bad
-code due to various reasons including incorrect openapi doc.
-If you encounter issues with the code generated by the OpenAPI generator, there are two main ways to resolve them:
-
-#### 1. Correct the OpenAPI Documentation
-
-The issue might be due to incorrect or conflicting OpenAPI documentation. For instance, if a model name conflicts with
-Dart's reserved names, you should edit the OpenAPI documentation to fix the issue.
-
-#### 2. Manually Fix the Generated Code
-
-If correcting the OpenAPI documentation is not possible or you don't have access to it, you can manually fix the
-generated code.
-
-Here are the steps to take to do this:
-
-1. Identify the files with the bad code and manually correct them.
-2. Add the manually edited files to the `.openapi-generator-ignore` file. This ensures that your changes are not
-   overridden when you run the generator again.
-   below is a sample of the `.openapi-generator-ignore` file. This file uses the `.gitignore` syntax and also has
-   documentation in it.
+**.openapi-generator-ignore Example:**
 
 ```gitignore
-# You can also negate patterns with an exclamation (!).
-# For example, you can ignore all files in a docs folder with the file extension .md:
-docs/*.md
-# Then explicitly reverse the ignore rule for a single file:
-!docs/README.md
-path/to/corrected.dart
+# Ignore all test files
+test/*
+# Ignore pubspec.yaml to preserve manual changes
+pubspec.yaml
 ```
-
-Remember to commit the `.openapi-generator-ignore` file to your git repository to preserve these changes.
-
-By following these steps, you should be able to resolve issues with the generated code.
-
-## FAQ
-
-#### Q: How do I prevent files from being generated e.g tests
-
-A: To prevent any files from being generated, you need to add it to ```.openapi-generator-ignore```. This file is in the
-root of the generated code. For example, to prevent generating tests, add ```test/*``` to the file.
-
-## Features and bugs
-
-Please file feature requests and bugs at the [issue tracker][tracker].
-
-[tracker]: https://github.com/gibahjoe/openapi-generator-dart/issues
-
-## Running Tests
-
-Requirements:
-
-- [Docker](https://www.docker.com/products/docker-desktop/)
-
-<a href="https://www.buymeacoffee.com/gibahjoe" target="_blank"><img src="https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
