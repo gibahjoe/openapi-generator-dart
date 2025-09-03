@@ -215,17 +215,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         }
       }
 
-      if (!builderCanReadSpec) {
-        if (args.skipIfSpecIsUnchanged && !await hasDiff(args: args)) {
-          logOutputMessage(
-            log: log,
-            communication: OutputMessage(
-              message: 'No diff between versions, not running generator.',
-            ),
-          );
-          return '';
-        }
-      }
+      // Skip spec check removed - deprecated functionality
 
       await runOpenApiJar(arguments: args);
       await fetchDependencies(baseCommand: baseCommand, args: args);
@@ -242,45 +232,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           ),
         ),
       );
-      if (!builderCanReadSpec) {
-        if (!args.skipIfSpecIsUnchanged) {
-          logOutputMessage(
-            log: log,
-            communication: OutputMessage(
-              message:
-                  'Skip spec cache because [skipIfSpecIsUnchanged] is set to false',
-            ),
-          );
-          return '';
-        } else {
-          if (!args.hasLocalCache) {
-            logOutputMessage(
-              log: log,
-              communication: OutputMessage(
-                message: 'No local cache found. Creating one.',
-                level: Level.CONFIG,
-              ),
-            );
-          } else {
-            logOutputMessage(
-              log: log,
-              communication: OutputMessage(
-                message: 'Local cache found. Overwriting existing one.',
-                level: Level.CONFIG,
-              ),
-            );
-          }
-          await cacheSpec(
-              outputLocation: args.cachePath,
-              spec: await loadSpec(specConfig: args.inputSpec));
-          logOutputMessage(
-            log: log,
-            communication: OutputMessage(
-              message: 'Successfully cached spec changes.',
-            ),
-          );
-        }
-      }
+      // Cache handling removed - deprecated functionality
     } catch (e, st) {
       logOutputMessage(
         log: log,

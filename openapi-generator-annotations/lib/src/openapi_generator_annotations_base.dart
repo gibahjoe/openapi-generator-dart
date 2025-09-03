@@ -4,10 +4,6 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:meta/meta.dart';
 
-const skipSpecDepMessage =
-    'This will be removed in next major release. This generator will always run'
-    'if changes are detected on local spec file. see https://github.com/gibahjoe/openapi-generator-dart#deprecation--breaking-change-notice -  Use `forceAlwaysRun` '
-    'to always run the generator regardless of spec changes.';
 
 class Openapi {
   /// Additional properties to pass to the compiler (CSV)
@@ -149,22 +145,10 @@ class Openapi {
   /// Note: Setting this to `true` can lead to merge conflicts in team environments,
   /// as each developer may end up modifying the annotated file.
   ///
-  /// This setting is different from [skipIfSpecIsUnchanged], which only regenerates
-  /// the client SDK if it detects changes in the OpenAPI specification.
   ///
   /// Defaults to [false].
   final bool forceAlwaysRun;
 
-  /// Skips execution if the OpenAPI specification file is different from a cached copy.
-  ///
-  /// For remote specifications, the file will be downloaded and cached locally.
-  /// The cache is then compared to the remote file to detect any changes.
-  ///
-  /// If set to false, a cached copy of the OpenAPI specification file is not kept.
-  ///
-  /// Defaults to [false].
-  @Deprecated(skipSpecDepMessage)
-  final bool skipIfSpecIsUnchanged;
 
   const Openapi({
     this.additionalProperties,
@@ -188,7 +172,6 @@ class Openapi {
     this.projectPubspecPath,
     this.debugLogging = false,
     this.forceAlwaysRun = false,
-    @Deprecated(skipSpecDepMessage) this.skipIfSpecIsUnchanged = true,
   });
 
   @override
@@ -250,7 +233,6 @@ class Openapi {
     }
     buffer.writeln('  debugLogging: $debugLogging,');
     buffer.writeln('  forceAlwaysRun: $forceAlwaysRun,');
-    buffer.writeln('  skipIfSpecIsUnchanged: $skipIfSpecIsUnchanged,');
     buffer.write(')');
     return buffer.toString();
   }

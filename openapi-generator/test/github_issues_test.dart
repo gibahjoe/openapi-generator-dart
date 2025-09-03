@@ -334,7 +334,6 @@ void main() {
               typeMappings: {'Pet': 'ExamplePet'},
               generatorName: Generator.dio,
               runSourceGenOnOutput: true,
-              skipIfSpecIsUnchanged: false,
               cleanSubOutputDirectory: [
                 './test/specs/issue/$issueNumber/output'
               ],
@@ -377,7 +376,6 @@ void main() {
               generatorName: Generator.dio,
               runSourceGenOnOutput: true,
               typeMappings: {'Pet': 'ExamplePet', 'Test': 'ExampleTest'},
-              skipIfSpecIsUnchanged: false,
               cleanSubOutputDirectory: [
                 './test/specs/issue/$issueNumber/output'
               ],

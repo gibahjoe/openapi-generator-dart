@@ -30,7 +30,6 @@ void main() {
       expect(props.debugLogging, isFalse);
       expect(props.nameMappings, isNull);
       expect(props.enumNameMappings, isNull);
-      expect(props.skipIfSpecIsUnchanged, isTrue);
     });
     group('NextGen', () {
       test('Sets cachePath', () {
@@ -391,14 +390,6 @@ void main() {
             expect(openapi.toString(), contains('forceAlwaysRun: true'));
           });
 
-          test('should include skipIfSpecIsUnchanged when set', () {
-            final openapi = Openapi(
-              skipIfSpecIsUnchanged: true,
-              inputSpec: InputSpec(path: 'example_path'),
-              generatorName: Generator.dart,
-            );
-            expect(openapi.toString(), contains('skipIfSpecIsUnchanged: true'));
-          });
         });
 
         group('InputSpec.toString', () {

@@ -13,7 +13,6 @@ void main() {
   typeMappings: {'Pet': 'ExamplePet'},
   generatorName: Generator.dio,
   runSourceGenOnOutput: true,
-  skipIfSpecIsUnchanged: false,
   outputDirectory: 'api/petstore_api',
 )
 class MyApp extends StatelessWidget {
