@@ -20,7 +20,6 @@ class GeneratorArguments {
   /// The default location is: .dart_tool/openapi-generator-cache.json
   final String cachePath;
 
-
   final bool isDebug;
 
   /// Use a custom pubspec file when generating.

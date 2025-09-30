@@ -101,7 +101,7 @@ jobs:
       - run: flutter build apk
 
   #      - name: Upload artifact (Client) ⬆️💻
-  #        uses: actions/upload-artifact@v3.1.1
+  #        uses: actions/upload-artifact@v4
   #        with:
   #          name: example
   #          path: |
@@ -126,7 +126,7 @@ jobs:
           echo $PR_SHA > PR_sha
 
       - name: Upload PR number as artifact
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v4
         with:
           name: PR_context
           path: |

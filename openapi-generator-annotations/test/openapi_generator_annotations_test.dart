@@ -389,7 +389,6 @@ void main() {
             );
             expect(openapi.toString(), contains('forceAlwaysRun: true'));
           });
-
         });
 
         group('InputSpec.toString', () {

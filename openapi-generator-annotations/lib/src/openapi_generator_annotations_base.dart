@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:meta/meta.dart';
 
-
 class Openapi {
   /// Additional properties to pass to the compiler (CSV)
   ///
@@ -148,7 +147,6 @@ class Openapi {
   ///
   /// Defaults to [false].
   final bool forceAlwaysRun;
-
 
   const Openapi({
     this.additionalProperties,
