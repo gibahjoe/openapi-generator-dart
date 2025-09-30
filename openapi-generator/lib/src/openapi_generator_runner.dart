@@ -206,7 +206,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
               message: [
                 ':: Looks like you havent added the spec file [${args.inputSpec.path}] to your build.yaml.',
                 ':: This is needed for this package to monitor changes to the spec file.',
-                ':: Find out more here: ',
+                ':: Find out more here: https://github.com/gibahjoe/openapi-generator-dart/tree/master?tab=readme-ov-file#skipifspecisunchanged-is-deprecated',
                 '\n',
               ].join('\n'),
               level: Level.WARNING,

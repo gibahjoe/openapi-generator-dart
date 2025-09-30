@@ -341,8 +341,8 @@ class AWSRemoteSpecHeaderDelegate extends RemoteSpecHeaderDelegate {
 
   const AWSRemoteSpecHeaderDelegate({
     required this.bucket,
-    this.secretAccessKey = null,
-    this.accessKeyId = null,
+    this.secretAccessKey,
+    this.accessKeyId,
   }) : super();
 
   AWSRemoteSpecHeaderDelegate.fromMap(Map<String, dynamic> map)
@@ -359,7 +359,7 @@ class AWSRemoteSpecHeaderDelegate extends RemoteSpecHeaderDelegate {
     String? path,
   }) {
     if (!(path != null && path.isNotEmpty)) {
-      throw new AssertionError('The path to the OAS spec should be provided');
+      throw AssertionError('The path to the OAS spec should be provided');
     }
 
     // Use the provided credentials to the constructor, if any, otherwise
@@ -369,7 +369,7 @@ class AWSRemoteSpecHeaderDelegate extends RemoteSpecHeaderDelegate {
         secretAccessKey ?? Platform.environment['AWS_SECRET_ACCESS_KEY'];
     if ((accessKey == null || accessKey.isEmpty) ||
         (secretKey == null || secretKey.isEmpty)) {
-      throw new AssertionError(
+      throw AssertionError(
           'AWS_SECRET_KEY_ID & AWS_SECRET_ACCESS_KEY should be defined and not empty or they should be provided in the delegate constructor.');
     }
 
@@ -548,30 +548,39 @@ class AdditionalProperties {
   String toString() {
     final buffer = StringBuffer();
     buffer.writeln('AdditionalProperties(');
-    if (allowUnicodeIdentifiers != null)
+    if (allowUnicodeIdentifiers != null) {
       buffer.writeln('  allowUnicodeIdentifiers: $allowUnicodeIdentifiers,');
-    if (ensureUniqueParams != null)
+    }
+    if (ensureUniqueParams != null) {
       buffer.writeln('  ensureUniqueParams: $ensureUniqueParams,');
-    if (prependFormOrBodyParameters != null)
+    }
+    if (prependFormOrBodyParameters != null) {
       buffer.writeln(
           '  prependFormOrBodyParameters: $prependFormOrBodyParameters,');
+    }
     if (pubAuthor != null) buffer.writeln('  pubAuthor: "$pubAuthor",');
-    if (pubAuthorEmail != null)
+    if (pubAuthorEmail != null) {
       buffer.writeln('  pubAuthorEmail: "$pubAuthorEmail",');
-    if (pubDescription != null)
+    }
+    if (pubDescription != null) {
       buffer.writeln('  pubDescription: "$pubDescription",');
+    }
     if (pubHomepage != null) buffer.writeln('  pubHomepage: "$pubHomepage",');
     if (pubName != null) buffer.writeln('  pubName: "$pubName",');
     if (pubVersion != null) buffer.writeln('  pubVersion: "$pubVersion",');
-    if (sortModelPropertiesByRequiredFlag != null)
+    if (sortModelPropertiesByRequiredFlag != null) {
       buffer.writeln(
           '  sortModelPropertiesByRequiredFlag: $sortModelPropertiesByRequiredFlag,');
-    if (sortParamsByRequiredFlag != null)
+    }
+    if (sortParamsByRequiredFlag != null) {
       buffer.writeln('  sortParamsByRequiredFlag: $sortParamsByRequiredFlag,');
-    if (sourceFolder != null)
+    }
+    if (sourceFolder != null) {
       buffer.writeln('  sourceFolder: "$sourceFolder",');
-    if (useEnumExtension != null)
+    }
+    if (useEnumExtension != null) {
       buffer.writeln('  useEnumExtension: $useEnumExtension,');
+    }
     buffer.writeln('  enumUnknownDefaultCase: $enumUnknownDefaultCase,');
     buffer.writeln('  wrapper: $wrapper,');
     buffer
@@ -629,10 +638,12 @@ class InlineSchemaOptions {
   String toString() {
     final buffer = StringBuffer();
     buffer.writeln('InlineSchemaOptions(');
-    if (arrayItemSuffix != null)
+    if (arrayItemSuffix != null) {
       buffer.writeln('  arrayItemSuffix: "$arrayItemSuffix",');
-    if (mapItemSuffix != null)
+    }
+    if (mapItemSuffix != null) {
       buffer.writeln('  mapItemSuffix: "$mapItemSuffix",');
+    }
     buffer.writeln('  skipSchemaReuse: $skipSchemaReuse,');
     buffer
         .writeln('  refactorAllofInlineSchemas: $refactorAllofInlineSchemas,');
@@ -694,6 +705,7 @@ class DioProperties extends AdditionalProperties {
             map['serializationLibrary']),
         super.fromMap(map);
 
+  @override
   Map<String, dynamic> toMap() => Map.from(super.toMap())
     ..addAll({
       if (dateLibrary != null)
@@ -713,10 +725,12 @@ class DioProperties extends AdditionalProperties {
         .replaceAll(RegExp(r'AdditionalProperties\(|\)$'), '')
         .replaceAll('\n', '\n  ')); // Indent base class fields
     if (dateLibrary != null) buffer.writeln('  dateLibrary: $dateLibrary,');
-    if (nullableFields != null)
+    if (nullableFields != null) {
       buffer.writeln('  nullableFields: $nullableFields,');
-    if (serializationLibrary != null)
+    }
+    if (serializationLibrary != null) {
       buffer.writeln('  serializationLibrary: $serializationLibrary,');
+    }
     buffer.write(')');
     return buffer.toString();
   }
@@ -783,6 +797,7 @@ class DioAltProperties extends AdditionalProperties {
         pubspecDevDependencies = map['pubspecDevDependencies'],
         super.fromMap(map);
 
+  @override
   Map<String, dynamic> toMap() => Map.from(super.toMap())
     ..addAll({
       if (listAnyOf != null) 'listAnyOf': listAnyOf,
@@ -805,10 +820,12 @@ class DioAltProperties extends AdditionalProperties {
 
     // Add DioAltProperties-specific fields
     if (listAnyOf != null) buffer.writeln('  listAnyOf: $listAnyOf,');
-    if (pubspecDependencies != null)
+    if (pubspecDependencies != null) {
       buffer.writeln('  pubspecDependencies: "$pubspecDependencies",');
-    if (pubspecDevDependencies != null)
+    }
+    if (pubspecDevDependencies != null) {
       buffer.writeln('  pubspecDevDependencies: "$pubspecDevDependencies",');
+    }
 
     buffer.write(')');
     return buffer.toString();

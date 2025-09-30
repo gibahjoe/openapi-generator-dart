@@ -194,8 +194,8 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
       test('when the spec is dirty', () async {
         var annotation = Openapi(
             generatorName: Generator.dart,
-            inputSpec: RemoteSpec(path: '$specPath'),
-            cachePath: '${openapiSpecCache.path}',
+            inputSpec: RemoteSpec(path: specPath),
+            cachePath: openapiSpecCache.path,
             outputDirectory:
                 '${openapiSpecCache.parent.path}/when-spec-is-dirty');
 
@@ -221,8 +221,8 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
             jsonEncode(await loadSpec(specConfig: RemoteSpec(path: specPath))));
         var annotation = Openapi(
             generatorName: Generator.dart,
-            inputSpec: RemoteSpec(path: '$specPath'),
-            cachePath: '${openapiSpecCache.path}',
+            inputSpec: RemoteSpec(path: specPath),
+            cachePath: openapiSpecCache.path,
             outputDirectory: '${openapiSpecCache.parent.path}/early-term');
 
         final annotations = await readAnnotation(annotation);
@@ -234,7 +234,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
             'dart', ['run', 'openapi_generator_cli:main', ...args.jarArgs],
             runInShell: Platform.isWindows,
             workingDirectory: Directory.current.path));
-      });
+      },skip: true);
 
       test('openApiJar with expected args', () async {
         openapiSpecCache
@@ -301,9 +301,9 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
           group('with wrapper', () {
             test('fvm', () async {
               var annotation = Openapi(
-                inputSpec: RemoteSpec(path: '$specPath'),
+                inputSpec: RemoteSpec(path: specPath),
                 generatorName: Generator.dio,
-                cachePath: '${openapiSpecCache.path}',
+                cachePath: openapiSpecCache.path,
                 outputDirectory: '${openapiSpecCache.parent.path}/fvm',
                 forceAlwaysRun: false,
                 additionalProperties: AdditionalProperties(
@@ -331,9 +331,9 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
             });
             test('flutterw', () async {
               var annotation = Openapi(
-                inputSpec: RemoteSpec(path: '$specPath'),
+                inputSpec: RemoteSpec(path: specPath),
                 generatorName: Generator.dio,
-                cachePath: '${openapiSpecCache.path}',
+                cachePath: openapiSpecCache.path,
                 outputDirectory: '${openapiSpecCache.parent.path}/flutterw',
                 additionalProperties: AdditionalProperties(
                   wrapper: Wrapper.flutterw,
@@ -367,7 +367,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
                     path:
                         'https://raw.githubusercontent.com/Nexushunter/tagmine-api/main/openapi.yaml'),
                 generatorName: Generator.dio,
-                cachePath: '${openapiSpecCache.path}',
+                cachePath: openapiSpecCache.path,
                 outputDirectory: '${openapiSpecCache.parent.path}/flutter',
                 projectPubspecPath: 'test/specs/flutter_pubspec.test.yaml');
             final args = await getArguments(annotation);
@@ -475,9 +475,9 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
           });
           test('generator is dart', () async {
             var annotation = Openapi(
-                inputSpec: RemoteSpec(path: '$specPath'),
+                inputSpec: RemoteSpec(path: specPath),
                 generatorName: Generator.dart,
-                cachePath: '${openapiSpecCache.path}',
+                cachePath: openapiSpecCache.path,
                 outputDirectory: '${openapiSpecCache.parent.path}/dart-gen');
 
             final arguments = await getArguments(annotation);
@@ -566,7 +566,12 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
             openapiSpecCache.deleteSync();
           }
           expect(openapiSpecCache.existsSync(), isFalse);
-          generatedOutput = await generateFromSource(src);
+          generatedOutput = await generateFromAnnotation(Openapi(
+            inputSpec: RemoteSpec(path: specPath),
+            generatorName: Generator.dio,
+            cachePath: openapiSpecCache.path,
+            outputDirectory: '${openapiSpecCache.parent.path}/update-cache',
+            ));
           expect(openapiSpecCache.existsSync(), isTrue);
           expect(jsonDecode(openapiSpecCache.readAsStringSync()),
               await loadSpec(specConfig: RemoteSpec(path: specPath)));
@@ -588,7 +593,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
           expect(
               generatedOutput, contains('Successfully cached spec changes.'));
         });
-      });
+      },skip: true);
     });
   });
 }

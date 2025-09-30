@@ -14,7 +14,7 @@ void main() {
       expect(props.sortModelPropertiesByRequiredFlag, isTrue);
       expect(props.sortParamsByRequiredFlag, isTrue);
       // Default null props
-      [
+      for (var element in [
         props.pubVersion,
         props.pubName,
         props.pubHomepage,
@@ -22,7 +22,9 @@ void main() {
         props.pubAuthor,
         props.pubAuthorEmail,
         props.sourceFolder
-      ].forEach((element) => expect(element, isNull));
+      ]) {
+        expect(element, isNull);
+      }
     });
     test('toMap', () {
       final props = AdditionalProperties();
@@ -37,7 +39,7 @@ void main() {
       expect(map['sortParamsByRequiredFlag'], isTrue);
 
       // Doesn't include null fields
-      [
+      for (var element in [
         'pubVersion',
         'pubName',
         'pubHomepage',
@@ -45,7 +47,9 @@ void main() {
         'pubAuthor',
         'pubAuthorEmail',
         'sourceFolder'
-      ].forEach((element) => expect(map.containsKey(element), isFalse));
+      ]) {
+        expect(map.containsKey(element), isFalse);
+      }
     });
     test('fromMap', () {
       final props = AdditionalProperties(
@@ -107,7 +111,7 @@ void main() {
       expect(props.sortModelPropertiesByRequiredFlag, isTrue);
       expect(props.sortParamsByRequiredFlag, isTrue);
       // Default null props
-      [
+      for (var element in [
         props.pubVersion,
         props.pubName,
         props.pubHomepage,
@@ -118,7 +122,9 @@ void main() {
         props.nullableFields,
         props.serializationLibrary,
         props.dateLibrary,
-      ].forEach((element) => expect(element, isNull));
+      ]) {
+        expect(element, isNull);
+      }
     });
     test('toMap', () {
       final props = DioProperties();
@@ -133,7 +139,7 @@ void main() {
       expect(map['sortParamsByRequiredFlag'], isTrue);
 
       // Doesn't include null fields
-      [
+      for (var element in [
         'pubVersion',
         'pubName',
         'pubHomepage',
@@ -144,7 +150,9 @@ void main() {
             'dateLibrary',
         'nullableFields',
         'serializationLibrary'
-      ].forEach((element) => expect(map.containsKey(element), isFalse));
+      ]) {
+        expect(map.containsKey(element), isFalse);
+      }
     });
     test('fromMap', () {
       final props = DioProperties(
@@ -215,7 +223,7 @@ void main() {
       expect(props.sortModelPropertiesByRequiredFlag, isTrue);
       expect(props.sortParamsByRequiredFlag, isTrue);
       // Default null props
-      [
+      for (var element in [
         props.pubVersion,
         props.pubName,
         props.pubHomepage,
@@ -226,7 +234,9 @@ void main() {
         props.listAnyOf,
         props.pubspecDevDependencies,
         props.pubspecDependencies
-      ].forEach((element) => expect(element, isNull));
+      ]) {
+        expect(element, isNull);
+      }
     });
     test('toMap', () {
       final props = DioAltProperties();
@@ -241,7 +251,7 @@ void main() {
       expect(map['sortParamsByRequiredFlag'], isTrue);
 
       // Doesn't include null fields
-      [
+      for (var element in [
         'pubVersion',
         'pubName',
         'pubHomepage',
@@ -254,7 +264,9 @@ void main() {
             'listAnyOf,'
             'pubspecDevDependencies,'
             'pubspecDependencies'
-      ].forEach((element) => expect(map.containsKey(element), isFalse));
+      ]) {
+        expect(map.containsKey(element), isFalse);
+      }
     });
     test('fromMap', () {
       final props = DioAltProperties(

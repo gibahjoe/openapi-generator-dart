@@ -13,7 +13,7 @@ dependencies:
   cli_launcher: ^0.3.1
 
 dev_dependencies:
-  pedantic:
+  lints: ^6.0.0
   test:
 
 executables:

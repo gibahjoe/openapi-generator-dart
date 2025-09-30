@@ -4,10 +4,12 @@ import 'package:openapi_generator_cli/src/models.dart';
 class GenerateCommand extends Command {
   // The [name] and [description] properties must be defined by every
   // subclass.
+  @override
   final name = "generate";
+  @override
   final description = "Record changes to the repository.";
 
-  CommitCommand() {
+  GenerateCommand() {
     // Add options based on ConfigDefaults and ConfigKeys
     argParser.addOption(ConfigKeys.openapiGeneratorVersion,
         help: 'The version of the OpenAPI generator to use.',
@@ -33,6 +35,7 @@ class GenerateCommand extends Command {
   }
 
   // [run] may also return a Future.
+  @override
   void run() {
     // [argResults] is set before [run()] is called and contains the flags/options
     // passed to this command.
