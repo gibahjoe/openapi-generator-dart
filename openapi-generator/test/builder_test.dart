@@ -234,7 +234,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
             'dart', ['run', 'openapi_generator_cli:main', ...args.jarArgs],
             runInShell: Platform.isWindows,
             workingDirectory: Directory.current.path));
-      },skip: true);
+      }, skip: true);
 
       test('openApiJar with expected args', () async {
         openapiSpecCache
@@ -571,7 +571,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
             generatorName: Generator.dio,
             cachePath: openapiSpecCache.path,
             outputDirectory: '${openapiSpecCache.parent.path}/update-cache',
-            ));
+          ));
           expect(openapiSpecCache.existsSync(), isTrue);
           expect(jsonDecode(openapiSpecCache.readAsStringSync()),
               await loadSpec(specConfig: RemoteSpec(path: specPath)));
@@ -593,7 +593,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
           expect(
               generatedOutput, contains('Successfully cached spec changes.'));
         });
-      },skip: true);
+      }, skip: true);
     });
   });
 }
