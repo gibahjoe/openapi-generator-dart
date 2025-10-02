@@ -59,7 +59,7 @@ extension TypeMethods on ConstantReader {
       throw Exception(
           'Could not read constant via enumValue<$T>(). $T is not a Dart enum.');
     }
-    
+
     if (!instanceOf(TypeChecker.typeNamed(T))) {
       throw Exception('Not an instance of $T.');
     }

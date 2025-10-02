@@ -250,12 +250,13 @@ void expectSourceGenSkipped(Directory outputDir) {
 
 void expectCodeFormattedSuccessfully(Directory outputDir) {
   // run dart format --set-exit-if-changed . on the output directory
-  final result = Process.runSync('dart', ['format', '--set-exit-if-changed', '.'],
+  final result = Process.runSync(
+      'dart', ['format', '--set-exit-if-changed', '.'],
       workingDirectory: outputDir.path);
   expect(result.exitCode, 0,
       reason:
           'Code formatting failed. Please run "dart format ." on the output directory.\n${result.stdout}\n${result.stderr}');
- }
+}
 
 void expectSourceGenRun(Directory outputDir) {
   expect(

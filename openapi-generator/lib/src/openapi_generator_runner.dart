@@ -26,7 +26,6 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   @override
   FutureOr<String> generateForAnnotatedElement(
       Element element, ConstantReader annotations, BuildStep buildStep) async {
-        
     logOutputMessage(
       log: log,
       communication: OutputMessage(

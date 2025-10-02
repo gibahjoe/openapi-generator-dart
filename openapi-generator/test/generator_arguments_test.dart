@@ -306,7 +306,7 @@ void main() {
           'Processes annotation with inputSpecFile that contains url correctly',
           () async {
         final config = File(join(Directory.current.path, 'test', 'specs',
-                'input_remote_properties_test_config.dart'));
+            'input_remote_properties_test_config.dart'));
         final annotations = await getConstantReaderForPath(
             file: config,
             libraryName: 'test_lib',
