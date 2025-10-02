@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:build_test/build_test.dart';
 import 'package:openapi_generator/src/models/generator_arguments.dart';
 import 'package:openapi_generator/src/utils.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';

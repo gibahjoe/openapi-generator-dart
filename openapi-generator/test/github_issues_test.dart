@@ -46,7 +46,7 @@ void main() {
         var inputSpecFile =
             File('$parentFolder/github_issue_#$issueNumber.json');
         var outputDir = Directory('./test/specs/issue/$issueNumber/output');
-        var generatedOutput = await generateFromAnnotation(
+        await generateFromAnnotation(
           Openapi(
             additionalProperties: AdditionalProperties(
                 pubName: 'tictactoe_api',
@@ -98,7 +98,7 @@ void main() {
         var inputSpecFile =
             File('$parentFolder/github_issue_#$issueNumber.json');
 
-        var generatedOutput = await generateFromPath(
+        await generateFromPath(
           annotatedFile.path,
           openapiSpecFilePath: inputSpecFile.path,
           process: processRunner,
@@ -131,7 +131,7 @@ void main() {
           var inputSpecFile =
               File('$parentFolder/github_issue_#$issueNumber.json');
 
-          var generatedOutput = await generateFromPath(
+          await generateFromPath(
             annotatedFile.path,
             process: processRunner,
             openapiSpecFilePath: inputSpecFile.path,
@@ -178,7 +178,7 @@ void main() {
         var inputSpecFile =
             File('$parentFolder/github_issue_#$issueNumber.json');
 
-        var generatedOutput = await generateFromPath(
+        await generateFromPath(
           annotatedFile.path,
           process: processRunner,
           openapiSpecFilePath: inputSpecFile.path,
@@ -208,7 +208,7 @@ void main() {
           var inputSpecFile =
               File('$parentFolder/github_issue_#$issueNumber.json');
 
-          var generatedOutput = await generateFromPath(
+          await generateFromPath(
             annotatedFile.path,
             process: processRunner,
             openapiSpecFilePath: inputSpecFile.path,
@@ -258,7 +258,7 @@ void main() {
         // var annotatedFileContents = annotatedFile.readAsStringSync();
         var inputSpecFile = File('$parentFolder/github_issue_#135.json');
 
-        var generatedOutput = await generateFromPath(annotatedFile.path,
+        await generateFromPath(annotatedFile.path,
             process: processRunner, openapiSpecFilePath: inputSpecFile.path);
 
         var annotation = await getConstantReaderForPath(file: annotatedFile);
@@ -285,7 +285,7 @@ void main() {
           // var annotatedFileContents = annotatedFile.readAsStringSync();
           var inputSpecFile = File('$parentFolder/github_issue_#135.json');
 
-          var generatedOutput = await generateFromPath(annotatedFile.path,
+          await generateFromPath(annotatedFile.path,
               process: processRunner, openapiSpecFilePath: inputSpecFile.path);
 
           var annotation = await getConstantReaderForPath(file: annotatedFile);
@@ -356,7 +356,7 @@ void main() {
       );
       test('[dio] Test that generation does not fail', () async {
         var outputDir = Directory('./test/specs/issue/$issueNumber/output');
-        var generatedOutput = await generateFromAnnotation(
+        await generateFromAnnotation(
           Openapi(
               additionalProperties: DioProperties(
                   pubName: 'petstore_api', pubAuthor: 'Johnny_dep'),
@@ -397,7 +397,7 @@ void main() {
       );
       test('[dio] Test that generation does not fail', () async {
         var outputDir = Directory('./test/specs/issue/$issueNumber/output');
-        var generatedOutput = await generateFromAnnotation(
+        await generateFromAnnotation(
           Openapi(
               additionalProperties: DioAltProperties(
                 pubName: 'issue_api',

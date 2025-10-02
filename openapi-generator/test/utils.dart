@@ -14,8 +14,6 @@ import 'package:source_gen_test/source_gen_test.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
-import 'package:source_gen/source_gen.dart' as src_gen;
-
 @GenerateNiceMocks([MockSpec<ProcessRunner>()])
 import 'utils.mocks.dart';
 
@@ -67,7 +65,7 @@ Future<String> generateFromPath(
   final Builder builder = LibraryBuilder(OpenapiGenerator(process),
       generatedExtension: '.openapi_generator');
   // Run the builder in test mode; it returns a TestBuilderResult
-  final result = await testBuilder(
+  await testBuilder(
     builder,
     sources,
     rootPackage: pkgName,
@@ -76,7 +74,7 @@ Future<String> generateFromPath(
     readerWriter: readerWriter,
   );
 
-  printOnFailure('Generated files: ${logMessage}');
+  printOnFailure('Generated files: $logMessage');
   // Fallback to empty
   final output = logMessage ?? '';
 
@@ -133,7 +131,7 @@ Future<String> generateFromSource(String source,
   final Builder builder = LibraryBuilder(OpenapiGenerator(process),
       generatedExtension: '.openapi_generator');
   // Run the builder in test mode; it returns a TestBuilderResult
-  final result = await testBuilder(
+  await testBuilder(
     builder,
     sources,
     rootPackage: pkgName,
