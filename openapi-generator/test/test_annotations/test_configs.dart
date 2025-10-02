@@ -4,35 +4,38 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
 import 'package:source_gen_test/annotations.dart';
 
 @ShouldGenerate(r'''
-const fetchDependencies = true;
+import 'dart:io';
 
-const forceAlwaysRun = false;
-
-const generatorName = 'dio';
-
-const inputSpec = '';
-
-const runSourceGenOnOutput = true;
-
-const skipSpecValidation = false;
+void main() {
+  Process.run(
+    'dart',
+    ['run', 'openapi_generator_cli:main', 'generate', '-i=', '-g=dart-dio'],
+    workingDirectory: Directory.current.path,
+    runInShell: Platform.isWindows,
+  );
+}
 ''')
 @Openapi(inputSpec: InputSpec(path: ''), generatorName: Generator.dio)
 class TestClassDefault {}
 
 @ShouldGenerate(r'''
-const additionalProperties = wrapper = 'flutterw';
+import 'dart:io';
 
-const fetchDependencies = true;
-
-const forceAlwaysRun = false;
-
-const generatorName = 'dart';
-
-const inputSpec = '';
-
-const runSourceGenOnOutput = true;
-
-const skipSpecValidation = false;
+void main() {
+  Process.run(
+    'dart',
+    [
+      'run',
+      'openapi_generator_cli:main',
+      'generate',
+      '-i=',
+      '-g=dart',
+      '--additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,enumUnknownDefaultCase=false,prependFormOrBodyParameters=false,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=flutterw',
+    ],
+    workingDirectory: Directory.current.path,
+    runInShell: Platform.isWindows,
+  );
+}
 ''')
 @Openapi(
   inputSpec: InputSpec(path: ''),
@@ -42,19 +45,23 @@ const skipSpecValidation = false;
 class TestClassHasCustomAnnotations {}
 
 @ShouldGenerate(r'''
-const additionalProperties = wrapper = 'flutterw', nullableFields = 'true';
+import 'dart:io';
 
-const fetchDependencies = true;
-
-const forceAlwaysRun = false;
-
-const generatorName = 'dart';
-
-const inputSpec = '';
-
-const runSourceGenOnOutput = true;
-
-const skipSpecValidation = false;
+void main() {
+  Process.run(
+    'dart',
+    [
+      'run',
+      'openapi_generator_cli:main',
+      'generate',
+      '-i=',
+      '-g=dart',
+      '--additional-properties=allowUnicodeIdentifiers=false,ensureUniqueParams=true,useEnumExtension=true,enumUnknownDefaultCase=false,prependFormOrBodyParameters=false,legacyDiscriminatorBehavior=true,sortModelPropertiesByRequiredFlag=true,sortParamsByRequiredFlag=true,wrapper=flutterw,nullableFields=true',
+    ],
+    workingDirectory: Directory.current.path,
+    runInShell: Platform.isWindows,
+  );
+}
 ''')
 @Openapi(
   inputSpec: InputSpec(path: ''),

@@ -1,5 +1,4 @@
 import 'dart:mirrors';
-
 import 'package:analyzer/dart/element/type.dart';
 import 'package:openapi_generator/src/utils.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
@@ -60,8 +59,8 @@ extension TypeMethods on ConstantReader {
       throw Exception(
           'Could not read constant via enumValue<$T>(). $T is not a Dart enum.');
     }
-
-    if (!instanceOf(TypeChecker.fromRuntime(T))) {
+    
+    if (!instanceOf(TypeChecker.typeNamed(T))) {
       throw Exception('Not an instance of $T.');
     }
 
@@ -174,12 +173,13 @@ extension ReadProperty on ConstantReader {
     } else if (isA(v, List)) {
       return v.listValue.map(convertToPropertyValue).toList() as T;
     } else if (isA(v, Enum)) {
-      return v.enumValue();
+      return v.enumValue<T>();
     } else {
       return null;
     }
   }
 }
 
-bool isA(ConstantReader? v, Type t) =>
-    v?.instanceOf(TypeChecker.fromRuntime(t)) ?? false;
+bool isA(ConstantReader? v, Type t) {
+  return v?.instanceOf(TypeChecker.typeNamed(t)) ?? false;
+}

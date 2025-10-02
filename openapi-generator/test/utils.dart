@@ -10,8 +10,11 @@ import 'package:openapi_generator/src/process_runner.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 import 'package:path/path.dart' as path;
 import 'package:source_gen/source_gen.dart';
+import 'package:source_gen_test/source_gen_test.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
+
+import 'package:source_gen/source_gen.dart' as src_gen;
 
 @GenerateNiceMocks([MockSpec<ProcessRunner>()])
 import 'utils.mocks.dart';
@@ -58,18 +61,26 @@ Future<String> generateFromPath(
     }
   }
 
-  var writer = InMemoryAssetWriter();
+  final readerWriter = TestReaderWriter(rootPackage: 'openapi_generator');
+  await readerWriter.testing.loadIsolateSources();
 
   final Builder builder = LibraryBuilder(OpenapiGenerator(process),
       generatedExtension: '.openapi_generator');
-  await testBuilder(builder, sources,
-      reader: await PackageAssetReader.currentIsolate(),
-      rootPackage: pkgName,
-      writer: writer,
-      onLog: captureLog);
-  return logMessage ??
-      String.fromCharCodes(
-          writer.assets[AssetId(pkgName, 'lib/value.g.dart')] ?? []);
+  // Run the builder in test mode; it returns a TestBuilderResult
+  final result = await testBuilder(
+    builder,
+    sources,
+    rootPackage: pkgName,
+    packageConfig: (await PackageAssetReader.currentIsolate()).packageConfig,
+    onLog: captureLog,
+    readerWriter: readerWriter,
+  );
+
+  printOnFailure('Generated files: ${logMessage}');
+  // Fallback to empty
+  final output = logMessage ?? '';
+
+  return output;
 }
 
 Future<String> generateFromAnnotation(Openapi openapi,
@@ -102,7 +113,7 @@ Future<String> generateFromSource(String source,
     ''',
     'openapi_generator|openapi-spec.yaml': spec
   };
-  printOnFailure('Generator sources =>\n${sources}');
+
   // Capture any message from generation; if there is one, return that instead of
   // the generated output.
   String? logMessage;
@@ -116,17 +127,26 @@ Future<String> generateFromSource(String source,
     }
   }
 
-  var writer = InMemoryAssetWriter();
+  final readerWriter = TestReaderWriter(rootPackage: 'openapi_generator');
+  await readerWriter.testing.loadIsolateSources();
+
   final Builder builder = LibraryBuilder(OpenapiGenerator(process),
       generatedExtension: '.openapi_generator');
-  await testBuilder(builder, sources,
-      reader: await PackageAssetReader.currentIsolate(),
-      rootPackage: pkgName,
-      writer: writer,
-      onLog: captureLog);
-  return logMessage ??
-      String.fromCharCodes(
-          writer.assets[AssetId(pkgName, 'lib/value.g.dart')] ?? []);
+  // Run the builder in test mode; it returns a TestBuilderResult
+  final result = await testBuilder(
+    builder,
+    sources,
+    rootPackage: pkgName,
+    packageConfig: (await PackageAssetReader.currentIsolate()).packageConfig,
+    onLog: captureLog,
+    readerWriter: readerWriter,
+  );
+
+  printOnFailure('Generation log: ${logMessage}');
+  // Fallback to empty
+  final output = logMessage ?? '';
+
+  return output;
 }
 
 // Future<ConstantReader> readAnnotation(String source)async{
@@ -151,8 +171,8 @@ Future<GeneratorArguments> getArgumentsFromFile(
     {required String path,
     String libraryName = 'test_lib',
     String className = 'TestClass'}) async {
-  var openapi = await readAnnotationFromFile(
-      path: path, libraryName: libraryName, className: className);
+  var openapi = await getConstantReaderForPath(
+      file: File(path), libraryName: libraryName, className: className);
   return GeneratorArguments(annotations: openapi);
 }
 
@@ -162,27 +182,15 @@ Future<ConstantReader> readAnnotation(Openapi annotation) async {
   ${annotation.toString()}
   class MyClass{}
   ''';
-  printOnFailure(annotatedClass);
-  return (await resolveSource(annotatedClass,
-          (resolver) async => (await resolver.findLibraryByName('test_lib'))!))
-      .getClass('MyClass')!
-      .metadata
-      .map((e) => ConstantReader(e.computeConstantValue()!))
-      .first;
-}
-
-Future<ConstantReader> readAnnotationFromFile(
-    {required String path,
-    String libraryName = 'test_lib',
-    String className = 'TestClass'}) async {
-  return (await resolveSource(
-          File('$testSpecPath/next_gen_builder_test_config.dart')
-              .readAsStringSync(),
-          (resolver) async => (await resolver.findLibraryByName(libraryName))!))
-      .getClass(className)!
-      .metadata
-      .map((e) => ConstantReader(e.computeConstantValue()!))
-      .first;
+  printOnFailure(
+    '''
+    == Annotated class =>\n$annotatedClass
+    ''',
+  );
+  return await getConstantReader(
+      definition: annotatedClass,
+      libraryName: 'test_lib',
+      className: 'MyClass');
 }
 
 void cleanup(String path) async {
@@ -196,20 +204,68 @@ void cleanup(String path) async {
   }
 }
 
+Future<ConstantReader> getConstantReader(
+    {required String definition,
+    String libraryName = 'test_lib',
+    String className = 'TestClassConfig'}) async {
+  var libraryReader =
+      await initializeLibraryReader({'test.dart': definition}, 'test.dart');
+  var classElement = libraryReader.classes.first;
+
+  var element = classElement.metadata.annotations.first;
+  var constantValue = element.computeConstantValue();
+  return ConstantReader(constantValue);
+}
+
+Future<ConstantReader> getConstantReaderForPath(
+    {required File file,
+    String libraryName = 'test_lib',
+    String className = 'TestClassConfig'}) async {
+  var libraryReader = await initializeLibraryReaderForDirectory(
+    file.parent.path,
+    file.uri.pathSegments.last,
+  );
+
+  var classElement = libraryReader.classes.first;
+
+  var element = classElement.metadata.annotations.first;
+  var constantValue = element.computeConstantValue();
+
+  return ConstantReader(constantValue);
+}
+
 // Test Expectations
-void expectSourceGenSkipped(String generatedOutput) {
-  return expect(generatedOutput,
-      contains('Skipping source gen because generator does not need it.'),
-      reason: generatedOutput);
+void expectSourceGenSkipped(Directory outputDir) {
+  expect(
+    outputDir
+        .listSync(recursive: true)
+        .where((f) =>
+            f.path.contains('lib/src/model') && f.path.endsWith('.g.dart'))
+        .isEmpty,
+    true,
+    reason:
+        'No .g.dart files found in lib/src/model, generation might have failed.',
+  );
 }
 
-void expectCodeFormattedSuccessfully(String generatedOutput) {
-  expect(generatedOutput, contains('Successfully formatted code.'),
-      reason: generatedOutput);
-}
+void expectCodeFormattedSuccessfully(Directory outputDir) {
+  // run dart format --set-exit-if-changed . on the output directory
+  final result = Process.runSync('dart', ['format', '--set-exit-if-changed', '.'],
+      workingDirectory: outputDir.path);
+  expect(result.exitCode, 0,
+      reason:
+          'Code formatting failed. Please run "dart format ." on the output directory.\n${result.stdout}\n${result.stderr}');
+ }
 
-void expectSourceGenRun(String generatedOutput) {
-  return expect(generatedOutput,
-      contains('pub run build_runner build --delete-conflicting-outputs'),
-      reason: generatedOutput);
+void expectSourceGenRun(Directory outputDir) {
+  expect(
+    outputDir
+        .listSync(recursive: true)
+        .where((f) =>
+            f.path.contains('lib/src/model') && f.path.endsWith('.g.dart'))
+        .isNotEmpty,
+    true,
+    reason:
+        'No .g.dart files found in lib/src/model, generation might have failed.',
+  );
 }

@@ -26,6 +26,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
   @override
   FutureOr<String> generateForAnnotatedElement(
       Element element, ConstantReader annotations, BuildStep buildStep) async {
+        
     logOutputMessage(
       log: log,
       communication: OutputMessage(
@@ -216,7 +217,6 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       }
 
       // Skip spec check removed - deprecated functionality
-
       await runOpenApiJar(arguments: args);
       await fetchDependencies(baseCommand: baseCommand, args: args);
       await generateSources(baseCommand: baseCommand, args: args);

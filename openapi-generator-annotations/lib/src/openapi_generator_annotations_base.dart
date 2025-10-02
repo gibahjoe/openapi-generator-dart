@@ -244,7 +244,9 @@ String _formatMap(Map<String, String> map) {
   buffer.write('}');
   return buffer.toString();
 }
-
+class OpenApiTest{
+  const OpenApiTest();
+}
 /// Provides the input spec file to be used.
 ///
 /// Provides the location of the input spec file to be used by the generator.
