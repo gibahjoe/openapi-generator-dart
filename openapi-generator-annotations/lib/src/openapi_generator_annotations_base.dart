@@ -448,7 +448,7 @@ class AdditionalProperties {
   /// Version in generated pubspec
   final String? pubVersion;
 
-  /// Version in generated pubspec
+  /// Publish to in generated pubspec
   final String? pubPublishTo;
 
   /// Sort model properties to place required parameters before optional parameters.
