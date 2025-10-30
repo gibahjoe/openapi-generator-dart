@@ -16,6 +16,7 @@ void main() {
       // Default null props
       for (var element in [
         props.pubVersion,
+        props.pubPublishTo,
         props.pubName,
         props.pubHomepage,
         props.pubDescription,
@@ -41,6 +42,7 @@ void main() {
       // Doesn't include null fields
       for (var element in [
         'pubVersion',
+        'pubPublishTo',
         'pubName',
         'pubHomepage',
         'pubDescription',
@@ -54,6 +56,7 @@ void main() {
     test('fromMap', () {
       final props = AdditionalProperties(
           pubVersion: '1.0.0',
+          pubPublishTo: "https://test.test",
           pubName: 'test',
           pubHomepage: 'test',
           pubDescription: 'test',
@@ -70,6 +73,7 @@ void main() {
         'pubHomepage': props.pubHomepage,
         'pubName': props.pubName,
         'pubVersion': props.pubVersion,
+        'pubPublishTo': props.pubPublishTo,
         'legacyDiscriminatorBehavior': props.legacyDiscriminatorBehavior,
         'sortModelPropertiesByRequiredFlag':
             props.sortModelPropertiesByRequiredFlag,
@@ -90,6 +94,7 @@ void main() {
           props.sortModelPropertiesByRequiredFlag);
       expect(actual.sortParamsByRequiredFlag, props.sortParamsByRequiredFlag);
       expect(actual.pubVersion, props.pubVersion);
+      expect(actual.pubPublishTo, props.pubPublishTo);
       expect(actual.pubName, props.pubName);
       expect(actual.pubHomepage, props.pubHomepage);
       expect(actual.pubDescription, props.pubDescription);
@@ -113,6 +118,7 @@ void main() {
       // Default null props
       for (var element in [
         props.pubVersion,
+        props.pubPublishTo,
         props.pubName,
         props.pubHomepage,
         props.pubDescription,
@@ -141,6 +147,7 @@ void main() {
       // Doesn't include null fields
       for (var element in [
         'pubVersion',
+        'pubPublishTo',
         'pubName',
         'pubHomepage',
         'pubDescription',
@@ -157,6 +164,7 @@ void main() {
     test('fromMap', () {
       final props = DioProperties(
         pubVersion: '1.0.0',
+        pubPublishTo: 'https://test.test',
         pubName: 'test',
         pubHomepage: 'test',
         pubDescription: 'test',
@@ -177,6 +185,7 @@ void main() {
         'pubHomepage': props.pubHomepage,
         'pubName': props.pubName,
         'pubVersion': props.pubVersion,
+        'pubPublishTo': props.pubPublishTo,
         'legacyDiscriminatorBehavior': props.legacyDiscriminatorBehavior,
         'sortModelPropertiesByRequiredFlag':
             props.sortModelPropertiesByRequiredFlag,
@@ -200,6 +209,7 @@ void main() {
           props.sortModelPropertiesByRequiredFlag);
       expect(actual.sortParamsByRequiredFlag, props.sortParamsByRequiredFlag);
       expect(actual.pubVersion, props.pubVersion);
+      expect(actual.pubPublishTo, props.pubPublishTo);
       expect(actual.pubName, props.pubName);
       expect(actual.pubHomepage, props.pubHomepage);
       expect(actual.pubDescription, props.pubDescription);
@@ -225,6 +235,7 @@ void main() {
       // Default null props
       for (var element in [
         props.pubVersion,
+        props.pubPublishTo,
         props.pubName,
         props.pubHomepage,
         props.pubDescription,
@@ -253,6 +264,7 @@ void main() {
       // Doesn't include null fields
       for (var element in [
         'pubVersion',
+        'pubPublishTo',
         'pubName',
         'pubHomepage',
         'pubDescription',
@@ -271,6 +283,7 @@ void main() {
     test('fromMap', () {
       final props = DioAltProperties(
         pubVersion: '1.0.0',
+        pubPublishTo: 'https://test.test',
         pubName: 'test',
         pubHomepage: 'test',
         pubDescription: 'test',
@@ -291,6 +304,7 @@ void main() {
         'pubHomepage': props.pubHomepage,
         'pubName': props.pubName,
         'pubVersion': props.pubVersion,
+        'pubPublishTo': props.pubPublishTo,
         'legacyDiscriminatorBehavior': props.legacyDiscriminatorBehavior,
         'sortModelPropertiesByRequiredFlag':
             props.sortModelPropertiesByRequiredFlag,
@@ -314,6 +328,7 @@ void main() {
           props.sortModelPropertiesByRequiredFlag);
       expect(actual.sortParamsByRequiredFlag, props.sortParamsByRequiredFlag);
       expect(actual.pubVersion, props.pubVersion);
+      expect(actual.pubPublishTo, props.pubPublishTo);
       expect(actual.pubName, props.pubName);
       expect(actual.pubHomepage, props.pubHomepage);
       expect(actual.pubDescription, props.pubDescription);

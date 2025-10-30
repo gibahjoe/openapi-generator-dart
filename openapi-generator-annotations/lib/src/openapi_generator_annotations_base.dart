@@ -448,6 +448,9 @@ class AdditionalProperties {
   /// Version in generated pubspec
   final String? pubVersion;
 
+  /// Publish to in generated pubspec
+  final String? pubPublishTo;
+
   /// Sort model properties to place required parameters before optional parameters.
   final bool? sortModelPropertiesByRequiredFlag;
 
@@ -499,6 +502,7 @@ class AdditionalProperties {
     this.legacyDiscriminatorBehavior = true,
     this.pubName,
     this.pubVersion,
+    this.pubPublishTo,
     this.sortModelPropertiesByRequiredFlag = true,
     this.sortParamsByRequiredFlag = true,
     this.sourceFolder,
@@ -520,6 +524,7 @@ class AdditionalProperties {
           pubHomepage: map['pubHomepage'],
           pubName: map['pubName'],
           pubVersion: map['pubVersion'],
+          pubPublishTo: map['pubPublishTo'],
           legacyDiscriminatorBehavior:
               map['legacyDiscriminatorBehavior'] ?? true,
           sortModelPropertiesByRequiredFlag:
@@ -541,6 +546,7 @@ class AdditionalProperties {
         if (pubHomepage != null) 'pubHomepage': pubHomepage,
         if (pubName != null) 'pubName': pubName,
         if (pubVersion != null) 'pubVersion': pubVersion,
+        if (pubPublishTo != null) 'pubPublishTo': pubPublishTo,
         'legacyDiscriminatorBehavior': legacyDiscriminatorBehavior,
         'sortModelPropertiesByRequiredFlag': sortModelPropertiesByRequiredFlag,
         'sortParamsByRequiredFlag': sortParamsByRequiredFlag,
@@ -678,6 +684,7 @@ class DioProperties extends AdditionalProperties {
       String? pubHomepage,
       String? pubName,
       String? pubVersion,
+      String? pubPublishTo,
       bool sortModelPropertiesByRequiredFlag = true,
       bool sortParamsByRequiredFlag = true,
       bool useEnumExtension = true,
@@ -694,6 +701,7 @@ class DioProperties extends AdditionalProperties {
             pubHomepage: pubHomepage,
             pubName: pubName,
             pubVersion: pubVersion,
+            pubPublishTo: pubPublishTo,
             sortModelPropertiesByRequiredFlag:
                 sortModelPropertiesByRequiredFlag,
             sortParamsByRequiredFlag: sortParamsByRequiredFlag,
@@ -771,6 +779,7 @@ class DioAltProperties extends AdditionalProperties {
       String? pubHomepage,
       String? pubName,
       String? pubVersion,
+      String? pubPublishTo,
       bool sortModelPropertiesByRequiredFlag = true,
       bool sortParamsByRequiredFlag = true,
       bool useEnumExtension = true,
@@ -787,6 +796,7 @@ class DioAltProperties extends AdditionalProperties {
             pubHomepage: pubHomepage,
             pubName: pubName,
             pubVersion: pubVersion,
+            pubPublishTo: pubPublishTo,
             sortModelPropertiesByRequiredFlag:
                 sortModelPropertiesByRequiredFlag,
             sortParamsByRequiredFlag: sortParamsByRequiredFlag,
