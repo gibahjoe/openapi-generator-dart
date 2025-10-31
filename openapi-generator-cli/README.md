@@ -14,7 +14,7 @@ Please see [OpenAPITools/openapi-generator](https://github.com/OpenAPITools/open
 Run
 
 ```cmd
-pub global activate openapi_generator_cli
+dart pub global activate openapi_generator_cli
 ```
 
 Then you can run the generator using the command below.
