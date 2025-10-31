@@ -856,13 +856,11 @@ enum DioDateLibrary {
 }
 
 enum DioSerializationLibrary {
-  @Deprecated('Use [builtValue] instead.')
-  built_value,
   builtValue,
   jsonSerializable
 }
 
-enum SerializationFormat { JSON, PROTO }
+enum SerializationFormat { json, proto }
 
 /// The name of the generator to use
 enum Generator {

@@ -231,7 +231,6 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
           ),
         ),
       );
-      // Cache handling removed - deprecated functionality
     } catch (e, st) {
       logOutputMessage(
         log: log,
