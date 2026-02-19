@@ -30,8 +30,6 @@ class Command {
               : wrapper == Wrapper.flutterw
                   ? './flutterw'
                   : 'fvm',
-          wrapper == Wrapper.fvm
-              ? ['flutter', ...arguments]
-              : arguments,
+          wrapper == Wrapper.fvm ? ['flutter', ...arguments] : arguments,
         );
 }
