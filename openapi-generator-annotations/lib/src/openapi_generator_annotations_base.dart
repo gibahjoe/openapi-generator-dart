@@ -55,6 +55,13 @@ class Openapi {
   /// e.g [''], ['lib/src']
   final List<String>? cleanSubOutputDirectory;
 
+  /// When set to `true`, the entire [outputDirectory] is deleted before
+  /// generation runs. This gives you a clean slate on every build, removing
+  /// stale generated files that the openapi-generator no longer produces.
+  ///
+  /// Defaults to `false`.
+  final bool cleanOutputDirectory;
+
   /// Skips the default behavior of validating an input specification.
   ///
   /// --skip-validate-spec
@@ -156,6 +163,7 @@ class Openapi {
     required this.generatorName,
     this.outputDirectory,
     this.cleanSubOutputDirectory,
+    this.cleanOutputDirectory = false,
     this.typeMappings,
     this.nameMappings,
     this.enumNameMappings,
@@ -193,6 +201,9 @@ class Openapi {
     if (cleanSubOutputDirectory != null) {
       buffer.writeln(
           '  cleanSubOutputDirectory: ["${cleanSubOutputDirectory!.join('", "')}"],');
+    }
+    if (cleanOutputDirectory) {
+      buffer.writeln('  cleanOutputDirectory: $cleanOutputDirectory,');
     }
     if (skipSpecValidation != null) {
       buffer.writeln('  skipSpecValidation: $skipSpecValidation,');

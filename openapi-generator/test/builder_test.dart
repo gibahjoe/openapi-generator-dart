@@ -272,6 +272,42 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
         }
       });
 
+      // Regression test for #19: cleanOutputDirectory wipes the directory
+      test(
+          'cleans outputDirectory before running the JAR when cleanOutputDirectory is true',
+          () async {
+        openapiSpecCache
+            .writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
+        final dirToClean =
+            Directory('${openapiSpecCache.parent.path}/clean-output');
+        dirToClean.createSync(recursive: true);
+        // Create a sentinel stale file that should be removed by the clean
+        final sentinelFile = File('${dirToClean.path}/stale_generated.dart')
+          ..writeAsStringSync('// stale code');
+
+        await generateFromAnnotation(
+          Openapi(
+            inputSpec: RemoteSpec(path: specPath),
+            generatorName: Generator.dart,
+            cachePath: openapiSpecCache.path,
+            outputDirectory: dirToClean.path,
+            cleanOutputDirectory: true,
+          ),
+          process: mockProcess,
+        );
+
+        expect(sentinelFile.existsSync(), isFalse,
+            reason:
+                'cleanOutputDirectory: true should remove stale files before generation');
+        // Directory itself should be recreated
+        expect(dirToClean.existsSync(), isTrue,
+            reason: 'outputDirectory should be recreated after clean');
+
+        if (dirToClean.existsSync()) {
+          dirToClean.deleteSync(recursive: true);
+        }
+      });
+
       test('does not add generated comment by default', () async {
         openapiSpecCache
             .writeAsStringSync(jsonEncode({'someKey': 'someValue'}));

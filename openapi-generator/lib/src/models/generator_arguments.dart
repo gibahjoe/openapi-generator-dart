@@ -35,6 +35,9 @@ class GeneratorArguments {
   /// Defines whether the output directory should be cleaned up before generating the output.
   final List<dynamic>? cleanSubOutputDirectory;
 
+  /// When `true`, the entire [outputDirectory] is deleted before the JAR runs.
+  final bool cleanOutputDirectory;
+
   /// Informs the generator to run source gen on the output.
   ///
   /// Default: true
@@ -126,6 +129,8 @@ class GeneratorArguments {
         outputDirectory = annotations.readPropertyOrNull('outputDirectory'),
         cleanSubOutputDirectory =
             annotations.readPropertyOrNull('cleanSubOutputDirectory'),
+        cleanOutputDirectory =
+            annotations.readPropertyOrDefault('cleanOutputDirectory', false),
         cachePath =
             annotations.readPropertyOrDefault('cachePath', defaultCachedPath),
         pubspecPath = annotations.readPropertyOrDefault<String>(

@@ -172,3 +172,5 @@ test/specs/test-cached.json
 test/specs/localstack/**
 test/specs/output-nextgen/**
 **/*.mocks.dart
+
+test/specs/issue

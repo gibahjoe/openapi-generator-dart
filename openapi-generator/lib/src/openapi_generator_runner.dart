@@ -123,6 +123,10 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     // outputDirectory does not yet exist).
     if (arguments.outputDirectory != null) {
       final outDir = Directory(arguments.outputDirectory!);
+      // Clean the entire output directory when requested (#19)
+      if (arguments.cleanOutputDirectory && outDir.existsSync()) {
+        outDir.deleteSync(recursive: true);
+      }
       if (!outDir.existsSync()) {
         outDir.createSync(recursive: true);
       }
