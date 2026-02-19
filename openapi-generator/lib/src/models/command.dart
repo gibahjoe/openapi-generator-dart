@@ -16,6 +16,10 @@ class Command {
   /// If [executable] is the Dart executable or the [wrapper] is [Wrapper.none]
   /// it provides the raw executable. Otherwise it wraps it in the appropriate
   /// wrapper, flutterw and fvm respectively.
+  ///
+  /// For [Wrapper.fvm], `flutter` is prepended to [arguments] because fvm
+  /// delegates to Flutter with `fvm flutter <subcommand>` (e.g.
+  /// `fvm flutter pub get`).
   Command({
     Wrapper wrapper = Wrapper.none,
     required String executable,
@@ -26,6 +30,8 @@ class Command {
               : wrapper == Wrapper.flutterw
                   ? './flutterw'
                   : 'fvm',
-          arguments,
+          wrapper == Wrapper.fvm
+              ? ['flutter', ...arguments]
+              : arguments,
         );
 }

@@ -205,7 +205,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
             .called(1);
 
         verify(mockProcess.run('dart', ['pub', 'get'],
-                runInShell: Platform.isWindows,
+                runInShell: true,
                 workingDirectory: args.outputDirectory))
             .called(1);
       });
@@ -331,20 +331,22 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
               );
               var arguments = await getArguments(annotation);
               await generateFromAnnotation(annotation, process: mockProcess);
-              verify(mockProcess.run('fvm', ['pub', 'get'],
-                      runInShell: Platform.isWindows,
+              verify(mockProcess.run(
+                      'fvm', ['flutter', 'pub', 'get'],
+                      runInShell: true,
                       workingDirectory: arguments.outputDirectory))
                   .called(1);
               verify(mockProcess.run(
                       'fvm',
                       [
+                        'flutter',
                         'pub',
                         'run',
                         'build_runner',
                         'build',
                         '--delete-conflicting-outputs'
                       ],
-                      runInShell: Platform.isWindows,
+                      runInShell: true,
                       workingDirectory: arguments.outputDirectory))
                   .called(1);
             });
@@ -362,7 +364,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
               var generatorOutput = await generateFromAnnotation(annotation,
                   process: mockProcess);
               verify(mockProcess.run('./flutterw', ['pub', 'get'],
-                      runInShell: Platform.isWindows,
+                      runInShell: true,
                       workingDirectory: arguments.outputDirectory))
                   .called(1);
               verify(mockProcess.run(
@@ -374,7 +376,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
                         'build',
                         '--delete-conflicting-outputs'
                       ],
-                      runInShell: Platform.isWindows,
+                      runInShell: true,
                       workingDirectory: arguments.outputDirectory))
                   .called(1);
               printOnFailure(generatorOutput);
@@ -401,7 +403,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
                     runInShell: true, workingDirectory: Directory.current.path))
                 .called(1);
             verify(mockProcess.run('flutter', ['pub', 'get'],
-                    runInShell: Platform.isWindows,
+                    runInShell: true,
                     workingDirectory: args.outputDirectory))
                 .called(1);
             verify(mockProcess.run(
@@ -413,7 +415,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
                       'build',
                       '--delete-conflicting-outputs'
                     ],
-                    runInShell: Platform.isWindows,
+                    runInShell: true,
                     workingDirectory: args.outputDirectory))
                 .called(1);
           });
@@ -441,7 +443,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
                     'build',
                     '--delete-conflicting-outputs'
                   ],
-                  runInShell: Platform.isWindows,
+                  runInShell: true,
                   workingDirectory: args.outputDirectory))
               .called(1);
         });
@@ -497,7 +499,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
                 await generateFromAnnotation(annotation, process: mockProcess);
 
             verify(mockProcess.run('dart', ['pub', 'get'],
-                    runInShell: Platform.isWindows,
+                    runInShell: true,
                     workingDirectory: arguments.outputDirectory))
                 .called(1);
             verifyNever(mockProcess.run(
@@ -509,7 +511,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
                   'build',
                   '--delete-conflicting-outputs'
                 ],
-                runInShell: Platform.isWindows,
+                runInShell: true,
                 workingDirectory: arguments.outputDirectory));
           });
         });
@@ -532,7 +534,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
                     'build',
                     '--delete-conflicting-outputs'
                   ],
-                  runInShell: Platform.isWindows,
+                  runInShell: true,
                   workingDirectory: '${openapiSpecCache.parent.path}/success'))
               .called(1);
         });
@@ -569,7 +571,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
                     'pub',
                     'get',
                   ],
-                  runInShell: Platform.isWindows,
+                  runInShell: true,
                   workingDirectory: '${openapiSpecCache.parent.path}/no-fetch'))
               .called(1);
         });

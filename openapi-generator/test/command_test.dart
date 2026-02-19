@@ -14,10 +14,11 @@ void main() {
         expect(command.arguments, testArgs);
         expect(command.executable, './flutterw');
       });
-      test('Wrapper.fvw', () {
+      test('Wrapper.fvm', () {
         final command = Command(
             executable: 'flutter', arguments: testArgs, wrapper: Wrapper.fvm);
-        expect(command.arguments, testArgs);
+        // fvm requires 'flutter' before the subcommand: fvm flutter pub get
+        expect(command.arguments, ['flutter', ...testArgs]);
         expect(command.executable, 'fvm');
       });
       test('doesn\'t wrap Wrapper.none', () {

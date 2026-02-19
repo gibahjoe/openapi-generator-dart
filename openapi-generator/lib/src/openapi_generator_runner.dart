@@ -402,7 +402,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     results = await _processRunner.run(
       command.executable,
       command.arguments,
-      runInShell: Platform.isWindows,
+      runInShell: true,
       workingDirectory: args.outputDirectory,
     );
 
@@ -456,7 +456,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     results = await _processRunner.run(
       command.executable,
       command.arguments,
-      runInShell: Platform.isWindows,
+      runInShell: true,
       workingDirectory: args.outputDirectory,
     );
 
@@ -536,7 +536,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       command.executable,
       command.arguments,
       workingDirectory: args.outputDirectory,
-      runInShell: Platform.isWindows,
+      runInShell: true,
     );
 
     if (result.exitCode != 0) {
