@@ -201,8 +201,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
 
         verify(mockProcess.run(
                 'dart', ['run', 'openapi_generator_cli:main', ...args.jarArgs],
-                runInShell: Platform.isWindows,
-                workingDirectory: Directory.current.path))
+                runInShell: true, workingDirectory: Directory.current.path))
             .called(1);
 
         verify(mockProcess.run('dart', ['pub', 'get'],
@@ -227,8 +226,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
 
         verifyNever(mockProcess.run(
             'dart', ['run', 'openapi_generator_cli:main', ...args.jarArgs],
-            runInShell: Platform.isWindows,
-            workingDirectory: Directory.current.path));
+            runInShell: true, workingDirectory: Directory.current.path));
       }, skip: true);
 
       test('openApiJar with expected args', () async {
@@ -243,9 +241,35 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
 
         verify(mockProcess.run(
                 any, ['run', 'openapi_generator_cli:main', ...args.jarArgs],
-                runInShell: Platform.isWindows,
-                workingDirectory: Directory.current.path))
+                runInShell: true, workingDirectory: Directory.current.path))
             .called(1);
+      });
+
+      // Regression test for #164: outputDirectory should be created if missing
+      test(
+          'creates outputDirectory before running the JAR if it does not exist',
+          () async {
+        openapiSpecCache
+            .writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
+        final missingOutputDir =
+            Directory('${openapiSpecCache.parent.path}/auto-created');
+        if (missingOutputDir.existsSync()) {
+          missingOutputDir.deleteSync(recursive: true);
+        }
+        await generateFromAnnotation(
+          Openapi(
+            inputSpec: RemoteSpec(path: specPath),
+            generatorName: Generator.dart,
+            cachePath: openapiSpecCache.path,
+            outputDirectory: missingOutputDir.path,
+          ),
+          process: mockProcess,
+        );
+        expect(missingOutputDir.existsSync(), isTrue,
+            reason: 'outputDirectory should be created automatically');
+        if (missingOutputDir.existsSync()) {
+          missingOutputDir.deleteSync(recursive: true);
+        }
       });
 
       test('does not add generated comment by default', () async {
@@ -374,8 +398,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
             printOnFailure(output);
             verify(mockProcess.run(
                     any, ['run', 'openapi_generator_cli:main', ...args.jarArgs],
-                    runInShell: Platform.isWindows,
-                    workingDirectory: Directory.current.path))
+                    runInShell: true, workingDirectory: Directory.current.path))
                 .called(1);
             verify(mockProcess.run('flutter', ['pub', 'get'],
                     runInShell: Platform.isWindows,

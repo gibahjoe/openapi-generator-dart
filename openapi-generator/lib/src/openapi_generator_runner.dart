@@ -118,7 +118,19 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       });
     }
 
+    // Ensure the output directory exists before invoking the JAR so the Java
+    // process can write its output (fixes #164: No such file or directory when
+    // outputDirectory does not yet exist).
+    if (arguments.outputDirectory != null) {
+      final outDir = Directory(arguments.outputDirectory!);
+      if (!outDir.existsSync()) {
+        outDir.createSync(recursive: true);
+      }
+    }
+
     // Name of the package and path to the CLI script (typically just the package name if it's set up correctly)
+    // runInShell: true on all platforms so that `dart` is resolved via PATH on
+    // Linux/macOS even when the environment is not inherited (fixes #164).
     ProcessResult result;
     result = await _processRunner.run(
       'dart',
@@ -128,7 +140,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         ...args,
       ],
       workingDirectory: Directory.current.path,
-      runInShell: Platform.isWindows,
+      runInShell: true,
     );
     var outputDir = path.isRelative(arguments.outputDirectory!)
         ? path.normalize(
