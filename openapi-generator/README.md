@@ -208,3 +208,27 @@ test/*
 # Ignore pubspec.yaml to preserve manual changes
 pubspec.yaml
 ```
+
+- **Mockito / `@GenerateMocks` fails on first run in CI:**  
+  `mockito:mockBuilder` resolves types at the start of the build. On a fresh checkout the
+  generated API package does not yet exist, so `mockito` cannot resolve the classes listed
+  in `@GenerateMocks` and fails with *"unknown type"*.
+
+  `openapi_generator` is already configured to run before `mockito:mockBuilder`, but
+  because the generated code lives in a **separate package**, `build_runner` cannot make
+  those types visible to `mockito` within the same build invocation.
+
+  **CI workaround — run `build_runner` twice:**
+
+  ```yaml
+  # GitHub Actions example
+  - name: Generate API (first pass)
+    run: dart run build_runner build --delete-conflicting-outputs || true
+  - name: Re-sync dependencies
+    run: dart pub get
+  - name: Generate mocks (second pass)
+    run: dart run build_runner build --delete-conflicting-outputs
+  ```
+
+  The first pass generates the API package; `dart pub get` registers it with the
+  resolver; the second pass finds the types and generates the mocks successfully.

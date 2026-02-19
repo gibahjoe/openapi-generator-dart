@@ -16,4 +16,6 @@ builders:
     auto_apply: dependents
     build_to: cache
     applies_builders: ["source_gen|combining_builder"]
-    runs_before: ["source_gen|combining_builder"]
+    runs_before:
+      - "source_gen|combining_builder"
+      - "mockito:mockBuilder"
