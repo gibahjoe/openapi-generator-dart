@@ -205,8 +205,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
             .called(1);
 
         verify(mockProcess.run('dart', ['pub', 'get'],
-                runInShell: true,
-                workingDirectory: args.outputDirectory))
+                runInShell: true, workingDirectory: args.outputDirectory))
             .called(1);
       });
 
@@ -367,8 +366,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
               );
               var arguments = await getArguments(annotation);
               await generateFromAnnotation(annotation, process: mockProcess);
-              verify(mockProcess.run(
-                      'fvm', ['flutter', 'pub', 'get'],
+              verify(mockProcess.run('fvm', ['flutter', 'pub', 'get'],
                       runInShell: true,
                       workingDirectory: arguments.outputDirectory))
                   .called(1);
@@ -439,8 +437,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
                     runInShell: true, workingDirectory: Directory.current.path))
                 .called(1);
             verify(mockProcess.run('flutter', ['pub', 'get'],
-                    runInShell: true,
-                    workingDirectory: args.outputDirectory))
+                    runInShell: true, workingDirectory: args.outputDirectory))
                 .called(1);
             verify(mockProcess.run(
                     'flutter',
@@ -656,6 +653,174 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
               generatedOutput, contains('Successfully cached spec changes.'));
         });
       }, skip: true);
+
+      group('error paths and edge cases', () {
+        test('rejects non-class element annotation target', () async {
+          // @Openapi on a function triggers the `element is! ClassElement` branch
+          final output = await generateFromSource('''
+@Openapi(
+  inputSpec: RemoteSpec(path: '$specPath'),
+  generatorName: Generator.dio,
+)
+void nonClassFunction() {}
+          ''');
+          expect(output, contains('Generator cannot target'));
+        });
+
+        test('logs error when JAR returns non-zero exit code', () async {
+          openapiSpecCache
+              .writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
+          final failMock = MockProcessRunner();
+          when(failMock.run(any, any,
+                  environment: anyNamed('environment'),
+                  workingDirectory: anyNamed('workingDirectory'),
+                  runInShell: anyNamed('runInShell')))
+              .thenAnswer((_) async => ProcessResult(0, 1, '', 'cli error'));
+
+          final output = await generateFromAnnotation(
+            Openapi(
+              inputSpec: RemoteSpec(path: specPath),
+              generatorName: Generator.dio,
+              cachePath: openapiSpecCache.path,
+              outputDirectory: '${openapiSpecCache.parent.path}/jar-fails',
+            ),
+            process: failMock,
+          );
+          expect(output, contains('Failed to generate content.'));
+        });
+
+        test('logs error when runSourceGen fails', () async {
+          openapiSpecCache
+              .writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
+          final mockProcess2 = MockProcessRunner();
+          when(mockProcess2.run(any, any,
+                  environment: anyNamed('environment'),
+                  workingDirectory: anyNamed('workingDirectory'),
+                  runInShell: anyNamed('runInShell')))
+              .thenAnswer((inv) async {
+            final args = inv.positionalArguments[1] as List<String>;
+            if (args.contains('build_runner')) {
+              return ProcessResult(0, 1, '', 'build runner failed');
+            }
+            return ProcessResult(0, 0, '', '');
+          });
+
+          final output = await generateFromAnnotation(
+            Openapi(
+              inputSpec: RemoteSpec(path: specPath),
+              generatorName: Generator.dio,
+              cachePath: openapiSpecCache.path,
+              outputDirectory: '${openapiSpecCache.parent.path}/src-gen-fails',
+              projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
+            ),
+            process: mockProcess2,
+          );
+          expect(output, contains('Failed to generate content.'));
+        });
+
+        test('logs error when fetchDependencies fails', () async {
+          openapiSpecCache
+              .writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
+          final mockProcess3 = MockProcessRunner();
+          when(mockProcess3.run(any, any,
+                  environment: anyNamed('environment'),
+                  workingDirectory: anyNamed('workingDirectory'),
+                  runInShell: anyNamed('runInShell')))
+              .thenAnswer((inv) async {
+            final args = inv.positionalArguments[1] as List<String>;
+            if (args.contains('get')) {
+              return ProcessResult(0, 1, '', 'pub get failed');
+            }
+            return ProcessResult(0, 0, '', '');
+          });
+
+          final output = await generateFromAnnotation(
+            Openapi(
+              inputSpec: RemoteSpec(path: specPath),
+              generatorName: Generator.dio,
+              cachePath: openapiSpecCache.path,
+              outputDirectory:
+                  '${openapiSpecCache.parent.path}/fetch-dep-fails',
+              projectPubspecPath: './test/specs/dart_pubspec.test.yaml',
+            ),
+            process: mockProcess3,
+          );
+          expect(output, contains('Failed to generate content.'));
+        });
+
+        test('cleans cleanSubOutputDirectory before running JAR', () async {
+          openapiSpecCache
+              .writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
+          final outputBase =
+              Directory('${openapiSpecCache.parent.path}/clean-sub');
+          final subDir = Directory('${outputBase.path}/lib');
+          subDir.createSync(recursive: true);
+          final staleFile = File('${subDir.path}/stale.dart')
+            ..writeAsStringSync('// stale');
+
+          final mockProcess4 = MockProcessRunner();
+          when(mockProcess4.run(any, any,
+                  environment: anyNamed('environment'),
+                  workingDirectory: anyNamed('workingDirectory'),
+                  runInShell: anyNamed('runInShell')))
+              .thenAnswer((_) async => ProcessResult(0, 0, '', ''));
+
+          await generateFromAnnotation(
+            Openapi(
+              inputSpec: RemoteSpec(path: specPath),
+              generatorName: Generator.dio,
+              cachePath: openapiSpecCache.path,
+              outputDirectory: outputBase.path,
+              cleanSubOutputDirectory: const ['lib'],
+            ),
+            process: mockProcess4,
+          );
+
+          // The stale lib directory should have been cleaned
+          expect(staleFile.existsSync(), isFalse,
+              reason:
+                  'cleanSubOutputDirectory should remove specified subdirectory');
+
+          if (outputBase.existsSync()) outputBase.deleteSync(recursive: true);
+        });
+
+        test('forceAlwaysRun writes timestamp into annotated file', () async {
+          openapiSpecCache
+              .writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
+          // Copy test_config.dart (forceAlwaysRun: true) to a temp file so
+          // updateAnnotatedFile can write to it via the real filesystem
+          // without mutating the original fixture.
+          // Pass path: 'test/specs/force_always_run_copy.dart' so that
+          // buildStep.inputId.path resolves to this real relative path.
+          final copy = File('${testSpecPath}force_always_run_copy.dart');
+          copy.writeAsStringSync(
+              File('${testSpecPath}test_config.dart').readAsStringSync(),
+              flush: true);
+
+          try {
+            final mockProcess5 = MockProcessRunner();
+            when(mockProcess5.run(any, any,
+                    environment: anyNamed('environment'),
+                    workingDirectory: anyNamed('workingDirectory'),
+                    runInShell: anyNamed('runInShell')))
+                .thenAnswer((_) async => ProcessResult(0, 0, '', ''));
+
+            await generateFromPath(
+              copy.path,
+              process: mockProcess5,
+              path: 'test/specs/force_always_run_copy.dart',
+            );
+
+            // updateAnnotatedFile prepends a timestamp comment when forceAlwaysRun: true
+            final lines = copy.readAsLinesSync();
+            expect(lines.first, contains('Openapi Generator last run'),
+                reason:
+                    'forceAlwaysRun: true should cause updateAnnotatedFile to prepend a timestamp');
+          } finally {
+            if (copy.existsSync()) copy.deleteSync();
+          }
+        });
+      });
     });
   });
 }

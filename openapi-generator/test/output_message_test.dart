@@ -41,5 +41,17 @@ void main() {
       expect(message.stackTrace, stack);
       expect(message.level, Level.INFO);
     });
+    test('toString includes message, additionalContext and stackTrace', () {
+      final stack = StackTrace.current;
+      final message = OutputMessage(
+        message: 'hello',
+        additionalContext: 'ctx',
+        stackTrace: stack,
+      );
+      final result = message.toString();
+      expect(result, contains('hello'));
+      expect(result, contains('ctx'));
+      expect(result, contains(stack.toString()));
+    });
   });
 }
