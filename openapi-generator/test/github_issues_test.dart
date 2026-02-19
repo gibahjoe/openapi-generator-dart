@@ -48,16 +48,18 @@ void main() {
         var outputDir = Directory('./test/specs/issue/$issueNumber/output');
         await generateFromAnnotation(
           Openapi(
-            additionalProperties: AdditionalProperties(
-                pubName: 'tictactoe_api',
-                pubAuthor: 'Jon Doe',
-                pubAuthorEmail: 'me@example.com'),
-            inputSpec: InputSpec(path: inputSpecFile.path),
-            generatorName: Generator.dart,
-            cleanSubOutputDirectory: ['./test/specs/issue/$issueNumber/output'],
-            cachePath: './test/specs/issue/$issueNumber/output/cache.json',
-            outputDirectory: outputDir.path,
-          ),
+              additionalProperties: AdditionalProperties(
+                  pubName: 'tictactoe_api',
+                  pubAuthor: 'Jon Doe',
+                  pubAuthorEmail: 'me@example.com'),
+              inputSpec: InputSpec(path: inputSpecFile.path),
+              generatorName: Generator.dart,
+              cleanSubOutputDirectory: [
+                './test/specs/issue/$issueNumber/output'
+              ],
+              cachePath: './test/specs/issue/$issueNumber/output/cache.json',
+              outputDirectory: outputDir.path,
+              forceAlwaysRun: true),
           process: processRunner,
         );
 

@@ -855,10 +855,7 @@ enum DioDateLibrary {
   timemachine
 }
 
-enum DioSerializationLibrary {
-  builtValue,
-  jsonSerializable
-}
+enum DioSerializationLibrary { builtValue, jsonSerializable }
 
 enum SerializationFormat { json, proto }
 

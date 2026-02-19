@@ -208,11 +208,10 @@ Future<ConstantReader> getConstantReader(
     String className = 'TestClassConfig'}) async {
   var libraryReader =
       await initializeLibraryReader({'test.dart': definition}, 'test.dart');
-  var classElement = libraryReader.classes.first;
+  var classElement =
+      libraryReader.annotatedWith(TypeChecker.typeNamed(Openapi)).first;
 
-  var element = classElement.metadata.annotations.first;
-  var constantValue = element.computeConstantValue();
-  return ConstantReader(constantValue);
+  return classElement.annotation;
 }
 
 Future<ConstantReader> getConstantReaderForPath(
@@ -223,13 +222,10 @@ Future<ConstantReader> getConstantReaderForPath(
     file.parent.path,
     file.uri.pathSegments.last,
   );
+  var classElement =
+      libraryReader.annotatedWith(TypeChecker.typeNamed(Openapi)).first;
 
-  var classElement = libraryReader.classes.first;
-
-  var element = classElement.metadata.annotations.first;
-  var constantValue = element.computeConstantValue();
-
-  return ConstantReader(constantValue);
+  return classElement.annotation;
 }
 
 // Test Expectations

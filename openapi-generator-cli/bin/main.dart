@@ -119,8 +119,9 @@ Future<void> executeWithClasspath(List<String> jarPaths, List<String> arguments,
 
   final result =
       await process.run('java', commands, runInShell: Platform.isWindows);
-  print(result.stdout);
-  print(result.stderr);
+  stdout.write(result.stdout);
+  if (result.stderr.toString().isNotEmpty) stderr.write(result.stderr);
+  exitCode = result.exitCode;
 }
 
 Future<void> main(List<String> arguments) async {
