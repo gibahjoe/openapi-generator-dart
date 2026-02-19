@@ -437,8 +437,7 @@ void main() {
       // Regression test: spec paths using `..` traversal (outside the package
       // root) must not throw `ArgumentError: Asset paths may not reach outside
       // the package.` from build's AssetId constructor.
-      test(
-          'spec path with .. traversal does not throw AssetId ArgumentError',
+      test('spec path with .. traversal does not throw AssetId ArgumentError',
           () async {
         final output = await generateFromSource(
           '''
@@ -457,7 +456,8 @@ void main() {
 
         expect(
           output,
-          isNot(contains('Asset paths must be within the specified the package')),
+          isNot(
+              contains('Asset paths must be within the specified the package')),
           reason:
               'ArgumentError from AssetId should not be thrown for outside-package spec paths',
         );
