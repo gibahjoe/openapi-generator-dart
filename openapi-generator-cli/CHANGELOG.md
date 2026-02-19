@@ -4,6 +4,13 @@
 
 * fixed spec diff tracking
 
+## [6.1.1](https://github.com/gibahjoe/openapi-generator-dart/compare/v6.1.0...v6.1.1) (2026-02-19)
+
+
+### Bug Fixes
+
+* update README for clarity and formatting; adjust generator arguments and caching logic ([2c85976](https://github.com/gibahjoe/openapi-generator-dart/commit/2c8597617eb90b1635404bae5ea2c20311d202bd))
+
 ## [6.1.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v6.0.0...v6.1.0) (2024-12-15)
 
 
