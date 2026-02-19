@@ -1,5 +1,5 @@
 {
-  "openapi-generator": "6.1.0",
-  "openapi-generator-annotations": "6.1.0",
-  "openapi-generator-cli": "6.1.0"
+  "openapi-generator": "6.2.0",
+  "openapi-generator-annotations": "6.2.0",
+  "openapi-generator-cli": "6.1.1"
 }

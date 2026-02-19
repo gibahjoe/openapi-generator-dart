@@ -4,6 +4,28 @@
 
 * fixed spec diff tracking
 
+## [6.2.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v6.1.0...v6.2.0) (2026-02-19)
+
+
+### Features
+
+* **generator:** add cleanOutputDirectory flag ([#19](https://github.com/gibahjoe/openapi-generator-dart/issues/19)) ([e12f1a1](https://github.com/gibahjoe/openapi-generator-dart/commit/e12f1a1279439758006c1b5c3fc7cef0c787cdc1))
+
+
+### Bug Fixes
+
+* add support for remote specs without extensions. Closes [#176](https://github.com/gibahjoe/openapi-generator-dart/issues/176) ([c08164d](https://github.com/gibahjoe/openapi-generator-dart/commit/c08164d7db64725ceddd250ab7e18fd8926b9ff7))
+* **command:** simplify argument wrapping for fvm wrapper ([1f4da4a](https://github.com/gibahjoe/openapi-generator-dart/commit/1f4da4a34bcf62b66c73396fa5bd45bb7511e498))
+* Enhance OpenAPI generator with new features and improvements ([a0a2594](https://github.com/gibahjoe/openapi-generator-dart/commit/a0a2594deaab004e5e4e950413c885c5b666154b))
+* **generator:** prepend 'flutter' to fvm args and use runInShell: true ([#129](https://github.com/gibahjoe/openapi-generator-dart/issues/129)) ([99ad2a1](https://github.com/gibahjoe/openapi-generator-dart/commit/99ad2a16804d56c25956cd4f442f004e0e274891))
+* **generator:** prevent AssetId crash for spec paths outside package root ([0df1fc0](https://github.com/gibahjoe/openapi-generator-dart/commit/0df1fc033d05e27fedd34b07173f517339520619)), closes [#198](https://github.com/gibahjoe/openapi-generator-dart/issues/198)
+* **generator:** use runInShell and auto-create outputDirectory ([#164](https://github.com/gibahjoe/openapi-generator-dart/issues/164)) ([e651c09](https://github.com/gibahjoe/openapi-generator-dart/commit/e651c09a7fb0b1d9f0d1e2933f9a6f424c618f92))
+* Notify `build_runner` of dependency on inputSpec ([#187](https://github.com/gibahjoe/openapi-generator-dart/issues/187)) ([b4c15ee](https://github.com/gibahjoe/openapi-generator-dart/commit/b4c15ee23648437c41f8049c6844e1e12ddf7f03))
+* Remove deprecated skipIfSpecIsUnchanged and skipSpecDepMessage ([#193](https://github.com/gibahjoe/openapi-generator-dart/issues/193)) ([bc06852](https://github.com/gibahjoe/openapi-generator-dart/commit/bc068529d0f3a572db85cc4efe43e3b94feb9ee2))
+* update build_test dependency version to &gt;=2.0.0 &lt;4.0.0 in pubspec files ([5747abf](https://github.com/gibahjoe/openapi-generator-dart/commit/5747abf64ce56896f4837984f240e50140aad6d2))
+* update README for clarity and formatting; adjust generator arguments and caching logic ([2c85976](https://github.com/gibahjoe/openapi-generator-dart/commit/2c8597617eb90b1635404bae5ea2c20311d202bd))
+* updated analyzer and source_gen dependencies ([7b2b4b7](https://github.com/gibahjoe/openapi-generator-dart/commit/7b2b4b7c2ad63630692cd74be4ca68eda6793b43)), closes [#192](https://github.com/gibahjoe/openapi-generator-dart/issues/192)
+
 ## [6.1.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v6.0.0...v6.1.0) (2024-12-15)
 
 

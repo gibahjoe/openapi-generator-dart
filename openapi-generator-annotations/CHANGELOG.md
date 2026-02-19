@@ -4,6 +4,23 @@
 
 * fixed spec diff tracking
 
+## [6.2.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v6.1.0...v6.2.0) (2026-02-19)
+
+
+### Features
+
+* Added support for pubPublishTo ([da522d6](https://github.com/gibahjoe/openapi-generator-dart/commit/da522d66daa8faf37db2398b023df6aa34bab2f5))
+* **generator:** add cleanOutputDirectory flag ([#19](https://github.com/gibahjoe/openapi-generator-dart/issues/19)) ([e12f1a1](https://github.com/gibahjoe/openapi-generator-dart/commit/e12f1a1279439758006c1b5c3fc7cef0c787cdc1))
+
+
+### Bug Fixes
+
+* Enhance OpenAPI generator with new features and improvements ([a0a2594](https://github.com/gibahjoe/openapi-generator-dart/commit/a0a2594deaab004e5e4e950413c885c5b666154b))
+* Remove deprecated skipIfSpecIsUnchanged and skipSpecDepMessage ([#193](https://github.com/gibahjoe/openapi-generator-dart/issues/193)) ([bc06852](https://github.com/gibahjoe/openapi-generator-dart/commit/bc068529d0f3a572db85cc4efe43e3b94feb9ee2))
+* Update deprecation message for skipSpecDepMessage and improve link in bug report template ([0892b56](https://github.com/gibahjoe/openapi-generator-dart/commit/0892b560650022e5aad55adc4eb68c8955f707ba))
+* update README for clarity and formatting; adjust generator arguments and caching logic ([2c85976](https://github.com/gibahjoe/openapi-generator-dart/commit/2c8597617eb90b1635404bae5ea2c20311d202bd))
+* updated analyzer and source_gen dependencies ([7b2b4b7](https://github.com/gibahjoe/openapi-generator-dart/commit/7b2b4b7c2ad63630692cd74be4ca68eda6793b43)), closes [#192](https://github.com/gibahjoe/openapi-generator-dart/issues/192)
+
 ## [6.1.0](https://github.com/gibahjoe/openapi-generator-dart/compare/v6.0.0...v6.1.0) (2024-12-15)
 
 
