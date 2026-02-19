@@ -193,7 +193,8 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
       // Notify build_runner of dependency on inputSpec
       var builderCanReadSpec = false;
       if (args.inputSpec is! annots.RemoteSpec &&
-          !path.isAbsolute(args.inputSpec.path)) {
+          !path.isAbsolute(args.inputSpec.path) &&
+          !path.normalize(args.inputSpec.path).startsWith('..')) {
         final maybeAssetId =
             AssetId(buildStep.inputId.package, args.inputSpec.path);
         // Check if asset can be read.  If so, build_runner will mark the asset
@@ -213,6 +214,19 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
             ),
           );
         }
+      } else if (args.inputSpec is! annots.RemoteSpec &&
+          path.normalize(args.inputSpec.path).startsWith('..')) {
+        logOutputMessage(
+          log: log,
+          communication: OutputMessage(
+            message: [
+              ':: Spec file [${args.inputSpec.path}] is outside the package root.',
+              ':: build_runner cannot track it as a dependency, so changes to the spec will not trigger automatic rebuilds.',
+              ':: Consider using an absolute path or moving the spec inside your package.',
+            ].join('\n'),
+            level: Level.WARNING,
+          ),
+        );
       }
 
       // Skip spec check removed - deprecated functionality

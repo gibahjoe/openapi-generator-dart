@@ -432,5 +432,42 @@ void main() {
         cleanup(workingDirectory);
       });
     });
+
+    group('#198', () {
+      // Regression test: spec paths using `..` traversal (outside the package
+      // root) must not throw `ArgumentError: Asset paths may not reach outside
+      // the package.` from build's AssetId constructor.
+      test(
+          'spec path with .. traversal does not throw AssetId ArgumentError',
+          () async {
+        final output = await generateFromSource(
+          '''
+@Openapi(
+  inputSpec: InputSpec(path: '../../spec/openapi/myyaml.yml'),
+  generatorName: Generator.dio,
+  outputDirectory: 'api/',
+  additionalProperties: DioProperties(pubName: 'myName', pubAuthor: 'myAuthor'),
+  runSourceGenOnOutput: true,
+)
+''',
+          // Supply a real spec file for the in-memory builder; the annotation
+          // path is what matters for the AssetId check.
+          openapiSpecFilePath: path.join(testSpecPath, 'openapi.test.yaml'),
+        );
+
+        expect(
+          output,
+          isNot(contains('Asset paths must be within the specified the package')),
+          reason:
+              'ArgumentError from AssetId should not be thrown for outside-package spec paths',
+        );
+        expect(
+          output,
+          contains('outside the package root'),
+          reason:
+              'A warning about outside-package spec should be logged instead',
+        );
+      });
+    });
   });
 }
