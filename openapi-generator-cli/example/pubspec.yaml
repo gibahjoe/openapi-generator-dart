@@ -1,4 +1,4 @@
-name: openapigeneratorexample
+name: openapigeneratorcliexample
 description: A new Flutter application.
 
 # The following defines the version and build number for your application.
@@ -14,7 +14,9 @@ description: A new Flutter application.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.12.0 <4.0.0"
+  sdk: ">=3.5.0 <4.0.0"
+
+resolution: workspace
 
 dependencies:
   flutter:

@@ -18,8 +18,9 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.15.0 <4.0.0"
+  sdk: ">=3.5.0 <4.0.0"
 
+resolution: workspace
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -30,7 +31,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  openapi_generator_annotations: ^6.0.0
+  openapi_generator_annotations: ^6.1.1
   # petstore_api:
   #   path: ./api/petstore_api
 
@@ -39,26 +40,18 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
-dependency_overrides:
-  openapi_generator:
-    path: ../openapi-generator
-  openapi_generator_annotations:
-    path: ../openapi-generator-annotations
-  openapi_generator_cli:
-    path: ../openapi-generator-cli
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner:
-  openapi_generator: ^6.0.0
+  openapi_generator: ^6.1.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.1
+  flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

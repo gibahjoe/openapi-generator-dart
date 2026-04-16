@@ -1,6 +1,16 @@
 name: openapi_generator_dart
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.5.0 <4.0.0'
+
+workspace:
+  - example
+  - example/api/petstore_api
+  - openapi-generator
+  - openapi-generator/example
+  - openapi-generator-annotations
+  - openapi-generator-cli
+  - openapi-generator-cli/example
+
 dev_dependencies:
   melos: 
