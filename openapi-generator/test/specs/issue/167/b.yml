@@ -1,4 +1,0 @@
-type: object
-properties:
-  optionB1:
-    type: string

@@ -4,13 +4,13 @@ environment:
   sdk: '>=3.5.0 <4.0.0'
 
 workspace:
-  - example
-  - example/api/petstore_api
-  - openapi-generator
-  - openapi-generator/example
-  - openapi-generator-annotations
-  - openapi-generator-cli
-  - openapi-generator-cli/example
+  - examples/example
+  - examples/example/api/petstore_api
+  - examples/openapi-generator-example
+  - examples/openapi-generator-cli-example
+  - packages/openapi-generator
+  - packages/openapi-generator-annotations
+  - packages/openapi-generator-cli
 
 dev_dependencies:
   melos: 
