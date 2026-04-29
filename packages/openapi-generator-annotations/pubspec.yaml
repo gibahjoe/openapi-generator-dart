@@ -1,0 +1,18 @@
+name: openapi_generator_annotations
+description: Annotation package for openapi_generator https://pub.dev/packages/openapi_generator.
+version: 6.1.1
+homepage: https://github.com/gibahjoe/openapi-generator-dart
+resolution: workspace
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  crypto: '>=3.0.6 <=4.0.0'
+  meta: '>=1.15.0 <=2.0.0'
+
+dev_dependencies:
+  test:
+  source_gen_test:
+  lint:
+  lints: ^6.0.0
