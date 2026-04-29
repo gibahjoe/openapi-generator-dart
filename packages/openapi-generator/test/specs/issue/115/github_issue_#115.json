@@ -1,0 +1,54 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "my-service",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "/my-service"
+    }
+  ],
+  "security": [
+    {
+      "Authorization": []
+    }
+  ],
+  "paths": {
+    "/api/v2/subscription/cancel": {
+      "delete": {
+        "tags": [
+          "subscription-v-2-controller"
+        ],
+        "operationId": "cancelSubscription_2",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "WechatPayRedirectToAndroidApp": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string"
+          },
+          "experts": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "package": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

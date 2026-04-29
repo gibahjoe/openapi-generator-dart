@@ -1,0 +1,11 @@
+type: object
+oneOf:
+  - $ref: './a.yml'
+  - $ref: './b.yml'
+discriminator:
+  propertyName: type
+required:
+  - type
+properties:
+  type:
+    $ref: './testType.yml'

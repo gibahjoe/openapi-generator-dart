@@ -1,0 +1,4 @@
+type: object
+properties:
+  optionA1:
+    type: string
