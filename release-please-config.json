@@ -6,15 +6,18 @@
   "packages": {
     "openapi-generator": {
       "package-name": "openapi_generator",
-      "component": "openapi_generator"
+      "component": "openapi_generator",
+      "release-as": "7.0.0"
     },
     "openapi-generator-annotations": {
       "package-name": "openapi_generator_annotations",
-      "component": "openapi_generator_annotations"
+      "component": "openapi_generator_annotations",
+      "release-as": "7.0.0"
     },
     "openapi-generator-cli": {
       "package-name": "openapi_generator_cli",
-      "component": "openapi_generator_cli"
+      "component": "openapi_generator_cli",
+      "release-as": "7.0.0"
     }
   },
   "plugins": [
