@@ -15,6 +15,7 @@ import 'utils.dart';
 /// we do not use mock process runner for github issues because we want to test
 /// that generated code compiles.
 /// If you do not want to generate the actual code, then you can initialise [MockProcessRunner] in the test
+@Timeout(Duration(minutes: 5))
 void main() {
   var processRunner = ProcessRunner();
   group('Github Issues', () {
