@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:openapi_generator/src/models/output_message.dart';
+import 'package:openapi_generator/src/utils.dart';
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 import 'package:yaml/yaml.dart';
 
@@ -15,6 +16,7 @@ final jsonRegex = RegExp(r'^.*.json$');
 final yamlRegex = RegExp(r'^.*(.ya?ml)$');
 
 final _supportedRegexes = [jsonRegex, yamlRegex];
+final _logger = Logger('openapi_generator.gen_on_spec_changes');
 
 /// Load the provided OpenApiSpec from the disk into an in-memory mapping.
 ///
@@ -32,7 +34,13 @@ FutureOr<Map<String, dynamic>> loadSpec(
     bool isCached = false,
     http.Client? client}) async {
   client ??= http.Client();
-  print('loadSpec - ' + specConfig.path);
+  logOutputMessage(
+    log: _logger,
+    communication: OutputMessage(
+      message: 'Loading OpenAPI spec from ${specConfig.path}',
+      level: Level.FINE,
+    ),
+  );
   // If the spec file doesn't match any of the currently supported spec formats
   // reject the request.
   if (!_supportedRegexes

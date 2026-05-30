@@ -124,8 +124,34 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     if (arguments.outputDirectory != null) {
       final outDir = Directory(arguments.outputDirectory!);
       // Clean the entire output directory when requested (#19)
-      if (arguments.cleanOutputDirectory && outDir.existsSync()) {
-        outDir.deleteSync(recursive: true);
+      if (arguments.cleanOutputDirectory) {
+        final projectDirectory = Directory.current.resolveSymbolicLinksSync();
+        final outputDirectory = outDir.existsSync()
+            ? outDir.resolveSymbolicLinksSync()
+            : path.normalize(path.absolute(outDir.path));
+        final isRootDirectory =
+            path.equals(outputDirectory, path.rootPrefix(outputDirectory));
+        final isProjectDirectory =
+            path.equals(outputDirectory, projectDirectory);
+        final isProjectParentDirectory =
+            path.isWithin(outputDirectory, projectDirectory);
+        if (isRootDirectory || isProjectDirectory || isProjectParentDirectory) {
+          return Future.error(
+            OutputMessage(
+              message: [
+                'Refusing to clean outputDirectory because it would delete the current project, a parent directory, or a filesystem root.',
+                'Set outputDirectory to a dedicated generated output directory before using cleanOutputDirectory.',
+              ].join('\n'),
+              level: Level.SEVERE,
+              additionalContext:
+                  'outputDirectory: $outputDirectory\nprojectDirectory: $projectDirectory',
+              stackTrace: StackTrace.current,
+            ),
+          );
+        }
+        if (outDir.existsSync()) {
+          outDir.deleteSync(recursive: true);
+        }
       }
       if (!outDir.existsSync()) {
         outDir.createSync(recursive: true);
@@ -200,7 +226,7 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
         log: log,
         communication: OutputMessage(
           message:
-              'Using a remote specification, a cache will still be created but may be outdated.',
+              'Using a remote specification. build_runner cannot track remote spec changes automatically, so rerun the generator when the remote spec changes.',
           level: Level.WARNING,
         ),
       );
@@ -411,12 +437,14 @@ class OpenapiGenerator extends GeneratorForAnnotation<annots.Openapi> {
     );
 
     if (results.exitCode != 0) {
-      print('===> args ${args.jarArgs}');
       return Future.error(
         OutputMessage(
           message: 'Failed to generate source code. Build Command output:',
           level: Level.SEVERE,
-          additionalContext: results.stderr,
+          additionalContext: [
+            results.stderr,
+            'Generator arguments: ${args.jarArgs.join(' ')}',
+          ].where((message) => message.toString().isNotEmpty).join('\n'),
           stackTrace: StackTrace.current,
         ),
       );

@@ -183,7 +183,7 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
         expect(
             generatedOutput,
             contains(
-                'Using a remote specification, a cache will still be created but may be outdated.'));
+                'Using a remote specification. build_runner cannot track remote spec changes automatically'));
       });
 
       test('when the spec is dirty', () async {
@@ -305,6 +305,58 @@ class TestClassConfig extends OpenapiGeneratorConfig {}
         if (dirToClean.existsSync()) {
           dirToClean.deleteSync(recursive: true);
         }
+      });
+
+      test('allows cleanOutputDirectory outside the current project', () async {
+        openapiSpecCache
+            .writeAsStringSync(jsonEncode({'someKey': 'someValue'}));
+        final externalDir =
+            Directory.systemTemp.createTempSync('openapi-generator-clean-');
+        final sentinelFile = File('${externalDir.path}/stale_generated.dart')
+          ..writeAsStringSync('// stale code');
+
+        await generateFromAnnotation(
+          Openapi(
+            inputSpec: RemoteSpec(path: specPath),
+            generatorName: Generator.dart,
+            cachePath: openapiSpecCache.path,
+            outputDirectory: externalDir.path,
+            cleanOutputDirectory: true,
+          ),
+          process: mockProcess,
+        );
+
+        expect(sentinelFile.existsSync(), isFalse,
+            reason:
+                'cleanOutputDirectory: true should allow dedicated external output folders');
+        expect(externalDir.existsSync(), isTrue,
+            reason: 'external outputDirectory should be recreated after clean');
+
+        if (externalDir.existsSync()) {
+          externalDir.deleteSync(recursive: true);
+        }
+      });
+
+      test('refuses to clean the current project directory', () async {
+        final output = await generateFromAnnotation(
+          Openapi(
+            inputSpec: const InputSpec(path: 'test/specs/openapi.test.json'),
+            generatorName: Generator.dart,
+            outputDirectory: Directory.current.path,
+            cleanOutputDirectory: true,
+          ),
+          process: mockProcess,
+        );
+
+        expect(
+          output,
+          contains(
+              'Refusing to clean outputDirectory because it would delete the current project, a parent directory, or a filesystem root.'),
+        );
+        verifyNever(mockProcess.run(any, any,
+            environment: anyNamed('environment'),
+            workingDirectory: anyNamed('workingDirectory'),
+            runInShell: anyNamed('runInShell')));
       });
 
       test('does not add generated comment by default', () async {

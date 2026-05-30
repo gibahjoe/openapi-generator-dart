@@ -1,20 +1,56 @@
 name: Stable release 🕊️📦✅
 
 on:
-  release:
-    types:
-      - released # Trigger on stable releases
-      - prereleased # Trigger on pre-releases (optional)
-  workflow_dispatch: # Allow manual triggering
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
 
 jobs:
+  detect_packages:
+    name: Detect packages for tag
+    runs-on: ubuntu-latest
+    outputs:
+      annotations: ${{ steps.detect.outputs.annotations }}
+      cli: ${{ steps.detect.outputs.cli }}
+      generator: ${{ steps.detect.outputs.generator }}
+      tag_version: ${{ steps.detect.outputs.tag_version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: detect
+        name: Match package versions to tag
+        run: |
+          tag_version="${GITHUB_REF_NAME#v}"
+
+          version_for() {
+            grep '^version:' "$1/pubspec.yaml" | awk '{print $2}' | tr -d "\"'"
+          }
+
+          annotations_version="$(version_for openapi-generator-annotations)"
+          cli_version="$(version_for openapi-generator-cli)"
+          generator_version="$(version_for openapi-generator)"
+
+          echo "tag_version=$tag_version" >> "$GITHUB_OUTPUT"
+          echo "annotations=$([ "$annotations_version" = "$tag_version" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "cli=$([ "$cli_version" = "$tag_version" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "generator=$([ "$generator_version" = "$tag_version" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "Tag version: $tag_version"
+            echo "openapi-generator-annotations: $annotations_version"
+            echo "openapi-generator-cli: $cli_version"
+            echo "openapi-generator: $generator_version"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   test:
     uses: gibahjoe/openapi-generator-dart/.github/workflows/code_quality.yml@master
     secrets: inherit # Reuse repository secrets
 
   publish_annotations:
     name: Publish Annotations Package
-    needs: [test]
+    needs: [detect_packages, test]
+    if: ${{ needs.detect_packages.outputs.annotations == 'true' }}
     permissions:
       id-token: write # Required for authentication using OIDC
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
@@ -23,7 +59,8 @@ jobs:
 
   publish_cli:
     name: Publish CLI Package
-    needs: [test]
+    needs: [detect_packages, test]
+    if: ${{ needs.detect_packages.outputs.cli == 'true' }}
     permissions:
       id-token: write # Required for authentication using OIDC
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
@@ -32,7 +69,13 @@ jobs:
 
   publish_generator:
     name: Publish Generator Package
-    needs: [publish_cli, publish_annotations]
+    needs: [detect_packages, test, publish_cli, publish_annotations]
+    if: >
+      always() &&
+      needs.detect_packages.outputs.generator == 'true' &&
+      needs.test.result == 'success' &&
+      (needs.publish_cli.result == 'success' || needs.publish_cli.result == 'skipped') &&
+      (needs.publish_annotations.result == 'success' || needs.publish_annotations.result == 'skipped')
     permissions:
       id-token: write # Required for authentication using OIDC
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1

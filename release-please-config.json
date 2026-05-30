@@ -1,27 +1,30 @@
 {
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "include-component-in-tag": false,
+  "release-type": "dart",
+  "always-update": true,
   "packages": {
     "openapi-generator": {
-      "release-type": "dart",
-      "component": "openapi-generator"
+      "package-name": "openapi_generator",
+      "component": "openapi_generator"
     },
     "openapi-generator-annotations": {
-      "release-type": "dart",
-      "component": "openapi-generator-annotations"
+      "package-name": "openapi_generator_annotations",
+      "component": "openapi_generator_annotations"
     },
     "openapi-generator-cli": {
-      "release-type": "dart",
-      "component": "openapi-generator-cli"
+      "package-name": "openapi_generator_cli",
+      "component": "openapi_generator_cli"
     }
   },
   "plugins": [
     {
       "type": "linked-versions",
-      "groupName": "openapi generator",
+      "groupName": "openapi_generator",
       "components": [
-        "openapi-generator",
-        "openapi-generator-annotations",
-        "openapi-generator-cli"
+        "openapi_generator",
+        "openapi_generator_annotations",
+        "openapi_generator_cli"
       ]
     }
   ]

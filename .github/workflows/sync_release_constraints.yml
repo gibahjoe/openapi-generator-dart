@@ -1,0 +1,79 @@
+name: Sync release dependency constraints
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    branches:
+      - master
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    if: >
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.head_ref == 'release-please--branches--master'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.OG_BOT_TOKEN }}
+
+      - uses: dart-lang/setup-dart@v1
+
+      - name: Install workspace dependencies
+        run: dart pub get
+
+      - name: Sync workspace dependency constraints
+        run: |
+          release_version=$(jq -r '
+            [
+              ."openapi-generator",
+              ."openapi-generator-annotations",
+              ."openapi-generator-cli"
+            ] | unique | if length == 1 then .[0] else empty end
+          ' .release-please-manifest.json)
+
+          if [ -z "$release_version" ]; then
+            echo "Release Please produced different package versions:" >&2
+            jq . .release-please-manifest.json >&2
+            exit 1
+          fi
+
+          # melos.yaml limits `melos version` to master. This job runs on the
+          # release-please branch, so remove the restriction only for this run.
+          perl -0pi -e 's/\n\s*# Only allow versioning to happen on main branch\.\n\s*branch: master\n/\n/' melos.yaml
+
+          dart run melos version \
+            --manual-version openapi_generator:$release_version \
+            --manual-version openapi_generator_annotations:$release_version \
+            --manual-version openapi_generator_cli:$release_version \
+            --scope openapi_generator \
+            --scope openapi_generator_annotations \
+            --scope openapi_generator_cli \
+            --no-dependent-versions \
+            --no-changelog \
+            --no-git-commit-version \
+            --yes
+
+      - name: Commit synced constraints
+        run: |
+          git checkout -- melos.yaml pubspec.lock example/pubspec.lock || true
+          git add openapi-generator/pubspec.yaml
+
+          if git diff --cached --quiet; then
+            echo "No dependency constraint changes."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: sync release dependency constraints"
+          git push

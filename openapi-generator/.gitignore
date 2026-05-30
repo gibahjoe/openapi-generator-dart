@@ -173,4 +173,4 @@ test/specs/localstack/**
 test/specs/output-nextgen/**
 **/*.mocks.dart
 
-test/specs/issue
+test/specs/issue/**/output
