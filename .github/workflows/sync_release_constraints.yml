@@ -26,10 +26,12 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.OG_BOT_TOKEN }}
 
-      - uses: dart-lang/setup-dart@v1
+      - uses: subosito/flutter-action@v2
 
-      - name: Install workspace dependencies
-        run: dart pub get --no-example
+      - uses: bluefireteam/melos-action@v3
+
+      - name: Install dependencies
+        run: melos exec -- "dart pub get"
 
       - name: Sync workspace dependency constraints
         run: |
@@ -56,7 +58,7 @@ jobs:
             s/(workspaceChangelog: true\n)(?!\s*fetchTags: false)/$1    fetchTags: false\n/;
           ' melos.yaml
 
-          dart run melos version \
+          melos version \
             --manual-version openapi_generator:$release_version \
             --manual-version openapi_generator_annotations:$release_version \
             --manual-version openapi_generator_cli:$release_version \
