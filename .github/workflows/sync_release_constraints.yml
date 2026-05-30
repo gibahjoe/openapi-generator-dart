@@ -29,7 +29,7 @@ jobs:
       - uses: dart-lang/setup-dart@v1
 
       - name: Install workspace dependencies
-        run: dart pub get
+        run: dart pub get --no-example
 
       - name: Sync workspace dependency constraints
         run: |
