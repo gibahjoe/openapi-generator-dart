@@ -49,7 +49,12 @@ jobs:
 
           # melos.yaml limits `melos version` to master. This job runs on the
           # release-please branch, so remove the restriction only for this run.
-          perl -0pi -e 's/\n\s*# Only allow versioning to happen on main branch\.\n\s*branch: master\n/\n/' melos.yaml
+          # Disable tag fetching too, since Actions checks out the PR branch
+          # without upstream tracking and Melos otherwise runs `git pull --tags`.
+          perl -0pi -e '
+            s/\n\s*# Only allow versioning to happen on main branch\.\n\s*branch: master\n/\n/;
+            s/(workspaceChangelog: true\n)(?!\s*fetchTags: false)/$1    fetchTags: false\n/;
+          ' melos.yaml
 
           dart run melos version \
             --manual-version openapi_generator:$release_version \
